@@ -544,7 +544,7 @@ const PLAN_GROUPS=certGroups(CERT_PLAN).concat([["",[CERT_PLAN.length]]]);
 const Q = [
  {id:"ag",ch:0,big:1,q:"먼저, 나이대를 골라 주세요",hint:"가볍게 시작해요. 고른 나이에 맞는 질문만 이어져요",o:[["10대",{growth:1}],["20대",{growth:1}],["30대",{}],["40대 이상",{stable:1}]]},
  {id:"sit",ch:0,vis:sitVis,q:"지금 상황에 가장 가까운 건?",o:[["취업 준비 중 (아직 첫 직장 전)",{},{sit:"job"}],["다니는 중인데 이직을 고민 중",{},{sit:"move"}],["그만두고 쉬는 중",{fast:1},{sit:"gap"}],["일은 하는데 아무 의욕이 없다",{},{sit:"slump"}],["완전히 다른 분야로 바꾸고 싶다",{growth:1},{sit:"switch"}],["군 복무 중이거나 막 전역했다",{},{sit:"mil"}],["고등학생이다",{},{sit:"hs"}],["대학(전문대 포함) 재학 중이다",{},{sit:"col"}],["중학생이다",{growth:1},{sit:"ms"}],["학교를 그만뒀다 (자퇴·학교 밖)",{},{sit:"drop"}],["재수·N수 준비 중이다",{mind:1},{sit:"retake"}],["육아 등으로 쉬다가 다시 일하려 한다",{},{sit:"gap",brk:1}]]},
- {id:"cur",cond:NOTY,ch:0,groups:[["현장·기술",[0,1,6,7,11,9]],["사무·IT·영업",[2,3,5]],["교육·돌봄",[4,10,8]],["",[12]]],q:"지금 하는 일 (쉬는 중이면 마지막으로 한 일)은?",hint:"이직·전환을 원하면 같은 분야는 추천에서 뒤로 미룹니다",o:[["보안·경비",{},{cur:"sec"}],["생산·제조",{},{cur:"fac"}],["사무·행정",{},{cur:"off"}],["영업·판매·상담",{},{cur:"sal"}],["체육·교육",{},{cur:"spo"}],["IT·개발",{},{cur:"it"}],["기술·설비",{},{cur:"tec"}],["물류·운송",{},{cur:"log"}],["돌봄·의료",{},{cur:"car"}],["군인 (병·부사관·장교)",{},{cur:"mil"}],["교육·강사",{},{cur:"edu"}],["청소·미화·환경",{},{cur:"env"}],["일해본 적 없음 / 기타",{}]]},
+ {id:"cur",etc:1,cond:NOTY,ch:0,groups:[["현장·기술",[0,1,6,7,11,9]],["사무·IT·영업·서비스",[2,3,5,12]],["교육·돌봄",[4,10,8]],["",[13,14]]],q:"지금 하는 일 (쉬는 중이면 마지막으로 한 일)은?",hint:"이직·전환을 원하면 같은 분야는 추천에서 뒤로 미룹니다",o:[["보안·경비",{},{cur:"sec"}],["생산·제조",{},{cur:"fac"}],["사무·행정",{},{cur:"off"}],["영업·판매·상담",{},{cur:"sal"}],["체육·교육",{},{cur:"spo"}],["IT·개발",{},{cur:"it"}],["기술·설비",{},{cur:"tec"}],["물류·운송",{},{cur:"log"}],["돌봄·의료",{},{cur:"car"}],["군인 (병·부사관·장교)",{},{cur:"mil"}],["교육·강사",{},{cur:"edu"}],["청소·미화·환경",{},{cur:"env"}],["매장·서비스·요식 (카페·식당·편의점)",{},{cur:"svc"}],["일해본 적 없음",{}],["기타 (아래 칸에 직접 적기)",{}]]},
  {id:"age",cond:()=>false,ch:0,q:"나이대는?",o:[["10대",{growth:1}],["20대 초반 (~23)",{growth:1}],["20대 중반 (24~26)",{}],["20대 후반 (27~29)",{}],["30대 초반",{}],["30대 후반",{stable:1}],["40대 이상",{stable:1}]]},
  {id:"edu",cond:NOTY,ch:0,q:"최종 학력은?",o:[["고졸",{}],["전문대 졸",{}],["4년제 졸",{}],["대학원 이상",{mind:1}],["고등학교 재학·졸업 예정",{}],["대학 재학 중",{}]]},
  {id:"major",cond:NOTY,ch:0,q:"전공(또는 가장 오래 공부한 분야)은?",hint:"가장 가까운 학과를 골라 주세요",groups:MAJOR_GROUPS,o:MAJORS},
@@ -1141,14 +1141,16 @@ const OPENG={}, OPENP={};
 function openG(q,gi,hasSel){ if(OPENG[q.id]!=null) return OPENG[q.id]===gi; return !q.multi && hasSel>0; }
 // '기타' 직접 입력: 목록에 있으면 찾아서 체크, 없으면 이 기기에 적어 두고 (동의했으면) 이름만 익명으로 보내 다음 업데이트 때 목록에 넣는다
 const ETCN=t=>String(t||"").replace(/\([^)]*\)/g,"").replace(/[\s·.,/~\-_()]/g,"").toLowerCase();
+const ETCA_CUR={"태권도":"체육","도장":"체육","사범":"체육","헬스":"체육","트레이너":"체육","코치":"체육","네일":"매장","미용":"매장","헤어":"매장","알바":"매장","아르바이트":"매장","카페":"매장","바리스타":"매장","편의점":"매장","서빙":"매장","식당":"매장","주방":"매장","배달":"물류","택배":"물류","공장":"생산","생산직":"생산","경비원":"보안","보안요원":"보안","콜센터":"상담","간호":"돌봄","요양":"돌봄","학원":"교육","과외":"교육"};
 const ETCA={"컴활":"컴퓨터활용능력","정처기":"정보처리","정처산기":"정보처리","정보처리기사":"정보처리","한국사":"한국사능력검정","한능검":"한국사능력검정","간조":"간호조무사","요보사":"요양보호사","전기기사":"전기","전기산업기사":"전기","공인중개":"공인중개사","사복":"사회복지사","9급":"공무원","순경":"경찰","소방공무원":"소방","운전면허":"운전면허","운전병":"운전면허","1종":"운전면허","2종":"운전면허","프로그래머":"IT","개발자":"IT","코딩":"IT","유튜버":"콘텐츠","크리에이터":"콘텐츠"};
 function etcFind(q,txt){
   let n=ETCN(txt); if(n.length<2) return -1;
-  const al=Object.keys(ETCA).find(a=>n===ETCN(a)||n.startsWith(ETCN(a))); if(al) n=ETCN(ETCA[al]);
-  const bad=k=>q.none===k||/^(아직 없다|딱히 없|해당 없|없음)/.test(q.o[k][0]);
+  const AL=q.id==="cur"?Object.assign({},ETCA,ETCA_CUR):ETCA;
+  const al=Object.keys(AL).find(a=>n===ETCN(a)||n.startsWith(ETCN(a))||(q.id==="cur"&&n.includes(ETCN(a)))); if(al) n=ETCN(AL[al]);
+  const bad=k=>q.none===k||/^(아직 없다|딱히 없|해당 없|없음|일해본 적 없음|기타)/.test(q.o[k][0]);
   let best=-1, bl=1e9;
   q.o.forEach((o,k)=>{ if(bad(k)) return; const l=ETCN(o[0]); if(!l) return;
-    const hit=l===n||l.includes(n)||(n.includes(l)&&l.length>=2);
+    const hit=l===n||l.includes(n)||(n.includes(l)&&l.length>=2)||(q.id==="cur"&&o[0].replace(/\([^)]*\)/g,"").split(/[·\s/]+/).some(w=>{const tw=ETCN(w);return tw.length>=2&&n.includes(tw);}));
     let alt=false; if(!hit&&q.id==="goal"&&o[2]&&o[2].goal) alt=(JOBS[o[2].goal]||[]).some(j=>{ const jn=ETCN(j); return jn===n||jn.includes(n)||(n.includes(jn)&&jn.length>=2); });
     if((hit||alt)&&l.length<bl){ best=k; bl=l.length; } });
   return best;
@@ -1204,6 +1206,7 @@ function question(){
       st.ans[q.id]=arr; save(); const y=window.scrollY; question(); window.scrollTo({top:y}); const nb=app.querySelector(`.opt[data-k="${k}"]`); if(nb) nb.focus({preventScroll:true}); drawTrail();}
     else{st.ans[q.id]=k;
       if(q.id==="ag"){ st.ans.age=AGEMAP[k]; const sv=SITVIS[k]; if(st.ans.sit!=null && !sv.includes(st.ans.sit)) delete st.ans.sit; }
+      if(q.etc && /^기타/.test(q.o[k][0])){ save(); const y=window.scrollY; question(); window.scrollTo({top:y}); const ei=document.getElementById("etcIn"); if(ei){ if(ei.focus) ei.focus(); const m=document.getElementById("etcMsg"); if(m) m.textContent="하는 일을 적고 확인을 누르면 가장 가까운 분야로 맞춰 드려요."; } return; }
       save(); setTimeout(advance,160); b.classList.add("sel");}
   });
   const eg=document.getElementById("etcGo"), ei=document.getElementById("etcIn");
@@ -1216,6 +1219,7 @@ function question(){
         st.etc=Object.assign({},st.etc,{[q.id]:""}); save(); const y=window.scrollY; question(); window.scrollTo({top:y});
         const m2=document.getElementById("etcMsg"); if(m2) m2.textContent=`목록에 있어요: '${q.o[k][0]}'에 체크해 뒀어요.`;
       } else {
+        if(!q.multi){ const ki=q.o.findIndex(o=>/^기타/.test(o[0])); if(ki>=0) st.ans[q.id]=ki; }
         st.etc=Object.assign({},st.etc,{[q.id]:t}); save();
         track({type:"etc",q:q.id,t});
         msg.textContent="아직 목록에 없어요. 적어 주신 이름을 기록해 두고 다음 업데이트 때 넣을게요. 지금은 가장 가까운 걸 골라 주세요.";

@@ -7,7 +7,7 @@ import { SITS, PATHS, FB, json, ensure, SCHEMA, kstAt } from "../_lib/common.js"
 export { ensure, SCHEMA };
 const ST_TTL = 731 * 86400; // KV 날짜별 숫자는 2년 보관
 const TYPES = ["visit", "start", "finish", "feedback", "copy", "miss", "leave", "etc"];
-const ETC_Q = ["goal", "cert", "plan"]; // '기타'에 직접 적은 직업·자격 이름 (목록에 없던 것만)
+const ETC_Q = ["goal", "cert", "plan", "cur"]; // '기타'에 직접 적은 직업·자격 이름 (목록에 없던 것만)
 const inc = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
 const incCap = (st, name, key, cap = 80) => { const o = st[name] = st[name] || {}; if (Object.keys(o).length < cap || o[key]) inc(o, key); };
 
