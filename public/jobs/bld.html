@@ -33,7 +33,14 @@ h1{font-size:28px;font-weight:800;letter-spacing:-.035em}h2{font-size:20px;font-
 .cta{border-radius:14px;padding:17px}
 .chips a{border:0;background:var(--surface);box-shadow:0 0 0 1.5px var(--line) inset;padding:8px 14px}
 table{border-radius:14px;overflow:hidden}th{background:var(--soft)}
-a{text-underline-offset:3px}</style></head><body><div class="w">
+a{text-underline-offset:3px}
+/* 펜팔 우표 (2026-10-22): 요약 상자를 우표 톱니 테두리로, 오늘 날짜 소인 */
+.sum{background:#E6F4EC;border:12px solid var(--surface);border-radius:0;padding:14px 12px;box-shadow:none;
+ -webkit-mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;
+ mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;filter:drop-shadow(0 0 1px #D5DAE0)}
+@media (prefers-color-scheme:dark){.sum{background:#1E3A2D}}
+h1{position:relative}
+.cta{position:relative}.cta::after{content:"₩0";position:absolute;right:16px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:12px;border:2px solid currentColor;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;opacity:.8}</style></head><body><div class="w">
 <header><a class="logo" href="/"><svg width="26" height="32" viewBox="0 30 220 230" aria-hidden="true"><rect x="95" y="38" width="30" height="40" rx="5" fill="#A82E25"/><path d="M8 62 C70 46 150 44 214 60" fill="none" stroke="var(--wood)" stroke-width="16" stroke-linecap="round"/><rect x="94" y="47" width="32" height="18" rx="4" fill="#D23F33"/><rect x="99" y="64" width="22" height="13" rx="5" fill="#A82E25"/><path d="M118 74 C128 92 131 108 136 124 L127 119 L123 128 C120 108 116 92 110 76 Z" fill="#A82E25"/><path d="M95 75 L123 75 C125 130 126 190 128 254 L112 239 L94 256 C95 190 95 130 95 75 Z" fill="#D23F33"/></svg><span>표지기<small>길 잃은 사람을 위한 리본</small></span></a><a href="/jobs/">직업 안내</a></header>
 <nav class="src" aria-label="현재 위치"><a href="/">표지기</a> › <a href="/jobs/">직업별 안내</a> › 건설·인테리어 기능</nav>
 <h1>건설·인테리어 기능 되는 법</h1><p class="lede">건설·인테리어 기능 (도배·타일·목공·배관) · 기술·현장</p>
@@ -45,5 +52,5 @@ a{text-underline-offset:3px}</style></head><body><div class="w">
 <h2>오늘 해 볼 것</h2><ul><li>도배·타일·목공 중 하나를 골라 국비 기능 과정 기간과 비용을 확인해 보세요.</li><li>인테리어 현장 보조 하루를 해 보고 몸 상태와 흥미를 기록하기</li><li><a href="https://www.youtube.com/results?search_query=%EB%8F%84%EB%B0%B0%EC%82%AC%20%ED%98%84%EC%8B%A4" rel="noopener">현직자 영상 보기 (유튜브)</a></li></ul>
 <a class="cta" href="/?src=job-bld">이 길이 나한테 맞는지 20분 검사로 확인하기</a>
 <h2>같은 분야 다른 직업</h2><div class="chips"><a href="/jobs/sec.html">시설·첨단 보안직</a><a href="/jobs/fac.html">반도체·제조 생산직</a><a href="/jobs/tec.html">전기·설비 기술직</a><a href="/jobs/log.html">물류·운송</a><a href="/jobs/avs.html">공항·항만 특수보안</a><a href="/jobs/arc.html">건축·토목 기술직</a><a href="/jobs/rail.html">철도·지하철 기술직</a><a href="/jobs/avi.html">항공정비사</a><a href="/jobs/aut.html">자동차 정비</a><a href="/jobs/env.html">환경공무관(환경미화원)·미화·시설관리</a></div>
-<footer><nav aria-label="사이트 링크"><a href="/">20분 진로 검사</a><a href="/jobs/">직업별 안내</a><a href="/for/">상황별 안내</a><a href="/privacy.html">개인정보 처리방침</a><a href="/#ask">문의</a></nav><p>연봉·일정은 출처 기준이며 바뀔 수 있어요. 마지막 확인 2026-10-22.</p></footer>
+<footer><nav aria-label="사이트 링크"><a href="/">20분 진로 검사</a><a href="/jobs/">직업별 안내</a><a href="/for/">상황별 안내</a><a href="/guide/">진로 가이드</a><a href="/privacy.html">개인정보 처리방침</a><a href="/#ask">문의</a></nav><p>연봉·일정은 출처 기준이며 바뀔 수 있어요. 마지막 확인 2026-10-22.</p></footer>
 </div></body></html>
