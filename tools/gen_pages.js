@@ -14,7 +14,7 @@ const prepTxt = m => m <= 1 ? '1개월 이내' : m <= 3 ? '1~3개월' : m <= 6 ?
 const yt = k => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(M.YTQ[k] || '');
 const P = Object.fromEntries(M.PATHS.map(p => [p.key, p]));
 
-const CSS = `:root{--bg:#EEF0EA;--surface:#FAFBF7;--ink:#1D2B24;--muted:#5D6B63;--line:#D3D9CF;--pine:#24543F;--soft:#E3EBE2;--blaze:#F3E3C3;--wood:#6B5442}
+const CSS = `.srcl{font-size:12px;color:var(--muted)}:root{--bg:#EEF0EA;--surface:#FAFBF7;--ink:#1D2B24;--muted:#5D6B63;--line:#D3D9CF;--pine:#24543F;--soft:#E3EBE2;--blaze:#F3E3C3;--wood:#6B5442}
 @media (prefers-color-scheme:dark){:root{--bg:#121A16;--surface:#1A241F;--ink:#E6ECE6;--muted:#9AA89F;--line:#2E3B34;--pine:#7FB89A;--soft:#22302A;--blaze:#3A3020;--wood:#B89A80}}
 *{box-sizing:border-box}html,body{overflow-x:clip}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;word-break:keep-all;overflow-wrap:anywhere}
 .w{max-width:720px;margin:0 auto;padding:20px 16px 48px}a{color:var(--pine)}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
@@ -63,7 +63,7 @@ ${blocks.map(ldTag).join('\n')}<style>${CSS}</style></head><body><div class="w">
 <header><a class="logo" href="/">${LOGO}<span>표지기<small>길 잃은 사람을 위한 리본</small></span></a><a href="/jobs/">직업 안내</a></header>
 ${crumbs ? `<nav class="src" aria-label="현재 위치">${crumbHtml(crumbs)}</nav>` : ''}
 ${body}
-<footer><nav aria-label="사이트 링크"><a href="/">20분 진로 검사</a><a href="/jobs/">직업별 안내</a><a href="/for/">상황별 안내</a><a href="/privacy.html">개인정보 처리방침</a><a href="/#ask">문의</a></nav>${foot ? `<p>연봉·일정은 출처 기준이며 바뀔 수 있어요. 마지막 확인 ${TODAY}.</p>` : ''}</footer>
+<footer><nav aria-label="사이트 링크"><a href="/">20분 진로 검사</a><a href="/jobs/">직업별 안내</a><a href="/for/">상황별 안내</a>${HAS_GUIDE() ? '<a href="/guide/">진로 가이드</a>' : ''}<a href="/privacy.html">개인정보 처리방침</a><a href="/#ask">문의</a></nav>${foot ? `<p>연봉·일정은 출처 기준이며 바뀔 수 있어요. 마지막 확인 ${TODAY}.</p>` : ''}</footer>
 </div></body></html>`;
 }
 
@@ -251,8 +251,42 @@ function privacy() {
     crumbs: [['표지기', '/'], ['개인정보 처리방침', url]] });
 }
 
+// ---------- 가이드 (content/guides/*.md) ----------
+// 형식: 맨 위 'title: ', 'desc: ', 'h1: ' 줄, 빈 줄 뒤 본문(마크다운 일부: ## / ### 제목, - 목록, 1. 목록, **굵게**, [출처: URL]).
+// '## 자주 묻는 질문' 아래 '**Q. ...**' / 'A. ...' 는 FAQPage 구조화 데이터로도 넣어요.
+const GDIR = path.join(__dirname, '..', 'content', 'guides');
+function HAS_GUIDE() { return fs.existsSync(GDIR) && fs.readdirSync(GDIR).some(f => f.endsWith('.md')); }
+const inl = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+  .replace(/\[출처: (https?:\/\/[^\]\s]+)\]/g, (m, u) => ` <a class="srcl" href="${u}" rel="noopener nofollow">[출처]</a>`).replace(/\[출처: 위와 같음\]/g, '')
+  .replace(/(^|\s)(https?:\/\/[^\s<]+)/g, (m, a, u) => `${a}<a href="${u}" rel="noopener">${u.replace(/^https?:\/\/(www\.|m\.)?/, '').replace(/\/.*$/, '')}</a>`);
+function md(src) {
+  const out = []; let list = null;
+  const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  for (const raw of src.split('\n')) {
+    const l = raw.trimEnd();
+    if (!l.trim()) { close(); continue; }
+    let m;
+    if ((m = l.match(/^(#{2,4})\s+(.*)$/))) { close(); const n = Math.min(m[1].length, 3); out.push(`<h${n}>${inl(m[2])}</h${n}>`); continue; }
+    if ((m = l.match(/^\s*-\s+(.*)$/))) { if (list !== 'ul') { close(); out.push('<ul>'); list = 'ul'; } out.push(`<li>${inl(m[1])}</li>`); continue; }
+    if ((m = l.match(/^\s*\d+\.\s+(.*)$/))) { if (list !== 'ol') { close(); out.push('<ol>'); list = 'ol'; } out.push(`<li>${inl(m[1])}</li>`); continue; }
+    close(); out.push(`<p>${inl(l)}</p>`);
+  }
+  close(); return out.join('\n');
+}
+function guidePage(file) {
+  const raw = fs.readFileSync(path.join(GDIR, file), 'utf8');
+  const [head, ...rest] = raw.split(/\n\s*\n/); const body = rest.join('\n\n');
+  const meta = {}; for (const l of head.split('\n')) { const m = l.match(/^(\w+):\s*(.*)$/); if (m) meta[m[1]] = m[2].trim(); }
+  if (!meta.title || !meta.desc || !meta.h1) throw new Error('가이드 머리말 누락: ' + file);
+  const slug = file.replace(/\.md$/, ''), url = `/guide/${slug}.html`;
+  const faq = []; const fm = body.split(/##\s*자주 묻는 질문/)[1] || '';
+  for (const m of fm.matchAll(/\*\*Q\.\s*(.+?)\*\*\s*\n\s*A\.\s*(.+)/g)) faq.push({ '@type': 'Question', name: m[1].trim(), acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/\[출처:[^\]]*\]/g, '').trim() } });
+  const html = `<h1>${esc(meta.h1)}</h1>${md(body)}<a class="cta" href="/?src=guide-${slug}">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`;
+  return { url, h1: meta.h1, html: page({ url, title: `${meta.title} | 표지기`, desc: meta.desc, body: html, ld: faq.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq }] : [], crumbs: [['표지기', '/'], ['진로 가이드', '/guide/'], [meta.h1, url]] }) };
+}
+
 // ---------- 쓰기 ----------
-for (const d of ['jobs', 'for']) { fs.rmSync(path.join(OUT, d), { recursive: true, force: true }); fs.mkdirSync(path.join(OUT, d)); }
+for (const d of ['jobs', 'for', 'guide']) { fs.rmSync(path.join(OUT, d), { recursive: true, force: true }); fs.mkdirSync(path.join(OUT, d)); }
 const written = {}; // url -> html (검사용)
 const put = (url, file, h) => { fs.writeFileSync(path.join(OUT, file), h); written[url] = h; };
 const pages = [];
@@ -274,6 +308,16 @@ const collection = (url, name, desc, items) => ({ '@context': 'https://schema.or
     ld: [collection('/for/', '상황별 안내', desc, sitPages)],
     body: `<h1>상황별 안내</h1><ul>${SIT.map(s => `<li><a href="/for/${s[0]}.html">${esc(s[1])}</a></li>`).join('')}</ul><a class="cta" href="/?src=for">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`,
     crumbs: [['표지기', '/'], ['상황별 안내', '/for/']] }));
+}
+const guidePages = fs.existsSync(GDIR) ? fs.readdirSync(GDIR).filter(f => f.endsWith('.md')).sort().map(guidePage) : [];
+for (const g of guidePages) { put(g.url, g.url, g.html); pages.push(g.url); }
+if (guidePages.length) {
+  const desc = '국민내일배움카드, 청년 지원, 고졸 취업, 전공 고민처럼 10대·20대 초가 많이 찾는 진로 정보를 공식 출처로 정리했어요.';
+  put('/guide/', 'guide/index.html', page({ url: '/guide/', title: '10대·20대 초 진로 가이드 (지원 제도·취업 준비) | 표지기', desc, type: 'website', article: false,
+    ld: [collection('/guide/', '진로 가이드', desc, guidePages)],
+    body: `<h1>진로 가이드</h1><ul>${guidePages.map(g => `<li><a href="${g.url}">${esc(g.h1)}</a></li>`).join('')}</ul><a class="cta" href="/?src=guide">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`,
+    crumbs: [['표지기', '/'], ['진로 가이드', '/guide/']] }));
+  pages.push('/guide/');
 }
 put('/privacy.html', 'privacy.html', privacy());
 put('/404.html', '404.html', notFound());
