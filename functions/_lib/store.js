@@ -123,13 +123,14 @@ export async function purgeOld(env) {
 }
 
 // ---------- 후기 ----------
-export async function createReview(env, { text, fb, sit }) {
+export async function createReview(env, { text, fb, sit, status = "pending" }) {
+  if (status !== "approved") status = "pending";
   const at = kstAt();
-  try { const d = await db(env); if (d) { await d.prepare(`INSERT INTO reviews (at, text, fb, sit, status) VALUES (?, ?, ?, ?, 'pending')`).bind(at, text, fb, sit).run(); return true; } }
+  try { const d = await db(env); if (d) { await d.prepare(`INSERT INTO reviews (at, text, fb, sit, status) VALUES (?, ?, ?, ?, ?)`).bind(at, text, fb, sit, status).run(); return true; } }
   catch (e) { dbErr(env, e); }
   if (!env.PYOJIGI_KV) return false;
   const id = "k" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  await env.PYOJIGI_KV.put(`rv:${id}`, JSON.stringify({ id, at, text, fb, sit, status: "pending" }));
+  await env.PYOJIGI_KV.put(`rv:${id}`, JSON.stringify({ id, at, text, fb, sit, status }));
   return true;
 }
 

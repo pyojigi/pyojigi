@@ -167,12 +167,12 @@ let code;
   ok("feedback: no public flag still ok", (await F(env, { fb: "많이 됐어요", text: "그냥 한마디", sit: "job" }, "1.1.1.1")).j.ok === true);
   ok("feedback: public w/o text no review", (await F(env, { fb: "조금 됐어요", public: true }, "1.1.1.1")).j.ok === true);
   ok("feedback: public:'true' string ignored", (await F(env, { text: "문자열 동의", public: "true" }, "1.1.1.1")).j.ok === true);
-  ok("feedback: public ok", (await F(env, { fb: "많이 됐어요", text: "<i>보안직</i> 길이 생각보다 현실적이었어요", sit: "mil", public: true, top: ["sec"] }, "1.1.1.1")).j.ok === true);
-  ok("feedback: second public", (await F(env, { fb: "별로예요", text: "광고 같아요", public: true }, "1.1.1.1")).j.ok === true);
+  ok("feedback: public ok", (await F(env, { fb: "많이 됐어요", text: "<i>보안직</i> 길이 생각보다 현실적이었어요 카톡으로 공유함", sit: "mil", public: true, top: ["sec"] }, "1.1.1.1")).j.ok === true);
+  ok("feedback: second public", (await F(env, { fb: "별로예요", text: "광고 같아요 ㅅㅂ", public: true }, "1.1.1.1")).j.ok === true);
   const rows = raw.prepare("SELECT * FROM reviews ORDER BY id").all();
-  ok("reviews: only consented+text stored pending", rows.length === 2 && rows.every(r => r.status === "pending") && rows[0].text === "보안직 길이 생각보다 현실적이었어요" && rows[0].sit === "mil", JSON.stringify(rows));
+  ok("reviews: only consented+text stored pending", rows.length === 2 && rows.every(r => r.status === "pending") && rows[0].text === "보안직 길이 생각보다 현실적이었어요 카톡으로 공유함" && rows[0].sit === "mil", JSON.stringify(rows));
   let pub = await R(env);
-  ok("reviews: pending not public", pub.s === 200 && pub.j.reviews.length === 0 && pub.h === "public, max-age=300", pub.h);
+  ok("reviews: held ones not public", pub.s === 200 && pub.j.reviews.length === 0 && pub.h === "public, max-age=300", pub.h);
   ok("admin review: readonly key 401", (await A(env, { key: RO, action: "review", id: rows[0].id, approve: true })).s === 401);
   ok("admin review: bad approve", (await A(env, { key: ADMIN, action: "review", id: rows[0].id, approve: "yes" })).s === 400);
   ok("admin review: approve", (await A(env, { key: ADMIN, action: "review", id: rows[0].id, approve: true })).j.ok);
@@ -180,13 +180,25 @@ let code;
   ok("admin review: unknown 404", (await A(env, { key: ADMIN, action: "review", id: 999, approve: true })).s === 404);
   pub = await R(env);
   const v = pub.j.reviews;
-  ok("reviews: approved visible, exact fields", v.length === 1 && v[0].text === "보안직 길이 생각보다 현실적이었어요" && v[0].fb === "많이 됐어요" && v[0].sit === "mil" && /^\d{4}-\d\d-\d\d$/.test(v[0].day) && JSON.stringify(Object.keys(v[0]).sort()) === '["day","fb","sit","text"]', JSON.stringify(pub.j));
+  ok("reviews: approved visible, exact fields", v.length === 1 && v[0].text === "보안직 길이 생각보다 현실적이었어요 카톡으로 공유함" && v[0].fb === "많이 됐어요" && v[0].sit === "mil" && /^\d{4}-\d\d-\d\d$/.test(v[0].day) && JSON.stringify(Object.keys(v[0]).sort()) === '["day","fb","sit","text"]', JSON.stringify(pub.j));
   // 20개만
   for (let i = 0; i < 25; i++) raw.prepare("INSERT INTO reviews (at, text, fb, sit, status) VALUES (?, ?, NULL, NULL, 'approved')").run("2026-01-01 00:00", "옛 후기 " + i);
   ok("reviews: max 20, newest first", (await R(env)).j.reviews.length === 20 && (await R(env)).j.reviews[0].text.startsWith("보안직"));
   ok("admin: delete_review", (await A(env, { key: ADMIN, action: "delete_review", id: rows[1].id })).j.ok && !raw.prepare("SELECT 1 FROM reviews WHERE id=?").get(rows[1].id));
 }
 
+
+// ---------- 6-1. 후기 자동 공개 (깨끗한 글은 바로, 걸리는 글은 대기) ----------
+{
+  const raw2 = new DatabaseSync(":memory:"); const env2 = { DB: D1(raw2), PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, SALT: "s" };
+  await F(env2, { fb: "많이 됐어요", text: "결과가 생각보다 잘 맞아서 좋았어요", public: true, sit: "hs" }, "2.2.2.2");
+  for (const t of ["서울고등학교 다녀요 좋았어요", "010-1234-5678 연락 주세요", "진짜 죽고 싶었는데", "이거 존나 별로임", "좋아요"]) await F(env2, { fb: "많이 됐어요", text: t, public: true }, "2.2.2." + t.length);
+  const rs = raw2.prepare("SELECT text, status FROM reviews ORDER BY id").all();
+  ok("auto: clean review approved", rs[0].status === "approved", JSON.stringify(rs));
+  ok("auto: risky reviews held", rs.slice(1).every(r => r.status === "pending") && rs.length === 6, JSON.stringify(rs));
+  const pub2 = await R(env2);
+  ok("auto: only clean one public", pub2.j.reviews.length === 1 && pub2.j.reviews[0].text === "결과가 생각보다 잘 맞아서 좋았어요", JSON.stringify(pub2.j));
+}
 // ---------- 7. 통계: 읽기 전용 키, 새 항목, 1년 지난 문의 정리 ----------
 {
   raw.prepare("INSERT INTO asks (code, at, kind, text, reply, replied_at, status) VALUES (?,?,?,?,?,?,?)").run("OLDANSWR", "2024-09-01 10:00", "문의", "옛 문의", "답", "2024-09-02 10:00", "answered");
@@ -226,12 +238,12 @@ for (const [label, kenv] of [["kv-only", { PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, F
   const g = await AG(kenv, r.j.code);
   ok(label + ": lookup answered", g.j.reply === "네" && g.j.status === "answered");
   ok(label + ": answered TTL set", kenv.PYOJIGI_KV.ttl["ask:" + r.j.code] === 400 * 86400);
-  await F(kenv, { text: "KV 후기", fb: "많이 됐어요", public: true });
+  await F(kenv, { text: "KV 후기 인스타", fb: "많이 됐어요", public: true });
   const s = await S(kenv, ADMIN);
   const rv = s.j.reviews[0];
   ok(label + ": stats lists ask+review", s.j.asks.length === 1 && rv && rv.status === "pending" && /^k/.test(rv.id), JSON.stringify(s.j.reviews));
   ok(label + ": approve kv review", (await A(kenv, { key: ADMIN, action: "review", id: rv.id, approve: true })).j.ok);
-  ok(label + ": public kv review", (await R(kenv)).j.reviews[0]?.text === "KV 후기");
+  ok(label + ": public kv review", (await R(kenv)).j.reviews[0]?.text === "KV 후기 인스타");
   await kenv.PYOJIGI_KV.put("rv:kold1", JSON.stringify({ id: "kold1", at: "2026-01-01 00:00", text: "옛 거절", status: "rejected" }));
   await kenv.PYOJIGI_KV.put("rv:kold2", JSON.stringify({ id: "kold2", at: "2026-01-01 00:00", text: "옛 대기", status: "pending" }));
   await S(kenv, ADMIN);

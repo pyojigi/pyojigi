@@ -113,12 +113,13 @@ async function load(quiet){
     <div class="kpi"><b>${openN}</b><span>답변 기다리는 문의</span></div>
     ${store==="d1"?`<div class="kpi"><b>${total.finish||0}</b><span>누적 완주 (${since||"-"}부터)</span></div><div class="kpi"><b>${total.visit||0}</b><span>누적 방문</span></div>`:""}
   </div>
-  ${RO?`<p class="note">읽기 전용 키로 열었어요. 답변·완료·후기 승인은 관리자 키로만 할 수 있어요.</p>`:""}
+  ${RO?`<p class="note">지금은 <b>읽기 전용 키</b>로 열었어요. 후기 승인·문의 답변 버튼은 <b>관리자 키(ADMIN_KEY)</b>로 다시 들어와야 보여요. 위쪽 키 칸에 관리자 키를 넣어 주세요.</p>`:""}
+  ${(rc.pending||0)>0?`<p class="note" style="border-color:#0B8F5A"><a href="#reviews"><b>승인 기다리는 후기 ${rc.pending}개</b> 바로가기 ↓</a></p>`:""}
   <section class="card"><h2>문의 (최근 ${asks.length}건 · 답변 대기 ${openN}건)</h2>
     <p class="muted">사용자는 받은 확인 코드로 답변을 봐요. 답변했거나 완료한 문의는 1년 뒤 지워져요.</p>
     ${asks.length?asks.map(askItem).join(""):`<p class="muted">아직 받은 문의가 없어요.</p>`}</section>
-  <section class="card"><h2>후기 승인</h2>
-    <p class="muted">공개에 동의한 한마디만 여기에 와요. 승인한 것만 사이트 후기에 보여요. 공개 중 <b>${rc.approved||0}</b>개 · 승인 대기 <b>${rc.pending||0}</b>개 · 거절 ${rc.rejected||0}개</p>
+  <section class="card" id="reviews"><h2>후기 승인</h2>
+    <p class="muted">공개에 동의한 한마디 중 연락처·학교 이름·욕설·위기 신호·너무 짧은 글이 <b>없으면 자동으로 공개</b>돼요. 걸린 것만 여기서 '승인 대기'로 기다려요. 공개된 후기도 여기서 지울 수 있어요. 공개 중 <b>${rc.approved||0}</b>개 · 승인 대기 <b>${rc.pending||0}</b>개 · 거절 ${rc.rejected||0}개</p>
     ${reviews.length?reviews.map(rvItem).join(""):`<p class="muted">아직 공개 동의한 한마디가 없어요.</p>`}</section>
   <section class="card"><h2>들어온 곳 (이전 사이트)</h2>${bars(refs,k=>k)}<p class="muted">바로 앞에 보던 사이트 주소예요. 주소창에 직접 치거나 앱에서 열면 기록되지 않아요.</p></section>
   <section class="card"><h2>검색어</h2>${bars(kws,k=>k)}<p class="muted">검색 사이트가 알려 준 경우에만 남아요.</p></section>

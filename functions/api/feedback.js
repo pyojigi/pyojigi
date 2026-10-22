@@ -7,6 +7,16 @@
 import { SITS, PATHS, FB, json, kstDay, whoHash, allow, cleanText } from "../_lib/common.js";
 import { createReview } from "../_lib/store.js";
 
+// 후기 자동 공개 (2026-10-23 운영자 결정): 아래에 하나도 안 걸리면 바로 공개, 걸리면 운영자 승인 대기
+// 연락처·주소·링크 / 학교 이름 / 욕설·성적 표현 / 위기 신호 / 너무 짧은 글
+const HOLD = [
+  /\d{4,}|\d{2,4}-\d{3,4}-\d{4}|@|https?:|www\.|\.com|\.kr|카톡|카카오톡|오픈채팅|오픈톡|인스타|디엠|dm\b|텔레그램|연락/i,
+  /[가-힣]{2,}(초등학교|중학교|고등학교|대학교|고교|중학|여고|여중|공고|상고)/,
+  /씨발|시발|ㅅㅂ|ㅆㅂ|병신|ㅂㅅ|좆|존나|졸라|개새|새끼|꺼져|미친|닥쳐|fuck|shit|섹스|야동|성인/i,
+  /죽고 ?싶|자살|살기 ?싫|사라지고 ?싶|자해|극단|죽어|뛰어내/,
+];
+export function autoOK(text) { return typeof text === "string" && text.trim().length >= 5 && !HOLD.some(r => r.test(text)); }
+
 const KEEP_DAYS = 90, PER_DAY = 5, MAX_TEXT = 300;
 
 export async function onRequestPost({ request, env }) {
@@ -35,6 +45,6 @@ export async function onRequestPost({ request, env }) {
   };
   const id = `fbk:${day}:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   await env.PYOJIGI_KV.put(id, JSON.stringify(rec), { expirationTtl: KEEP_DAYS * 86400 });
-  if (isPublic) { try { await createReview(env, { text, fb, sit }); } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); } }
+  if (isPublic) { try { await createReview(env, { text, fb, sit, status: autoOK(text) ? "approved" : "pending" }); } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); } }
   return json({ ok: true });
 }
