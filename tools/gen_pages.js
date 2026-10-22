@@ -283,7 +283,7 @@ fs.writeFileSync(path.join(OUT, 'sitemap.xml'), sm);
 // robots.txt: 기존 규칙 유지 + 필수 규칙 보장 + Sitemap 줄 하나
 let rb = fs.existsSync(path.join(OUT, 'robots.txt')) ? fs.readFileSync(path.join(OUT, 'robots.txt'), 'utf8') : 'User-agent: *\n';
 rb = rb.replace(/^Sitemap:.*$/gim, '').replace(/\n{2,}/g, '\n').trimEnd() + '\n';
-for (const r of ['Allow: /', 'Disallow: /stats.html', 'Disallow: /api/']) if (!rb.split('\n').includes(r)) rb += r + '\n';
+for (const r of ['Allow: /', 'Disallow: /stats.html', 'Disallow: /api/', 'Disallow: /ig/']) if (!rb.split('\n').includes(r)) rb += r + '\n';
 fs.writeFileSync(path.join(OUT, 'robots.txt'), rb + `Sitemap: ${SITE}/sitemap.xml\n`);
 
 // ---------- 검사: JSON-LD 파싱, 제목·설명 중복, 설명 길이 ----------

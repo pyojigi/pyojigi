@@ -16,3 +16,7 @@
   Content-Type: text/calendar; charset=utf-8
   Content-Disposition: inline
   Cache-Control: public, max-age=3600
+
+/ig/*
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
