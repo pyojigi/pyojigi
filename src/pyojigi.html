@@ -553,7 +553,7 @@ const Q = [
  {id:"buffer",cond:ADULT,ch:1,q:"수입이 끊겨도 생활비로 버틸 수 있는 기간은?",hint:"이 답이 추천 경로의 '현실성'을 가장 크게 바꿉니다",o:[["1개월도 어렵다",{fast:3},{urgent:2}],["1~3개월",{fast:2},{urgent:1}],["3~6개월",{}],["6개월 이상",{growth:1}]]},
  {id:"fam",cond:ADULT,ch:1,q:"내 수입에 기대는 가족이 있나요?",o:[["있다",{stable:2,money:1},{fam:1}],["일부 보탠다",{stable:1}],["없다",{}]]},
  {id:"debt",cond:ADULT,ch:1,q:"매달 갚아야 하는 돈이 있나요?",hint:"금액은 묻지 않아요",o:[["있다",{money:1,fast:1},{debtY:1}],["없다",{}]]},
- {id:"prep",cond:NOTMS,ch:1,q:"새 일을 위해 준비에 쓸 수 있는 기간은?",o:[["당장 일해야 한다",{fast:2},{maxPrep:1}],["3개월 정도",{},{maxPrep:3}],["6개월~1년",{growth:1},{maxPrep:12}],["1년 이상도 괜찮다",{growth:2},{maxPrep:24}]]},
+ {id:"prep",cond:NOTMS,ch:1,qy:"졸업하고 일을 시작하기 전까지 준비할 수 있는 시간은?",hy:"대학·직업훈련 기간도 포함해서 생각해 보세요",oy:["졸업하면 바로 돈을 벌고 싶다","3개월 정도","6개월~1년","1년 이상도 괜찮다"],q:"새 일을 위해 준비에 쓸 수 있는 기간은?",o:[["당장 일해야 한다",{fast:2},{maxPrep:1}],["3개월 정도",{},{maxPrep:3}],["6개월~1년",{growth:1},{maxPrep:12}],["1년 이상도 괜찮다",{growth:2},{maxPrep:24}]]},
  {id:"plan",etc:1,ch:1,cond:()=>NOTMS()&&st.ans.prep!=null&&st.ans.prep>0,multi:1,none:CERT_PLAN.length,groups:PLAN_GROUPS,q:"준비하는 동안 따거나 붙으려는 자격·시험이 있나요?",hint:"지금 가진 자격만 보지 않고, 준비 기간 안에 갖출 계획까지 추천에 반영해요",o:PLAN_O},
  {id:"study",ch:1,q:"하루에 공부·준비에 낼 수 있는 시간은?",o:[["1시간 미만",{}],["1~2시간",{}],["3~4시간",{growth:1}],["하루 종일 가능",{growth:2}]]},
 
@@ -564,18 +564,18 @@ const Q = [
  {id:"team",ch:2,q:"더 편한 일하는 방식은?",o:[["정해진 규칙대로, 조직 안에서",{stable:2,routine:1}],["팀과 같이 부딪히며",{people:1}],["혼자 맡아서 끝까지",{solo:2}]]},
  {id:"learn",ch:2,q:"새로운 프로그램이나 기계를 배울 때 나는?",o:[["설명서 보고 혼자 금방 익힌다",{tech:2,mind:1}],["누가 한 번 보여주면 따라 한다",{tech:1}],["오래 걸리고 스트레스다",{routine:1}]]},
 
- {id:"shift",ch:3,q:"교대 근무, 야간 근무는?",hint:"수당이 붙는 대신 생활 리듬이 깨집니다",o:[["괜찮다, 돈 되면 한다",{shiftok:3,money:1}],["당분간은 가능",{shiftok:1}],["절대 못 한다",{time:1},{noShift:1}]]},
- {id:"press",ch:3,q:"매달 실적 숫자로 평가받는 건?",o:[["오히려 동기부여 된다",{pressureok:3,money:1}],["적당하면 괜찮다",{}],["생각만 해도 숨 막힌다",{stable:1},{noPress:1}]]},
- {id:"emo",ch:3,q:"화난 고객·민원을 상대하는 일은?",o:[["담담하게 넘길 수 있다",{people:1}],["가끔이면 괜찮다",{}],["며칠씩 마음에 남는다",{solo:1},{noEmo:1}]]},
- {id:"sit8",ch:3,q:"하루 8시간 이상 모니터 앞에 앉아 있는 건?",o:[["괜찮다",{mind:1}],["중간중간 움직이면 괜찮다",{}],["못 견딘다",{body:2},{noDesk:1}]]},
- {id:"move",ch:3,q:"지방 근무나 잦은 출장은?",o:[["어디든 간다",{money:1}],["가까운 지역까지만",{}],["지금 사는 곳을 떠날 수 없다",{},{noMove:1}]]},
- {id:"unst",ch:3,q:"달마다 수입이 들쭉날쭉한 건?",o:[["많이 벌 수 있다면 괜찮다",{money:2,pressureok:1}],["기본급이 있으면 괜찮다",{}],["불안해서 못 견딘다",{stable:2},{noUnst:1}]]},
+ {id:"shift",ch:3,qy:"나중에 밤이나 새벽에 일하는 건?",hy:"교대·야간 근무는 돈을 더 받는 대신 생활 리듬이 깨져요",oy:["괜찮다, 돈 더 주면 한다","잠깐이면 할 수 있다","절대 못 한다"],q:"교대 근무, 야간 근무는?",hint:"수당이 붙는 대신 생활 리듬이 깨집니다",o:[["괜찮다, 돈 되면 한다",{shiftok:3,money:1}],["당분간은 가능",{shiftok:1}],["절대 못 한다",{time:1},{noShift:1}]]},
+ {id:"press",ch:3,qy:"매달 숫자(실적·점수)로 평가받는 건?",q:"매달 실적 숫자로 평가받는 건?",o:[["오히려 동기부여 된다",{pressureok:3,money:1}],["적당하면 괜찮다",{}],["생각만 해도 숨 막힌다",{stable:1},{noPress:1}]]},
+ {id:"emo",ch:3,qy:"화난 손님이나 사람을 상대해야 하는 일은?",q:"화난 고객·민원을 상대하는 일은?",o:[["담담하게 넘길 수 있다",{people:1}],["가끔이면 괜찮다",{}],["며칠씩 마음에 남는다",{solo:1},{noEmo:1}]]},
+ {id:"sit8",ch:3,qy:"하루 종일 모니터 앞에 앉아 있는 건?",q:"하루 8시간 이상 모니터 앞에 앉아 있는 건?",o:[["괜찮다",{mind:1}],["중간중간 움직이면 괜찮다",{}],["못 견딘다",{body:2},{noDesk:1}]]},
+ {id:"move",ch:3,qy:"나중에 일할 곳이 멀거나 출장이 잦다면?",oy:["어디든 갈 수 있다","가까운 지역까지만","지금 사는 동네를 떠나기 싫다"],q:"지방 근무나 잦은 출장은?",o:[["어디든 간다",{money:1}],["가까운 지역까지만",{}],["지금 사는 곳을 떠날 수 없다",{},{noMove:1}]]},
+ {id:"unst",ch:3,qy:"버는 돈이 달마다 들쭉날쭉한 건?",oy:["많이 벌 수 있다면 괜찮다","기본으로 받는 돈이 있으면 괜찮다","불안해서 못 견딘다"],q:"달마다 수입이 들쭉날쭉한 건?",o:[["많이 벌 수 있다면 괜찮다",{money:2,pressureok:1}],["기본급이 있으면 괜찮다",{}],["불안해서 못 견딘다",{stable:2},{noUnst:1}]]},
 
- {id:"pay",ch:4,q:"5년 뒤 바라는 연봉은?",o:[["3천만원대면 충분",{time:1,stable:1}],["4천만원대",{}],["5~6천만원대",{money:2}],["7천만원 이상",{money:3,pressureok:1}]]},
- {id:"after",ch:4,q:"퇴근 후 시간은 얼마나 중요해요?",o:[["돈보다 중요하다",{time:3}],["어느 정도는 지키고 싶다",{time:1}],["지금은 일에 다 걸어도 된다",{money:1,growth:1}]]},
+ {id:"pay",ch:4,qy:"나중에 일한 지 5년쯤 됐을 때 바라는 연봉은?",hy:"감으로 골라도 돼요. 연 3천만원이면 세금 떼기 전 한 달 약 250만원이에요",q:"5년 뒤 바라는 연봉은?",o:[["3천만원대면 충분",{time:1,stable:1}],["4천만원대",{}],["5~6천만원대",{money:2}],["7천만원 이상",{money:3,pressureok:1}]]},
+ {id:"after",ch:4,qy:"나중에 일이 끝난 뒤 내 시간은 얼마나 중요해요?",oy:[0,0,"처음엔 일에 다 걸어도 된다"],q:"퇴근 후 시간은 얼마나 중요해요?",o:[["돈보다 중요하다",{time:3}],["어느 정도는 지키고 싶다",{time:1}],["지금은 일에 다 걸어도 된다",{money:1,growth:1}]]},
  {id:"top",ch:4,q:"일에서 딱 하나만 고른다면?",o:[["돈",{money:3}],["안정 (잘리지 않는 것)",{stable:3}],["시간 (내 삶)",{time:3}],["성장 (실력이 느는 것)",{growth:3}],["의미 (보람)",{meaning:3}]]},
- {id:"home",ch:4,q:"앞으로 계획에 가까운 건?",o:[["집 마련이 1순위",{stable:1,money:1}],["결혼·가정이 1순위",{stable:2,time:1}],["일단 나 혼자 자리 잡기",{growth:1}],["아직 잘 모르겠다",{}]]},
- {id:"five",ch:4,q:"5년 뒤 내 모습으로 가장 끌리는 건?",o:[["큰 회사에서 오래 다니는 사람",{stable:3}],["기술 하나로 어디서든 먹고사는 사람",{tech:3}],["내 가게·사업을 하는 사람",{money:1,pressureok:1,creative:1}],["사람을 가르치거나 돕는 사람",{meaning:2,care:1,people:1}]]},
+ {id:"home",ch:4,qy:"어른이 되면 먼저 이루고 싶은 건?",oy:["내 집 마련","가족과 함께하는 안정된 생활","일단 나 혼자 자리 잡기","아직 잘 모르겠다"],q:"앞으로 계획에 가까운 건?",o:[["집 마련이 1순위",{stable:1,money:1}],["결혼·가정이 1순위",{stable:2,time:1}],["일단 나 혼자 자리 잡기",{growth:1}],["아직 잘 모르겠다",{}]]},
+ {id:"five",ch:4,qy:"어른이 된 내 모습으로 가장 끌리는 건?",q:"5년 뒤 내 모습으로 가장 끌리는 건?",o:[["큰 회사에서 오래 다니는 사람",{stable:3}],["기술 하나로 어디서든 먹고사는 사람",{tech:3}],["내 가게·사업을 하는 사람",{money:1,pressureok:1,creative:1}],["사람을 가르치거나 돕는 사람",{meaning:2,care:1,people:1}]]},
 
  {id:"j1",ch:5,br:"job",q:"취업 준비는 얼마나 했나요?",o:[["이제 막 시작",{}],["6개월 미만",{}],["6개월~1년",{fast:1}],["1년 이상",{fast:2}]]},
  {id:"j2",ch:5,br:"job",q:"가장 많이 막히는 단계는?",o:[["어디에 지원할지 모르겠다",{},{jb:"dir"}],["서류에서 떨어진다",{},{jb:"doc"}],["면접에서 떨어진다",{},{jb:"itv"}],["합격해도 가기 싫다",{},{jb:"fit"}]]},
@@ -1148,8 +1148,11 @@ function etcBox(q){
   const prev=(st.etc||{})[q.id]||"";
   return `<div class="etc"><label for="etcIn"><b>기타</b> · 목록에서 못 찾았으면 직접 적어 주세요</label><div class="etcrow"><input id="etcIn" maxlength="30" autocomplete="off" placeholder="${q.id==="goal"?"예) 드론 조종사":"예) 조주기능사"}" value="${prev.replace(/"/g,"&quot;")}"><button type="button" class="btn alt" id="etcGo">확인</button></div><p class="hint" id="etcMsg" role="status"></p></div>`;
 }
+/* 10대(ag=0)에게는 문구만 바꿔 보여 줘요. 점수 연결(o[i][1..])은 그대로 */
+function youngQ(q){ if(!q||st.ans.ag!==0||!(q.qy||q.oy||"hy" in q)) return q;
+  return {...q, q:q.qy||q.q, hint:"hy" in q?q.hy:q.hint, o:q.oy?q.o.map((o,i)=>q.oy[i]?[q.oy[i],...o.slice(1)]:o):q.o}; }
 function question(){
-  const L=list(), q=L[st.i]; if(!q){finish();return}
+  const L=list(), q=youngQ(L[st.i]); if(!q){finish();return}
   const a=st.ans[q.id];
   let body;
   if(q.text){
@@ -1181,7 +1184,7 @@ function question(){
     ${body}
     ${q.etc?etcBox(q):""}
     <div class="nav"><button class="btn alt" id="back" type="button" ${st.i===0?"disabled":""}>이전</button>
-    <button class="btn" id="next" type="button">${st.review?(missing().filter(m=>m!==q).length?"다음 빈 질문":"결과 보기"):(q.text?"결과 보기":"다음")}</button></div>
+    <button class="btn" id="next" type="button">${st.review?(missing().filter(m=>m.id!==q.id).length?"다음 빈 질문":"결과 보기"):(q.text?"결과 보기":"다음")}</button></div>
   </section>`);
   app.querySelectorAll(".ogh.par").forEach(h=>h.onclick=()=>{ const pi=+h.dataset.p; OPENP[q.id]=OPENP[q.id]===pi?-1:pi; OPENG[q.id]=-1; const y=window.scrollY; question(); window.scrollTo({top:y}); const nh=app.querySelector(`.ogh.par[data-p="${pi}"]`); if(nh) nh.focus({preventScroll:true}); });
   app.querySelectorAll(".ogh:not(.par)").forEach(h=>h.onclick=()=>{ const gi=+h.dataset.g; OPENG[q.id]=OPENG[q.id]===gi?-1:gi; const y=window.scrollY; question(); window.scrollTo({top:y}); const nh=app.querySelector(`.ogh[data-g="${gi}"]`); if(nh) nh.focus({preventScroll:true}); });
@@ -1211,7 +1214,7 @@ function question(){
     eg.onclick=go; ei.onkeydown=e=>{ if(e.key==="Enter"){ if(e.preventDefault) e.preventDefault(); go(); } }; }
   const n=document.getElementById("next"); if(n) n.onclick=()=>{
     if(q.text) st.ans[q.id]=document.getElementById("ta").value.trim(); save();
-    if(st.review){ const rest=missing().filter(m=>m!==q); if(!rest.length){ st.review=0; finish(); return; }
+    if(st.review){ const rest=missing().filter(m=>m.id!==q.id); if(!rest.length){ st.review=0; finish(); return; }
       const L=list(); const after=rest.find(m=>L.indexOf(m)>st.i)||rest[0]; st.i=L.indexOf(after); save(); render(); return; }
     advance(); };
   document.getElementById("back").onclick=()=>{ if(st.i>0){st.i--; st.phase="q"; save(); render();} };
