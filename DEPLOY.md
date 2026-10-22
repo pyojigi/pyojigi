@@ -73,15 +73,12 @@ Cloudflare 대시보드 → 해당 Pages 프로젝트 → Custom domains → pyo
 - 1순위로 나온 길, 3위 안에 나온 길(1·2·3순위 모두), 상황·나이대
 - 완주 기록: 시각, 상황, 나이대, 받은 길 3개 (익명). '엑셀(CSV)로 저장'으로 전체를 내려받아 보관할 수 있어요.
 
-## 피드백을 내 이메일로 바로 받기 (Resend, 무료)
-1. resend.com 에 **피드백을 받을 이메일(songminhyeok1005@naver.com)로** 가입해요. 무료로 하루 100통, 한 달 3,000통까지 보낼 수 있어요.
-2. API Keys → Create API Key → 권한 "Sending access" → 만들어진 키(re_로 시작)를 복사해요. 이 키는 한 번만 보여요.
-3. Pages 프로젝트 → Settings → Variables and Secrets 에 **Secret** 으로 두 개 넣어요.
-   - `RESEND_API_KEY`: 방금 복사한 키
-   - `FEEDBACK_TO`: songminhyeok1005@naver.com
-4. 다시 배포(Retry deployment)하면 끝이에요. 사이트에서 '피드백 보내기'를 누르면 그 이메일로 바로 와요.
-- 도메인을 사기 전에는 보내는 주소가 onboarding@resend.dev 로 보이고, 가입한 본인 이메일로만 보낼 수 있어요(받는 사람이 본인이라 문제없어요). 첫 메일이 스팸함에 갈 수 있으니 한 번 확인해 주세요.
-- 메일 설정을 안 해도 피드백은 통계 페이지(/stats.html)에 그대로 쌓여요.
+## 비밀 값 (Settings → Variables and Secrets, 모두 Secret)
+- `ADMIN_KEY`: 운영자 키. 통계·문의 답변·후기 승인. 본인 폰에만 보관.
+- `FEEDBACK_KEY`: 읽기 전용 키(8자 이상, ADMIN_KEY와 다르게). 매일 자동 업데이트가 통계를 읽을 때 씀.
+- `SALT`: 아무 긴 문자열. 방문자 IP를 가리는 데 섞는 값. 기억할 필요 없음.
+- 피드백은 메일로 보내지 않고 통계 페이지(/stats.html)에 쌓여요. 예전 `RESEND_API_KEY`, `FEEDBACK_TO`는 지워도 돼요.
+- 값을 바꾼 뒤에는 새로 배포돼야 적용돼요(저장소에 새로 올라가면 자동 배포).
 
 ## 피드백 읽기
 `주소/stats.html`에서 관리자 키를 넣으면 아래가 보여요.
