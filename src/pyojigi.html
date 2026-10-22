@@ -377,6 +377,11 @@ a{text-underline-offset:3px}
 .mark .bar{background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 12px)}
 .sal .range{background:var(--pine)!important}
 @media (prefers-reduced-motion: reduce){.pmark{animation:none}}
+.top3{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.top3 li{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:14px;padding:12px 14px;font-size:16px}
+.top3 li em{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--tint);color:var(--pine);font-weight:800;font-size:14px}
+.top3 li:first-child{box-shadow:0 0 0 2px var(--pine) inset}
+.care{background:var(--tint);border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.6}.care b{display:block;margin-bottom:4px}.care a{color:var(--pine);font-weight:700}
 </style>
 
 <div class="wrap">
@@ -555,7 +560,7 @@ const Q = [
  {id:"bm",ch:2,q:"둘 중 덜 지치는 쪽은?",o:[["하루 종일 서서 움직이기",{body:3}],["하루 종일 앉아서 생각하기",{mind:3}],["반반 섞인 일",{body:1,mind:1}]]},
  {id:"ppl",ch:2,q:"처음 보는 사람과 이야기하는 건?",o:[["즐겁다, 기운이 난다",{people:3}],["할 수는 있는데 지친다",{people:1}],["가능하면 피하고 싶다",{solo:3}]]},
  {id:"rep",ch:2,q:"매일 같은 일을 반복하는 건?",o:[["오히려 마음이 편하다",{routine:3,stable:1}],["월급만 괜찮으면 버틴다",{routine:1}],["한 달이면 질린다",{creative:2,growth:1}]]},
- {id:"praise",ch:2,q:"남에게 칭찬받았던 일을 모두 골라 주세요",multi:1,o:[["가르치기, 설명하기",{people:2,meaning:1},{teach:1}],["정리·관리, 꼼꼼함",{routine:2,mind:1}],["체력, 몸 쓰는 일",{body:2}],["고치기, 만지기, 손재주",{tech:2,body:1}],["말로 설득하기",{people:2,pressureok:1}],["만들기, 꾸미기, 글쓰기",{creative:3}],["남 챙기기",{care:3}]]},
+ {id:"praise",ch:2,q:"남에게 칭찬받았던 일을 모두 골라 주세요",multi:1,none:7,o:[["가르치기, 설명하기",{people:2,meaning:1},{teach:1}],["정리·관리, 꼼꼼함",{routine:2,mind:1}],["체력, 몸 쓰는 일",{body:2}],["고치기, 만지기, 손재주",{tech:2,body:1}],["말로 설득하기",{people:2,pressureok:1}],["만들기, 꾸미기, 글쓰기",{creative:3}],["남 챙기기",{care:3}],["아직 잘 모르겠어요 (괜찮아요)",{}]]},
  {id:"team",ch:2,q:"더 편한 일하는 방식은?",o:[["정해진 규칙대로, 조직 안에서",{stable:2,routine:1}],["팀과 같이 부딪히며",{people:1}],["혼자 맡아서 끝까지",{solo:2}]]},
  {id:"learn",ch:2,q:"새로운 프로그램이나 기계를 배울 때 나는?",o:[["설명서 보고 혼자 금방 익힌다",{tech:2,mind:1}],["누가 한 번 보여주면 따라 한다",{tech:1}],["오래 걸리고 스트레스다",{routine:1}]]},
 
@@ -795,7 +800,7 @@ function planBox(k){
     : `끝까지 가려면 약 ${p.total}시간이 필요해서, 지금 시간(주 ${p.wk}시간)으로는 약 ${p.end}주가 걸려요. 설정한 ${p.wlabel} 안에는 ${p.last?`'${p.last}'까지`:"첫 단계 일부만"} 할 수 있어요. 끝까지 가려면 하루 시간을 늘리거나 기간을 길게 잡아야 해요.`;
   return `<details class="road"><summary>${p.wlabel} 계획 보기 · 하루 ${p.plabel}, 주 5일 기준</summary>
     <ol class="glist">${p.rows.map(r=>`<li class="${r.out?"out":r.part?"part":""}"><b>${wkTxt(r)}</b> · ${r.t} <span class="hint">(약 ${r.h}시간${r.out?", 기간 밖":r.part?", 기간 안에 일부만":""})</span></li>`).join("")}</ol>
-    <p class="hint" style="color:var(--ink)">${sum}</p><p class="src">필요 시간은 대략적인 추정이에요. 교육과정 시간(신임교육 24시간, 요양보호사 320시간 등)은 정해진 기준이고, 나머지는 사람마다 달라요.</p></details>`;
+    <p class="hint" style="color:var(--ink)">${sum}</p><p class="src">필요 시간은 대략적인 추정이에요. 법으로 정해진 교육 시간이 있는 자격은 그 기준을 따랐고, 나머지는 사람마다 달라요.</p></details>`;
 }
 
 // 첫 월급까지 계획: 이 길로 가면 언제 첫 월급인지, 원하면 달마다 흐름 계산 (모든 금액 만원)
@@ -864,7 +869,7 @@ function freeAnswer(t){
     if(/부모|엄마|아빠|반대|싸워|싸움/.test(t)) add("부모님과 생각이 다르면 그 직업에 대해 알아본 것(하는 일, 되는 법, 힘든 점)을 정리해서 보여 드리세요. 진로 선생님과 함께 이야기하면 대화가 훨씬 쉬워요.");
     if(/돈|형편|가난|어려워|벌고|용돈|알바/.test(t)) add(MSq?"중학생은 법으로 일할 수 있는 나이가 제한돼요(만 15세 미만은 고용노동부의 취직인허증이 있어야 해요). 지금은 지원을 챙기는 게 먼저예요. 형편이 어려우면 급식비·방과후 수강권 같은 교육비 지원을 주민센터나 <a href=\"https://oneclick.moe.go.kr\" target=\"_blank\" rel=\"noopener\">교육비 원클릭</a>으로 신청할 수 있어요. 빨리 돈을 벌고 싶다면 특성화고·마이스터고에서 기술을 배워 졸업과 함께 취업하는 길이 가장 빨라요.":"고등학생 아르바이트는 만 18세 미만이면 부모님 동의서와 가족관계증명서가 필요하고 밤 10시 이후 일은 원칙적으로 못 해요. 형편이 어려우면 교육비 지원을 주민센터나 <a href=\"https://oneclick.moe.go.kr\" target=\"_blank\" rel=\"noopener\">교육비 원클릭</a>으로 신청할 수 있어요.");
     if(/무기력|의욕|지쳤|지친|힘들|우울/.test(t)) add('기운이 없는 날이 2주 넘게 이어지면 혼자 참지 말고 학교 Wee클래스나 청소년상담 <a href="tel:1388">1388</a>에 이야기해 보세요.');
-    if(!out.length && /모르겠|없어요|없다|뭘|뭐 ?해|하고 ?싶은/.test(t)) add(MSq?"중학생 때 직업을 정하지 못하는 건 아주 당연해요. 지금 정할 건 '고등학교를 어느 쪽으로 갈지' 하나예요. 커리어넷 직업흥미검사(무료)를 해 보고, 나온 직업 하나를 영상으로 찾아보세요.":"지금 정할 건 평생 직업이 아니라 '졸업 후 진학이냐 취업이냐' 하나예요. 커리어넷 직업흥미검사(무료)를 해 보고 진로 선생님과 결과를 같이 보세요.");
+    if(!out.length && /모르겠|없어요|없다|뭘|뭐 ?해|하고 ?싶은/.test(t)) add(MSq?"중학생 때 직업을 정하지 못하는 건 아주 당연해요. 지금 정할 건 '고등학교를 어느 쪽으로 갈지' 하나예요. 커리어넷 직업흥미검사(무료)를 해 보고, 나온 직업 하나를 영상으로 찾아보세요.":"지금 정할 건 평생 직업이 아니라 '졸업 후 진학이냐 취업이냐' 하나예요. 커리어넷 직업흥미검사(무료)를 해 보고 "+((st.ans.ag||0)===0?"진로 선생님과 결과를 같이 보세요.":"고용24 청년 상담이나 대학일자리플러스센터 상담사와 결과를 같이 봐도 좋아요.")+"");
   }
   if(/AI|인공지능|자동화|챗GPT|GPT/.test(t) && /무섭|걱정|대체|없어|사라|뺏|불안|끊|끝났|끝장|망했|밀려/.test(t)) add("AI 걱정은 근거가 있어요. 문서·데이터 일 중심의 신입 자리가 먼저 줄고 있어요. 추천 카드의 'AI 영향' 표시를 보고, 영향이 높은 길이라면 AI를 써서 일을 더 빨리 해낸 결과물로 지원하세요. 현장·면허·돌봄 직업은 영향이 낮은 편이에요.");
   if(!Y && /말할 ?사람|외로|친구 ?없|친구가 ?없|아무도 ?없|기댈 ?사람|혼자 ?버티|혼자라/.test(t)) add('혼자 버티는 게 제일 힘들어요. 진로 이야기를 같이 해 줄 사람이 필요하면 국민취업지원제도를 신청해 보세요. 1:1 전담 상담사가 붙어요. 사는 지역 청년센터도 무료 상담과 모임을 열어요 (<a href="https://www.youthcenter.go.kr" target="_blank" rel="noopener">온통청년</a>에서 찾기).');
@@ -890,7 +895,7 @@ function freeAnswer(t){
   if(/안정|불안/.test(t)) add("안정이 가장 중요하다면 정년이 있는 공공 일자리(공무직·공기업)와 자격증으로 오래 가는 기술직을 비교해 보세요.");
   const g=freeGoal(t), qg=(st.ans.goal!=null&&GOALS[st.ans.goal])?GOALS[st.ans.goal][1]:null;
   if(g){ const p=PATHS.find(x=>x.key===g); if(p) add(!qg||qg===g?`'${p.n}' 쪽은 아래 '하고 싶은 일 준비 안내'에 자격증·준비 기간·링크를 넣었어요.`:`적어 주신 '${p.n}' 쪽도 메뉴의 직업백과사전에서 자격증과 준비 순서를 볼 수 있어요.`); }
-  if(!out.length) out.push("정해진 답이 있는 고민은 아니라서, 아래 현실 점검과 추천 3개로 답을 대신할게요. 하나씩 해 보면서 고쳐 가면 됩니다.");
+  if(!out.length) out.push("정해진 답이 있는 고민은 아니라서, 아래 '먼저 알아두면 좋은 것'과 추천 3개로 답을 대신할게요. 하나씩 해 보면서 고쳐 가면 됩니다.");
   return out;
 }
 
@@ -1052,7 +1057,7 @@ function el(h){app.innerHTML=h; app.firstElementChild&&app.firstElementChild.cla
 function drawTrail(){
   const L=list(), box=document.getElementById("trailBox");
   box.hidden = ["intro","cal","all","privacy","dict","ask"].includes(st.phase);
-  const mb=document.getElementById("meaningBar"); if(mb) mb.hidden = st.phase==="intro";
+  const mb=document.getElementById("meaningBar"); if(mb) mb.hidden = st.phase==="intro"||st.phase==="q";
   document.getElementById("resetBtn").hidden = true;
   if(box.hidden) return;
   const cur = st.phase==="result"?6:(L[st.i]?L[st.i].ch:5);
@@ -1076,8 +1081,9 @@ function intro(){
     <label class="agree"><input type="checkbox" id="agree" ${agreed()?"checked":""}><span><b>(필수)</b> 서비스 개선을 위한 익명 이용 기록(시각, 상황 종류, 나이대, 추천 결과)에 동의해요. 답 내용과 이름·연락처는 저장하지 않아요. <a href="#" id="toPrivacy">개인정보 처리방침</a></span></label>
     <p class="hint" id="agreeNote" role="alert"></p>
     <div class="cta">
-      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">시작하기 · 약 38문항</button>`}
+      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">시작하기 · 질문 25~36개 (상황마다 달라요)</button>`}
     </div>
+    <p class="src">개인이 만든 무료 사이트예요. 결과의 강의·교재 링크 일부는 제휴라 구매하면 운영자가 수수료를 받고, 그 자리에 표시해 둬요. 답은 이 폰에만 저장돼요.</p>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="hero3" role="img" aria-label="방황에서 방향으로, 방향에서 계획으로">
         <div class="h3i"><span class="stp"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 40 C12 12 24 46 30 24 S44 4 40 26 S52 46 58 16" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5"/><circle cx="58" cy="16" r="3.5" fill="var(--ink)"/></svg><i class="won">₩0</i></span><b>방황</b><small>헤매는 지금</small></div>
@@ -1093,7 +1099,7 @@ function intro(){
       </div>
     </div>
     <div class="facts">
-      <div class="fact"><b>255만 5천명</b><span>지난해 일도 구직도 안 하고 '쉬었음'이라 답한 사람, 1년 새 8만 8천명 늘었어요</span></div>
+      <div class="fact"><b>255만 5천명</b><span>지난해 일도 구직도 안 하고 '쉬었음'이라 답한 사람이에요. 잠깐 멈춘 사람이 그만큼 많아요, 혼자만의 일이 아니에요</span></div>
       <div class="fact"><b>44.4%</b><span>15~29세 청년이 첫 일자리를 그만둔 이유 1위, 보수·근로시간 등 근로여건 불만족</span></div>
     </div>
     <p class="src">출처: <a href="https://www.korea.kr/briefing/policyBriefingView.do?newsId=156739604" target="_blank" rel="noopener">2025년 12월 및 연간 고용동향</a>, <a href="https://www.korea.kr/briefing/policyBriefingView.do?newsId=156771847" target="_blank" rel="noopener">2026년 5월 경제활동인구조사 청년층 부가조사</a> (국가데이터처)</p>
@@ -1147,7 +1153,7 @@ function question(){
   const a=st.ans[q.id];
   let body;
   if(q.text){
-    body=`<textarea id="ta" placeholder="예) 경비 일은 안정적인데, 이대로 10년 갈 수 있을지 모르겠다">${a||""}</textarea>`;
+    body=`<textarea id="ta" placeholder="${(st.ans.ag||0)===0?"예) 대학 갈지 바로 취업할지 모르겠어요":"예) 하고 싶은 건 있는데 뭐부터 해야 할지 모르겠어요"}">${a||""}</textarea>`;
   } else {
     const btn=k=>{ const o=q.o[k], sel=q.multi?(a||[]).includes(k):a===k;
       return `<button type="button" class="opt ${q.multi?"multi":""} ${sel?"sel":""}" data-k="${k}" role="${q.multi?"checkbox":"radio"}" aria-checked="${sel}"><span class="tick"></span><span>${o[0]}</span></button>`; };
@@ -1260,6 +1266,7 @@ function msReality(f,P){
   if(P && P.slice(0,3).some(p=>p.key==="ath")) out.push("선수의 문은 좁아요. 선수 준비와 함께 공부도 놓지 않아야 나중에 지도자·체육교사·경찰처럼 다른 길로도 갈 수 있어요.");
   return out;
 }
+function ro(w){ const c=(w||'').charCodeAt((w||'').length-1)-0xAC00; if(c<0||c>11171) return '로'; const j=c%28; return (j===0||j===8)?'로':'으로'; }
 function reality(f,t,P){
   const out=[], emp=employed(f), age=st.ans.age, edu=st.ans.edu, k=sitKey();
   if(k==="ms") return msReality(f,P);
@@ -1293,7 +1300,7 @@ function reality(f,t,P){
     out.push(`하고 싶다고 고른 '${gp?gp.n:""}' 쪽은 ${why} 추천 3개에서는 뺐어요. 그래도 준비 안내는 위에 그대로 넣었어요.`);
   }
   if(k==="drop") out.push(f.ged?"검정고시에 붙었다면 고졸 학력이 인정돼요. 대학 입시, 공무원 시험, 고졸 채용, 폴리텍 입학에 모두 지원할 수 있어요.":"학교를 그만둔 건 끝이 아니에요. 검정고시(1년에 두 번, 보통 4월·8월)에 붙으면 고졸 학력이 인정돼 대학, 공무원 시험, 고졸 채용에 지원할 수 있어요. 학교를 그만둔 뒤 일정 기간이 지나야 응시할 수 있으니 시·도교육청 공고에서 응시 자격을 확인하세요.");
-  if(k==="retake") out.push(f.retq?"계속할지 고민된다면 '올해 성적이 어디까지 오르면 계속, 아니면 다른 길'처럼 기준을 먼저 정해 두세요. 폴리텍 2년제처럼 기술을 배워 바로 취업하는 진학도 있어요.":"재수는 목표 학과가 분명할 때 힘이 나요. 성적이 생각만큼 안 오를 때 갈 길(다른 학과, 폴리텍 같은 기술 진학, 취업)도 하나 정해 두면 불안이 줄어요.");
+  if(k==="retake") out.push(f.retq?"다시 도전할지 정하는 날짜를 하나 정해 두고, 그동안 다른 길도 하나 같이 살펴봐요. 어느 쪽이든 늦은 게 아니에요. 폴리텍 2년제처럼 기술을 배워 바로 취업하는 진학도 있어요.":"재수는 목표 학과가 분명할 때 힘이 나요. 성적이 생각만큼 안 오를 때 갈 길(다른 학과, 폴리텍 같은 기술 진학, 취업)도 하나 정해 두면 불안이 줄어요.");
   if(k==="hs") out.push(f.go==="adv"?"진학을 원한다면 '어느 대학'보다 '어느 학과'가 먼저예요. 학과가 곧 첫 직업을 정합니다.":f.go==="hsj"?"바로 취업한다면 고졸 공채는 3학년 1학기부터 공고가 나와요. 자격증 1개와 출결이 가장 큰 무기입니다.":f.go==="mil"?"군대부터 다녀온다면 복무 기간을 비워 두지 마세요. 복무 중에도 자격증 시험을 볼 수 있고, 그 사이 끌리는 분야를 아래 추천에서 하나 정해 두면 전역 후가 빨라집니다.":"지금 정할 건 평생 직업이 아니라 첫 방향이에요. 아래 추천을 정답이 아니라 먼저 알아볼 후보로 보세요.");
   if(P && !["job","col","hs","switch"].includes(k) && P.slice(0,3).some(p=>AIX[p.key]==="high")) out.push("추천에 AI 영향 '높음'인 길이 있어요. 경력이 있다면 일을 떠나기보다 그 일에서 AI를 써서 더 빨리 해내는 사람 쪽으로 옮겨 가는 게 빠를 수 있어요. 회사 안에서 AI로 바꾼 업무 하나를 숫자로 남겨 두세요.");
   const athN = f.cur==="spo" && (f.maj==="spo"||f.c_sport);
@@ -1378,7 +1385,7 @@ function planDraw(k,search){
   if(SPn.includes("실업급여 (구직급여)")) items.push("실업급여: 고용보험에 가입했고 회사 사정으로 그만뒀다면 받을 수 있어요");
   if(SPn.includes("청년월세 지원")) items.push("청년월세 지원: 만 19~34세, 따로 살면 월 최대 20만원");
   const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM && p.key!==k).sort((a,b)=>a.prep-b.prep)[0];
-  if(shorter) items.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'로 먼저 일하면서 이 길을 준비하는 방법`);
+  if(shorter) items.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 일하면서 이 길을 준비하는 방법`);
   if(SPn.includes("국민내일배움카드")) items.push("교육비는 국민내일배움카드로 줄이기 (5년간 300만원까지)");
   box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>약 ${c.prepM}개월</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${c.F}개월째 · 약 ${c.pay.toLocaleString()}만원</span></li></ol>
     ${items.length?`<p class="hint" style="color:var(--ink)"><b>그동안 기댈 수 있는 것</b></p><ul class="glist">${items.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}`;
@@ -1399,7 +1406,7 @@ function calcDraw(){
     verdict=`<p class="verdict bad"><b>${c.out}개월째부터 보탤 돈이 필요해요</b><span>첫 월급은 ${c.F}개월째예요. 모두 합쳐 약 ${c.need.toLocaleString()}만원, 한 달로 나누면 약 ${c.perMonth.toLocaleString()}만원이에요. 흔한 일이고, 아래 방법으로 채울 수 있어요.</span></p>`;
     tips.push(`한 달에 ${c.perMonth.toLocaleString()}만원 정도면 채울 수 있어요.${c.perMonth<=66?" 주말 이틀 단기 일로 메울 수 있는 크기예요.":""}`);
     const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM).sort((a,b)=>a.prep-b.prep)[0];
-    if(shorter) tips.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'로 먼저 돈을 벌면서 이 길을 준비하는 방법도 있어요.`);
+    if(shorter) tips.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 돈을 벌면서 이 길을 준비하는 방법도 있어요.`);
     else if(!o.nat) tips.push("국민취업지원제도 조건이 맞으면 6개월간 360만원을 더 받을 수 있어요. '더 정확하게'에서 넣어 보세요.");
   }
   const rows=c.rows.map(r=>`<div class="mrow"><span>${r.m}개월째 <small>${r.stage}</small></span><b class="${r.bal<0?"negt":""}">${r.bal.toLocaleString()}만원</b></div>`).join("");
@@ -1410,12 +1417,13 @@ function calcDraw(){
 }
 let P_CUR=[];
 function result(){
+  AFF_SHOWN=0;
   const {t,f}=tally(); const ALL=score(); const P=ALL.slice(0,3); const tops=topTraits(t,5); P_CUR=P;
   const sitName={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"}[sitKey()||"job"];
   const free=st.ans.free;
   const SP=supports(f,P);
   const MONEY=["교육비·교육급여 지원","국가장학금","취업 후 상환 학자금대출","청년월세 지원","청년미래적금","청년내일저축계좌","실업급여 (구직급여)","국민취업지원제도","청년창업사관학교","햇살론유스 (청년 저금리 대출)","서민금융통합지원센터 상담"];
-  const money=SP.filter(x=>MONEY.includes(x.n)), corp=SP.filter(x=>x.corp), help=SP.filter(x=>!MONEY.includes(x.n)&&!x.corp);
+  const LOAN=x=>/대출/.test(x.n), money=SP.filter(x=>MONEY.includes(x.n)).sort((a,b)=>LOAN(a)-LOAN(b)), corp=SP.filter(x=>x.corp), help=SP.filter(x=>!MONEY.includes(x.n)&&!x.corp);
   const gk=guideKey(f), gp=gk&&PATHS.find(p=>p.key===gk), GD=gk&&GUIDE[gk];
   const plans=(st.ans.plan||[]).map(i=>PLANS[i]).filter(x=>x&&x[1]);
   const lk=(l)=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`;
@@ -1425,12 +1433,14 @@ function result(){
       ${firstBox(gk,gp.first)}${planBox(gk)}${affBox(gk)}
       <div class="links">${(GD?GD.links:[]).map(lk).join("")}<a href="${yt(gk)}" target="_blank" rel="noopener">현직자 영상 ↗</a></div></section>` : "";
   const planCard = plans.length ? `<div class="check"><p class="hint">준비 중이라고 고른 자격·시험</p><p>${plans.map(x=>x[0]).join(", ")} · 시험 일정은 <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷 ↗</a>에서 확인하고, 내일배움카드로 교육비를 줄일 수 있어요.</p></div>` : "";
-  const supItem=x=>`<details class="sup"><summary class="sup-h"><b>${x.n}</b><span class="chip">${x.who}</span></summary><p class="hint" style="color:var(--ink)">${x.t}</p><div class="links">${x.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join("")}</div></details>`;
+  const supItem=x=>`<details class="sup"><summary class="sup-h"><b>${x.n}</b><span class="chip">${/대출/.test(x.n)?"빌리는 돈 · 갚아야 해요":x.who}</span></summary><p class="hint" style="color:var(--ink)">${x.t}</p><div class="links">${x.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join("")}</div></details>`;
   el(`<section style="display:flex;flex-direction:column;gap:20px">
     <div style="display:flex;flex-direction:column;gap:10px">
       <span class="eyebrow">완주 · ${sitName}</span>
       <h1>당신이 갈 수 있는 길 3개</h1>
+      <ol class="top3">${P.map((p,i)=>`<li><em>${i+1}</em><b>${p.n}</b></li>`).join("")}</ol>
       <div class="chips">${tops.map(x=>`<span class="chip k">${TRAIT[x]}</span>`).join("")}</div>
+      ${(f.flat||f.longslump)&&!(free&&CRISIS_RE.test(free))?`<div class="care"><b>요즘 많이 지쳤다면</b><p>진로보다 내 몸과 마음이 먼저예요. 혼자 견디지 말고 이야기해 보세요. 청소년·청년(만 24세까지) <a href="tel:1388">1388</a>, 마음이 힘들 때 <a href="tel:109">109</a>(24시간), 위급하면 112·119.</p></div>`:""}
       <nav class="jump" aria-label="결과 바로가기">${isMS()?`<button type="button" data-go="run">한 달 알아보기 계획</button>`:free && CRISIS_RE.test(free) ? "" : `<button type="button" data-go="run">첫 월급까지</button>`}<button type="button" data-go="paths">추천 길 3개</button><button type="button" data-go="money">돈 지원 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button>${corp.length?`<button type="button" data-go="corp">기업 프로그램 ${corp.length}개</button>`:""}${gp?`<button type="button" data-go="goal">하고 싶은 일 준비</button>`:""}</nav>
     </div>
     ${free?`<section class="card"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">막막함에 대한 짧은 답</span><p class="hint">“${free.replace(/</g,"&lt;")}”</p></div><div class="ans">${freeAnswer(free).map(x=>`<p>${x}</p>`).join("")}</div></section>`:""}
@@ -1446,7 +1456,7 @@ function result(){
       </div>
       <p class="hint" id="aiNote"></p>
     </section>
-    <div class="card"><h3>현실 점검</h3>${reality(f,t,ALL).map(x=>`<p class="hint" style="color:var(--ink)">${x}</p>`).join("")}</div>
+    <div class="card"><h3>먼저 알아두면 좋은 것</h3>${reality(f,t,ALL).map(x=>`<p class="hint" style="color:var(--ink)">${x}</p>`).join("")}</div>
     ${P[0].v.length?`<div class="warn">말씀하신 조건을 모두 피하는 길이 없어서, 가장 덜 겹치는 길을 보여드려요. 카드마다 맞지 않는 점을 적어 뒀어요.</div>`:""}
     <div id="paths"></div>
     ${P.map((p,i)=>`<article class="path ${i===0?"top":""}">
@@ -1660,7 +1670,8 @@ const AFF={it:["프로그래밍 시작하기: 파이썬 입문 (인프런, 유�
  fin:["엑셀 시작하기: 엑셀 입문 (인프런, 유료)","https://inf.run/jweAe"],
  pln:["서비스 기획·PM 첫걸음 입문 (인프런, 유료)","https://inf.run/JqwKp"],
  arc:["초보자를 위한 오토캐드 입문 (인프런, 유료)","https://inf.run/PuHtj"]};
-function affBox(k){ const a=AFF[k]; if(!a||isMS()) return ""; return `<p class="hint aff">처음 해 보기 좋은 강의 · <a href="${a[1]}" target="_blank" rel="noopener sponsored">${a[0]} ↗</a><br><small>제휴 링크예요. 이 링크로 구매하면 운영자가 수수료를 받아요. 무료 강의로 먼저 시작해도 충분해요.</small></p>`; }
+let AFF_SHOWN=0;
+function affBox(k){ const a=AFF[k]; if(!a||isMS()||AFF_SHOWN) return ""; AFF_SHOWN=1; return `<p class="hint aff">처음 해 보기 좋은 강의 · <a href="${a[1]}" target="_blank" rel="noopener sponsored">${a[0]} ↗</a><br><small>제휴 링크예요. 이 링크로 구매하면 운영자가 수수료를 받아요. 무료 강의로 먼저 시작해도 충분해요.</small></p>`; }
 // 쿠팡 파트너스 교재 링크 (운영자 계정). 자격 이름이 정확히 같을 때만, 쿠팡 대가성 문구와 함께
 const BOOK={ // [표시 이름, 링크] — 쿠팡 파트너스에서 직접 만든 링크, 상품명 확인함 (2026-10-22)
  "정보처리기사":["이기적 정보처리기능사 필기 (입문)","https://link.coupang.com/a/h3BPIOIV3c"],
@@ -1804,7 +1815,7 @@ function supports(f,P,today){
     if(k==="col") out.push({n:"대학일자리플러스센터",who:f.senior?"졸업 예정자":"재학생",t:"학교마다 있는 취업 지원 기관이에요. 진로 상담, 이력서 첨삭, 모의면접, 현장실습 연결을 무료로 받을 수 있어요.",links:[]});
     if(k==="col" || f.go==="adv") out.push({n:"국가장학금",who:"학기마다 신청",t:"가구 소득구간에 따라 등록금을 지원받아요. 재학생은 직전 학기 12학점 이상·80점(B) 이상이 기본 기준이고, 부모님 정보 제공 동의를 안 하면 심사가 안 돼요. 1차 신청은 보통 학기 시작 전 겨울·여름에 열려요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]});
     if(k==="col" || f.go==="adv") out.push({n:"취업 후 상환 학자금대출",who:"학부생 만 35세 이하",t:"등록금 전액과 생활비 학기당 200만원까지 빌릴 수 있고, 2026년 1학기 금리는 연 1.7%였어요. 졸업 후 연소득이 3,037만원을 넘을 때부터 갚기 시작해요. 빚이니 장학금으로 모자란 만큼만 쓰세요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]});
-    if(k==="col" && f.senior) out.push({n:"국민내일배움카드",who:"졸업 후 바로 발급 가능",t:"졸업하면 구직자로 발급받아 5년간 300만원(저소득층 등 최대 500만원)까지 국비 훈련을 들을 수 있어요.",links:[["고용24",W24],["훈련과정 검색",TRAIN]]});
+    if(k==="col" && f.senior) out.push({n:"국민내일배움카드",who:"졸업까지 2년 미만 남았거나 졸업했으면 신청 가능",t:"졸업까지 남은 기간이 2년 미만이면 재학 중에도 신청할 수 있고, 졸업하면 구직자로 발급받아 5년간 300만원(저소득층 등 최대 500만원)까지 국비 훈련을 들을 수 있어요.",links:[["고용24",W24],["훈련과정 검색",TRAIN]]});
     out.push(...polySup(f,P,k,emp,age));
     return out.concat(corpSupports(f,P,today));
   }
