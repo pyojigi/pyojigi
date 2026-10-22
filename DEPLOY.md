@@ -37,6 +37,7 @@ AI 읽기 기능은 Anthropic API 키가 필요하고, 사용량에 따라 요�
     npx wrangler pages secret put SALT --project-name pyojigi
 
 - `ADMIN_KEY`: 통계 페이지에 들어갈 때 쓰는 암호. 8자 이상, 본인만 아는 값으로 정하세요.
+- `REPLY_KEY`: 자동 답변 전용 키. 아직 답이 없는 문의에 답만 달 수 있어요(완료·후기 승인 불가). FEEDBACK_KEY와 다르게.
 - `SALT`: 방문자 IP를 가리는 데 쓰는 임의의 긴 문자열. 아무 긴 문장이나 됩니다.
 
 ## 4. 배포하기
@@ -76,6 +77,7 @@ Cloudflare 대시보드 → 해당 Pages 프로젝트 → Custom domains → pyo
 ## 비밀 값 (Settings → Variables and Secrets, 모두 Secret)
 - `ADMIN_KEY`: 운영자 키. 통계·문의 답변·후기 승인. 본인 폰에만 보관.
 - `FEEDBACK_KEY`: 읽기 전용 키(8자 이상, ADMIN_KEY와 다르게). 매일 자동 업데이트가 통계를 읽을 때 씀.
+- `REPLY_KEY`: 자동 답변 전용 키. 아직 답이 없는 문의에 답만 달 수 있어요(완료·후기 승인 불가). FEEDBACK_KEY와 다르게.
 - `SALT`: 아무 긴 문자열. 방문자 IP를 가리는 데 섞는 값. 기억할 필요 없음.
 - 피드백은 메일로 보내지 않고 통계 페이지(/stats.html)에 쌓여요. 예전 `RESEND_API_KEY`, `FEEDBACK_TO`는 지워도 돼요.
 - 값을 바꾼 뒤에는 새로 배포돼야 적용돼요(저장소에 새로 올라가면 자동 배포).

@@ -24,7 +24,7 @@ function KV() {
     delete: async k => { m.delete(k); },
     list: async ({ prefix }) => ({ keys: [...m.keys()].filter(k => k.startsWith(prefix)).sort().map(name => ({ name })), list_complete: true }) };
 }
-const ADMIN = "admin-key-1234", RO = "read-only-5678";
+const ADMIN = "admin-key-1234", RO = "read-only-5678", RK = "reply-key-9012";
 const req = (url, body, ip = "9.9.9.9", method = body ? "POST" : "GET") =>
   new Request(url, { method, headers: { "content-type": "application/json", "cf-connecting-ip": ip, "user-agent": "Mozilla/5.0 TESTUA" }, body: body ? JSON.stringify(body) : undefined });
 const call = async (fn, env, url, body, ip) => { const r = await fn({ request: req(url, body, ip), env }); return { s: r.status, h: r.headers.get("cache-control"), j: await r.json() }; };
@@ -63,7 +63,7 @@ const CODE = /^[2-9A-HJKMNP-Z]{8}$/;
 
 // ---------- 2. 방문 값 검사 (D1) ----------
 const raw = new DatabaseSync(":memory:");
-const env = { DB: D1(raw), PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, FEEDBACK_KEY: RO, SALT: "s", DEBUG: 1 };
+const env = { DB: D1(raw), PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, FEEDBACK_KEY: RO, REPLY_KEY: RK, SALT: "s", DEBUG: 1 };
 {
   await E(env, { type: "visit", src: "insta", ref: "https://evil.com/path", kw: "<script>alert(1)</script>\u0007 취업\n상담" + "가".repeat(60) });
   await E(env, { type: "visit", ref: "a".repeat(61) });
@@ -133,10 +133,16 @@ let code;
   ok("admin: empty reply", (await A(env, { key: ADMIN, action: "reply", code, reply: "  " })).j.error === "empty");
   ok("admin: long reply", (await A(env, { key: ADMIN, action: "reply", code, reply: "가".repeat(1001) })).j.error === "long");
   ok("admin: reply unknown code 404", (await A(env, { key: ADMIN, action: "reply", code: "ZZZZZZZZ", reply: "x" })).s === 404);
-  const rr = await A(env, { key: ADMIN, action: "reply", code, reply: "확인했어요. <b>고쳤어요</b>\n고맙습니다!" });
+  ok("admin: REPLY_KEY close 401", (await A(env, { key: RK, action: "close", code })).s === 401);
+  ok("admin: REPLY_KEY review 401", (await A(env, { key: RK, action: "review", id: 1, approve: true })).s === 401);
+  ok("admin: REPLY_KEY unknown 404", (await A(env, { key: RK, action: "reply", code: "ZZZZZZZZ", reply: "x" })).s === 404);
+  ok("admin: REPLY_KEY same as FEEDBACK_KEY 401", (await A({ ...env, REPLY_KEY: RO }, { key: RO, action: "reply", code, reply: "x" })).s === 401);
+  const rr = await A(env, { key: RK, action: "reply", code, reply: "확인했어요. <b>고쳤어요</b>\n고맙습니다!" });
   ok("admin: reply ok", rr.s === 200 && rr.j.ok && rr.h === "no-store");
   const g = await AG(env, code, "6.6.6.6");
   ok("ask: shows reply", g.j.status === "answered" && g.j.reply === "확인했어요. 고쳤어요\n고맙습니다!" && /^\d{4}-\d\d-\d\d \d\d:\d\d$/.test(g.j.replied_at), JSON.stringify(g.j));
+  ok("admin: REPLY_KEY no overwrite 409", (await A(env, { key: RK, action: "reply", code, reply: "덮어쓰기" })).s === 409);
+  ok("admin: ADMIN can overwrite", (await A(env, { key: ADMIN, action: "reply", code, reply: "확인했어요. <b>고쳤어요</b>\n고맙습니다!" })).j.ok);
   ok("admin: close ok", (await A(env, { key: ADMIN, action: "close", code })).j.ok);
   ok("ask: closed", (await AG(env, code, "6.6.6.6")).j.status === "closed");
   ok("admin: bad action", (await A(env, { key: ADMIN, action: "drop_table" })).s === 400);
