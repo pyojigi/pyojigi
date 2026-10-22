@@ -30,7 +30,18 @@ ol.qa li{margin:10px 0}ol.qa b{display:block}
 .sum{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}.sum ul{margin:6px 0 0}
 .tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}th,td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}th{background:var(--soft);font-weight:700}
 .lost{text-align:center;padding:24px 0 8px}.lost svg{width:132px;height:auto}.lost h1{margin-top:12px}
-footer{margin-top:36px;border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--muted)}footer nav{display:flex;flex-wrap:wrap;gap:4px 14px}`;
+footer{margin-top:36px;border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--muted)}footer nav{display:flex;flex-wrap:wrap;gap:4px 14px}
+/* 앱 테마 (2026-10-22) */
+:root{--bg:#F2F4F6;--surface:#FFFFFF;--ink:#191F28;--muted:#6B7684;--line:#E5E8EB;--pine:#0B8F5A;--soft:#F2F4F6;--tint:#E8F6EF;--blaze:#FFF4E5;--wood:#8B6F57}
+@media (prefers-color-scheme:dark){:root{--bg:#101113;--surface:#1B1D20;--ink:#F2F4F6;--muted:#9EA4AA;--line:#2C2F33;--pine:#34C98A;--soft:#24272B;--tint:#16352A;--blaze:#3A2C14;--wood:#C2A68C}}
+body{font-family:"Pretendard Variable","Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+h1{font-size:28px;font-weight:800;letter-spacing:-.035em}h2{font-size:20px;font-weight:700;letter-spacing:-.025em}h3{font-weight:700}
+.card,.sum{border:0;border-radius:20px;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:20px}
+.sum{background:var(--tint)}
+.cta{border-radius:14px;padding:17px}
+.chips a{border:0;background:var(--surface);box-shadow:0 0 0 1.5px var(--line) inset;padding:8px 14px}
+table{border-radius:14px;overflow:hidden}th{background:var(--soft)}
+a{text-underline-offset:3px}`;
 
 // 로고 (리본이 묶인 표지 기둥) — favicon.svg와 같은 모양
 const LOGO = `<svg width="26" height="32" viewBox="0 30 220 230" aria-hidden="true"><rect x="95" y="38" width="30" height="40" rx="5" fill="#A82E25"/><path d="M8 62 C70 46 150 44 214 60" fill="none" stroke="var(--wood)" stroke-width="16" stroke-linecap="round"/><rect x="94" y="47" width="32" height="18" rx="4" fill="#D23F33"/><rect x="99" y="64" width="22" height="13" rx="5" fill="#A82E25"/><path d="M118 74 C128 92 131 108 136 124 L127 119 L123 128 C120 108 116 92 110 76 Z" fill="#A82E25"/><path d="M95 75 L123 75 C125 130 126 190 128 254 L112 239 L94 256 C95 190 95 130 95 75 Z" fill="#D23F33"/></svg>`;
@@ -58,7 +69,7 @@ function page({ url, title, desc, body, crumbs, ld = [], og = '/og.png', ogAlt, 
 <meta property="og:type" content="${type}"><meta property="og:site_name" content="표지기"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">${noindex ? '' : `<meta property="og:url" content="${SITE + url}">`}
 <meta property="og:image" content="${img}"><meta property="og:image:width" content="${OG_W}"><meta property="og:image:height" content="${OG_H}"><meta property="og:image:alt" content="${esc(ogAlt || title)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${img}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#24543F">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#F2F4F6">
 ${blocks.map(ldTag).join('\n')}<style>${CSS}</style></head><body><div class="w">
 <header><a class="logo" href="/">${LOGO}<span>표지기<small>길 잃은 사람을 위한 리본</small></span></a><a href="/jobs/">직업 안내</a></header>
 ${crumbs ? `<nav class="src" aria-label="현재 위치">${crumbHtml(crumbs)}</nav>` : ''}

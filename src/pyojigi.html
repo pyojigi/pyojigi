@@ -1,7 +1,7 @@
 <title>표지기</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 /* Layout: 한 줄 기둥(640px) 위를 걷는 등산로. 상단 6개 '표지기'가 챕터 진행을 보여주고, 질문 카드 한 장씩 넘긴다. */
 :root{
@@ -283,6 +283,65 @@ html,body{overflow-x:clip}
 .crumb{font-size:13px;color:var(--muted);margin:0 0 4px}.crumb a{color:var(--pine)}
 .revs{display:flex;flex-direction:column;gap:10px;margin-top:8px}.rev{margin:0;border-left:3px solid var(--pine);padding:4px 0 4px 12px}.rev p{margin:0}.rev footer{font-size:12px;color:var(--muted);margin-top:4px}
 .thanks{border-color:var(--pine)}.reply{background:var(--soft);border-radius:8px;padding:8px 10px;margin:4px 0}
+
+/* ===== 앱 테마 (2026-10-22): 흰 카드, 큰 글씨, 둥근 모서리, 포인트 색 하나 ===== */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --ink:#191F28; --muted:#6B7684; --line:#E5E8EB;
+  --pine:#0B8F5A; --soft:#F2F4F6; --tint:#E8F6EF; --sky:#3182F6; --blaze:#FFF4E5; --blaze-ink:#8A4B00; --wood:#8B6F57;
+  --display:"Pretendard Variable","Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --body:var(--display);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101113; --surface:#1B1D20; --ink:#F2F4F6; --muted:#9EA4AA; --line:#2C2F33;
+  --pine:#34C98A; --soft:#24272B; --tint:#16352A; --sky:#5B9BFF; --blaze:#3A2C14; --blaze-ink:#FFD596; --wood:#C2A68C}}
+:root[data-theme="dark"]{
+  --bg:#101113; --surface:#1B1D20; --ink:#F2F4F6; --muted:#9EA4AA; --line:#2C2F33;
+  --pine:#34C98A; --soft:#24272B; --tint:#16352A; --sky:#5B9BFF; --blaze:#3A2C14; --blaze-ink:#FFD596; --wood:#C2A68C}
+body{letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+h1{font-weight:800;letter-spacing:-.035em;line-height:1.3;font-size:clamp(28px,7.4vw,38px)}
+h2{font-weight:700;letter-spacing:-.03em;line-height:1.38;font-size:clamp(21px,5.2vw,25px)}
+h3{font-weight:700;letter-spacing:-.02em}
+.eyebrow{letter-spacing:0;font-weight:700;color:var(--pine);font-size:13px}
+.lede{font-size:16px;line-height:1.7}
+.card,.path,.ribbon-note,.plan{border:0;border-radius:20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card{padding:24px 20px;gap:18px}
+.path{padding:22px 20px}
+.path.top{border:0;box-shadow:0 0 0 2px var(--pine) inset,0 1px 2px rgba(0,0,0,.04)}
+.btn{border-radius:14px;padding:16px 22px;font-weight:700;font-size:16px;letter-spacing:-.01em;transition:transform .08s,filter .15s}
+.btn:active{transform:scale(.98)}
+.btn:hover{filter:brightness(1.05)}
+.btn.alt{background:var(--soft);color:var(--ink)}
+.cta .btn{flex:1 1 auto;min-width:140px}
+.nav .btn{min-width:96px}
+.ghost{border-radius:12px}
+.opt{background:var(--soft);border:1.5px solid transparent;border-radius:14px;padding:15px 16px;font-size:15.5px;font-weight:500}
+.opt:hover{border-color:var(--line)}
+.opt.sel{background:var(--tint);border-color:var(--pine);font-weight:600}
+.opt.sel .tick{box-shadow:inset 0 0 0 3px var(--tint)}
+.opt .tick{border-color:#B0B8C1}
+.opts.tiles .opt{border-radius:16px;font-size:18px;font-weight:700;padding:24px 12px;background:var(--surface);box-shadow:0 0 0 1.5px var(--line) inset}
+.opts.tiles .opt.sel{background:var(--tint);box-shadow:0 0 0 2px var(--pine) inset}
+.ogh{border:0;border-radius:14px;background:var(--soft);padding:15px 16px}
+.ogh[aria-expanded="true"]{background:var(--tint)}
+textarea,.etcrow input{border-radius:14px;border:1.5px solid var(--line);background:var(--surface)}
+.agree{border:0;border-radius:16px;background:var(--surface);box-shadow:0 0 0 1.5px var(--line) inset;padding:14px 16px}
+.chip{border-radius:999px;background:var(--soft);font-weight:500}
+.chip.k{background:var(--tint);color:var(--pine);font-weight:700}
+.first{background:var(--tint);color:var(--ink);border-radius:14px;padding:14px 16px}
+.first a,a.first{color:var(--pine)}
+.check{border-left:0;background:var(--soft);border-radius:14px;padding:14px 16px}
+.warn{border-left:0;border-radius:14px;background:var(--blaze);color:var(--blaze-ink);padding:12px 14px}
+.fact{border-top:0;background:var(--surface);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.fact b{font-weight:800;letter-spacing:-.02em;color:var(--pine)}
+.plan{background:var(--surface);overflow:hidden}
+.plan div{border-bottom:1px solid var(--line);padding:14px 16px}
+.plan em{background:var(--tint);color:var(--pine);border-radius:8px}
+.mark .bar{height:6px;border-radius:999px}
+.mark .bar span{border-radius:999px}
+.ribbon-note{padding:18px 20px}
+.sal .track{border-radius:999px}
+.crumb{font-size:13px}
+a{text-underline-offset:3px}
 </style>
 
 <div class="wrap">
