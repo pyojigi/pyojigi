@@ -1322,7 +1322,7 @@ function result(){
   const lk=(l)=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`;
   const goalCard = gp ? `<section class="card" id="goal"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">하고 싶은 일 준비 안내</span><h3>${gp.n}</h3><div class="chips"><span class="chip ${P.some(p=>p.key===gk)?"k":""}">${P.some(p=>p.key===gk)?"추천 3개 안에 있어요":"추천 밖이지만 준비 방법은 여기 있어요"}</span></div></div>
       <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(gp.prep)}</dd>${gp.sal?`<dt>연봉</dt><dd>연 ${gp.sal[0].toLocaleString()}만 → 경력 5년+ ${gp.sal[1].toLocaleString()}만원 (대략)</dd>`:""}${!gp.sal&&gp.salNote?`<dt>연봉</dt><dd>${gp.salNote}</dd>`:""}<dt>필요한 것</dt><dd>${gp.need}</dd>${GD&&GD.how?`<dt>준비 순서</dt><dd>${GD.how}</dd>`:""}</dl>
-      ${GD&&GD.cert.length?`<div><p class="hint">자격·시험</p><ul class="glist">${GD.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기 ↗</a>`:""}</li>`).join("")}</ul></div>`:""}
+      ${GD&&GD.cert.length?`<div><p class="hint">자격·시험</p><ul class="glist">${GD.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기 ↗</a>`:""}${bookA(c[0])}</li>`).join("")}</ul>${bookNote(GD.cert)}</div>`:""}
       ${firstBox(gk,gp.first)}${planBox(gk)}${affBox(gk)}
       <div class="links">${(GD?GD.links:[]).map(lk).join("")}<a href="${yt(gk)}" target="_blank" rel="noopener">현직자 영상 ↗</a></div></section>` : "";
   const planCard = plans.length ? `<div class="check"><p class="hint">준비 중이라고 고른 자격·시험</p><p>${plans.map(x=>x[0]).join(", ")} · 시험 일정은 <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷 ↗</a>에서 확인하고, 내일배움카드로 교육비를 줄일 수 있어요.</p></div>` : "";
@@ -1574,6 +1574,11 @@ const AFF={it:["프로그래밍 시작하기: 파이썬 입문 (인프런, 유�
  pln:["서비스 기획·PM 첫걸음 입문 (인프런, 유료)","https://inf.run/JqwKp"],
  arc:["초보자를 위한 오토캐드 입문 (인프런, 유료)","https://inf.run/PuHtj"]};
 function affBox(k){ const a=AFF[k]; if(!a||isMS()) return ""; return `<p class="hint aff">처음 해 보기 좋은 강의 · <a href="${a[1]}" target="_blank" rel="noopener sponsored">${a[0]} ↗</a><br><small>제휴 링크예요. 이 링크로 구매하면 운영자가 수수료를 받아요. 무료 강의로 먼저 시작해도 충분해요.</small></p>`; }
+// 쿠팡 파트너스 교재 링크 (운영자 계정). 자격 이름이 정확히 같을 때만, 쿠팡 대가성 문구와 함께
+const BOOK={"정보처리기사":["정보처리기능사 입문 교재","https://link.coupang.com/a/h3yl48dK56"],"컴퓨터활용능력":["컴퓨터활용능력 교재","https://link.coupang.com/a/h3yqRcezuK"],"지게차운전기능사":["지게차운전기능사 교재","https://link.coupang.com/a/h3yszz001k"]};
+const CPN_NOTE="이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.";
+function bookA(n){ const b=BOOK[n]; return b&&!isMS()?` <a href="${b[1]}" target="_blank" rel="noopener sponsored">${b[0]} (쿠팡) ↗</a>`:""; }
+function bookNote(certs){ return !isMS()&&certs.some(c=>BOOK[c[0]])?`<p class="hint"><small>${CPN_NOTE}</small></p>`:""; }
 const JOBSITE={pub:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],pbc:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],uni:["소방공무원 채용 공고 보기 (국가공무원 채용시스템)","https://gongmuwon.gosi.kr/spcsv/RpaApTestPbancLst.do"],env:["환경공무관 채용공고 보기 (클린아이 잡플러스)","https://job.cleaneye.go.kr"],own:["창업 지원사업 공고 보기 (K-Startup)","https://www.k-startup.go.kr"],adv:["학과 정보 보기 (커리어넷)","https://www.career.go.kr"],tch:["임용시험 정보 보기 (한국교육과정평가원)","https://www.kice.re.kr"],ath:["체육 단체 소식·채용 보기 (대한체육회)","https://www.sports.or.kr"],rail:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],doc:["면허시험 정보 보기 (국시원)","https://www.kuksiwon.or.kr"]};
 function jobLink(k){ if(sitKey()==="ms") return ["직업 정보 보기 (커리어넷)","https://www.career.go.kr"]; if(JOBSITE[k]) return JOBSITE[k]; return ["관련 채용공고 보기 (사람인)","https://www.saramin.co.kr/zf_user/search?searchword="+encodeURIComponent(JOBQ[k]||"")]; }
 const firstBox=(k,txt)=>{ const j=jobLink(k); if(sitKey()==="ms") txt=`커리어넷에서 '${(JOBS[k]||[""])[0]}' 직업 정보를 찾아 하는 일과 되는 법을 읽어 보세요.`; return `<a class="first" href="${j[1]}" target="_blank" rel="noopener"><b>내일 할 일 하나</b>${txt}<span class="go">${j[0]} ↗</span></a>`; };
@@ -2091,7 +2096,7 @@ function dict(){
         <div class="jobs">${(JOBS[p.key]||[]).map(x=>`<button type="button" class="chip jchip" data-job="${x}" data-pk="${p.key}" aria-expanded="false">${x}</button>`).join("")}</div>
         <div class="jdet" id="jd-${p.key}" hidden></div>
         <p class="hint" style="color:var(--ink)">${p.need}</p>
-        ${G.cert.length?`<ul class="glist">${G.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기 ↗</a>`:""}</li>`).join("")}</ul>`:""}
+        ${G.cert.length?`<ul class="glist">${G.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기 ↗</a>`:""}${bookA(c[0])}</li>`).join("")}</ul>${bookNote(G.cert)}`:""}
         <div class="links"><a href="${j[1]}" target="_blank" rel="noopener">${j[0].replace(/ \(.*\)$/,"")} ↗</a><a href="${yt(p.key)}" target="_blank" rel="noopener">현직자 영상 ↗</a>${PRO[p.key]?`<a href="${PRO[p.key].url}" target="_blank" rel="noopener">장점·연봉 출처 ↗</a>`:""}</div>
       </div></details>`; }).join("")
       : `<p class="hint">'${q.replace(/</g,"&lt;")}'에 맞는 직업이 아직 없어요. 커리어넷 직업백과에서 찾아보세요.</p>`;
