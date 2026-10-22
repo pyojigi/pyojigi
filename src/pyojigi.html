@@ -342,6 +342,41 @@ textarea,.etcrow input{border-radius:14px;border:1.5px solid var(--line);backgro
 .sal .track{border-radius:999px}
 .crumb{font-size:13px}
 a{text-underline-offset:3px}
+
+/* ===== 펜팔 우표 테마 (2026-10-22 디자인 회의 확정안) ===== */
+:root{--stamp:#E6F4EC;--stamp-edge:#D5DAE0;--ribbon:#D23F33}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--stamp:#1E3A2D;--stamp-edge:#3A4048}}
+:root[data-theme="dark"]{--stamp:#1E3A2D;--stamp-edge:#3A4048}
+/* 우표: 흰 테두리 + 톱니 구멍 + 연초록 면 */
+.stp{position:relative;display:grid;place-items:center;width:92px;height:112px;border:12px solid var(--surface);background:var(--stamp);
+  -webkit-mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;
+          mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;
+  filter:drop-shadow(0 0 1px var(--stamp-edge)) drop-shadow(0 0 0.5px var(--stamp-edge))}
+.stp svg{position:relative;width:56px!important;height:42px!important}
+.stp .won{position:absolute;top:4px;right:5px;font-style:normal;font-size:10px;font-weight:700;color:var(--pine)}
+.hero3{max-width:360px;position:relative;padding-bottom:14px;gap:6px}
+.hero3::after{content:"";position:absolute;left:12%;right:12%;top:122px;border-top:3px dashed var(--pine);opacity:.55}
+.h3i{gap:6px}
+.h3i:nth-child(n+2)::before{display:none}
+.h3i:nth-child(1) .stp{transform:rotate(-4deg)}
+.h3i:nth-child(2) .stp{transform:rotate(2deg) translateY(6px)}
+.h3i:nth-child(3) .stp{transform:rotate(-3deg) translateY(-2px)}
+.h3i b{margin-top:6px}
+.pmark{position:absolute;right:max(0px,calc(50% - 200px));top:-30px;width:62px;height:62px;border:3px solid var(--pine);border-radius:50%;
+  box-shadow:inset 0 0 0 4px var(--surface),inset 0 0 0 6px var(--pine);display:grid;place-content:center;text-align:center;color:var(--pine);
+  transform:rotate(-12deg);opacity:.85;pointer-events:none;animation:pmark .4s cubic-bezier(.2,1.6,.4,1) .2s both}
+.pmark b{font-size:11px;line-height:1.1}.pmark em{font-style:normal;font-size:9px;font-weight:700;letter-spacing:0}
+@keyframes pmark{from{transform:rotate(-12deg) scale(1.6);opacity:0}to{transform:rotate(-12deg) scale(1);opacity:.85}}
+@keyframes h3in{0%{opacity:0;transform:translateY(-14px)}70%{opacity:1;transform:translateY(0) scaleY(.92)}100%{transform:none}}
+/* 1순위 결과 = 우표처럼 톱니 테두리 (테두리 12px에만 구멍) */
+.path.top{border:12px solid var(--surface);padding:12px 10px;box-shadow:none;
+  -webkit-mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;
+          mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;
+  filter:drop-shadow(0 0 1px var(--stamp-edge))}
+/* 진행 막대 = 점선 탐방로 */
+.mark .bar{background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 12px)}
+.sal .range{background:var(--pine)!important}
+@media (prefers-reduced-motion: reduce){.pmark{animation:none}}
 </style>
 
 <div class="wrap">
@@ -1034,7 +1069,7 @@ function intro(){
   const has = Object.keys(st.ans).length>0;
   el(`<section style="display:flex;flex-direction:column;gap:24px">
     <div style="display:flex;flex-direction:column;gap:12px">
-      <span class="eyebrow">중학생 · 고등학생 · 자퇴 · 재수 · 대학생 · 첫 취업</span>
+      <span class="eyebrow">먼저 간 사람이 보낸 편지 · 무료 진로 검사 20분</span>
       <h1>어디로 가야 할지 모를 때,<br>20분이면 지도가 생깁니다</h1>
       <p class="lede">아직 뭘 하고 싶은지 몰라도 괜찮아요. 성격 유형 검사가 아니라, 지금 상황과 좋아하는 것, 못 견디는 일까지 묻고 <strong>실제로 갈 수 있는 길 3개</strong>와 되는 법, 연봉, <strong>받을 수 있는 지원</strong>을 정리해 줘요.</p>
     </div>
@@ -1045,10 +1080,10 @@ function intro(){
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="hero3" role="img" aria-label="방황에서 방향으로, 방향에서 계획으로">
-        <div class="h3i"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 40 C12 12 24 46 30 24 S44 4 40 26 S52 46 58 16" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5"/><circle cx="58" cy="16" r="3.5" fill="var(--ink)"/></svg><b>방황</b><small>헤매는 지금</small></div>
-        <div class="h3i"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M32 46 L32 28" stroke="var(--wood)" stroke-width="3.2" stroke-linecap="round"/><path d="M32 28 C32 20 22 16 12 8" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round"/><path d="M32 28 C32 20 42 16 52 8" fill="none" stroke="var(--pine)" stroke-width="3.2" stroke-linecap="round"/><rect x="45.5" y="9" width="7" height="4" rx="1" fill="#A82E25"/><path d="M47 13 L51.5 13 L52 25 L49.5 22.5 L47 25 Z" fill="#D23F33"/></svg><b>방향</b><small>갈 길 3개</small></div>
-        <div class="h3i"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 42 L22 32 L38 26 L54 14" fill="none" stroke="var(--pine)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="42" r="4" fill="var(--pine)"/><circle cx="22" cy="32" r="4" fill="var(--pine)"/><circle cx="38" cy="26" r="4" fill="var(--surface)" stroke="var(--pine)" stroke-width="2"/><path d="M54 16 L54 2" stroke="var(--wood)" stroke-width="2.2" stroke-linecap="round"/><path d="M54 2.5 L63 5.5 L54 9 Z" fill="#D23F33"/></svg><b>계획</b><small>내일 할 일까지</small></div>
-      </div>
+        <div class="h3i"><span class="stp"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 40 C12 12 24 46 30 24 S44 4 40 26 S52 46 58 16" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5"/><circle cx="58" cy="16" r="3.5" fill="var(--ink)"/></svg><i class="won">₩0</i></span><b>방황</b><small>헤매는 지금</small></div>
+        <div class="h3i"><span class="stp"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M32 46 L32 28" stroke="var(--wood)" stroke-width="3.2" stroke-linecap="round"/><path d="M32 28 C32 20 22 16 12 8" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round"/><path d="M32 28 C32 20 42 16 52 8" fill="none" stroke="var(--pine)" stroke-width="3.2" stroke-linecap="round"/><rect x="45.5" y="9" width="7" height="4" rx="1" fill="#A82E25"/><path d="M47 13 L51.5 13 L52 25 L49.5 22.5 L47 25 Z" fill="#D23F33"/></svg><i class="won">₩0</i></span><b>방향</b><small>갈 길 3개</small></div>
+        <div class="h3i"><span class="stp"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 42 L22 32 L38 26 L54 14" fill="none" stroke="var(--pine)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="42" r="4" fill="var(--pine)"/><circle cx="22" cy="32" r="4" fill="var(--pine)"/><circle cx="38" cy="26" r="4" fill="var(--surface)" stroke="var(--pine)" stroke-width="2"/><path d="M54 16 L54 2" stroke="var(--wood)" stroke-width="2.2" stroke-linecap="round"/><path d="M54 2.5 L63 5.5 L54 9 Z" fill="#D23F33"/></svg><i class="won">₩0</i></span><b>계획</b><small>내일 할 일까지</small></div>
+      <span class="pmark" aria-hidden="true"><b>표지기</b><em>${(()=>{const d=new Date(Date.now()+9*36e5);return d.getUTCFullYear()+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+String(d.getUTCDate()).padStart(2,"0")})()}</em></span></div>
       <div class="ribbon-note">
         <div class="rn-body">
         <p class="rn-word">표지기</p>
