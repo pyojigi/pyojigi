@@ -114,7 +114,7 @@ p{margin:0}
 .ogh span{flex:1}.ogh small{color:var(--muted);font-weight:400;font-size:13px}
 .ogh i{font-style:normal;color:var(--muted);transition:transform .15s}.ogh[aria-expanded="true"] i{transform:rotate(90deg)}
 .ogh[aria-expanded="true"]{border-color:var(--pine)}
-.ogrp .opts{margin-top:8px;padding-left:6px}
+.ogrp .opts{margin-top:8px;padding-left:0}
 .ogsel{margin:4px 2px 0;font-size:13px;color:var(--pine)}
 .ogh.par{background:var(--soft);font-size:16px}
 .subs{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-left:10px;border-left:2px solid var(--line)}
@@ -217,7 +217,7 @@ button.chip:hover{background:var(--line)}
 .jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
 .jump button{font:inherit;font-size:14px;font-weight:600;border:1.5px solid var(--pine);color:var(--pine);background:var(--surface);border-radius:999px;padding:7px 14px;cursor:pointer}
 .jump button:hover{background:var(--soft)}
-.card.money{border:2px solid var(--blaze)}
+.card.money{border:0;box-shadow:inset 0 0 0 1.5px rgba(245,150,50,.45)}
 header{position:relative}
 .menu{position:relative}
 .menubtn{font:inherit;font-size:14px;font-weight:600;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
@@ -270,7 +270,7 @@ button.jchip[aria-expanded="true"]{background:var(--pine);color:var(--surface)}
 .brand .mark{flex:none}
 .brand span{display:flex;flex-direction:column;line-height:1.15}
 .brand small{font-family:var(--body);font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.02em}
-.meaning{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--blaze);border-radius:8px;padding:9px 12px;margin:0}
+.meaning{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:0}
 .meaning b{color:var(--ink)}
 .ribbon-note{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;position:relative;overflow:hidden}
 .rn-art{flex:1 1 100%;width:100%;max-width:520px;height:auto;margin:0 auto;display:block}
@@ -371,7 +371,10 @@ textarea,.etcrow input{border-radius:14px;border:1.5px solid var(--line);backgro
 .ribbon-note{padding:18px 20px}
 .sal .track{border-radius:999px}
 .crumb{font-size:13px}
-a{text-underline-offset:3px}
+a{text-underline-offset:3px;text-decoration-thickness:1px;color:var(--pine)}
+a:visited{color:var(--pine)}
+.links a{color:var(--pine)}
+body{word-break:keep-all;overflow-wrap:anywhere}
 
 /* ===== 펜팔 우표 테마 (2026-10-22 디자인 회의 확정안) ===== */
 :root{--stamp:#E6F4EC;--stamp-edge:#D5DAE0;--ribbon:#D23F33}
@@ -1519,7 +1522,7 @@ function result(){
     </section>
     ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요. 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
     <section class="card" id="fbCard"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">피드백</span><h3>이 결과가 도움이 됐나요?</h3><p class="hint">${FB_API?"보내기를 누르면 운영자 이메일로 바로 전달돼 다음 버전에 반영돼요. 이름·연락처는 적지 마세요.":"누르면 내용이 채워진 메일 쓰기 화면이 열려요. 보내기만 누르면 운영자에게 바로 전달돼요."}</p></div>
-      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${["많이 됐어요","조금 됐어요","별로예요"].map(x=>`<button type="button" class="opt fbopt ${st.fb===x?"sel":""}" data-fb="${x}" style="flex:1;min-width:0;justify-content:center"><span>${x}</span></button>`).join("")}</div>
+      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${["많이 됐어요","조금 됐어요","별로예요"].map(x=>`<button type="button" class="opt fbopt ${st.fb===x?"sel":""}" data-fb="${x}" style="flex:1;min-width:0;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap;font-size:15px"><span>${x}</span></button>`).join("")}</div>
       <textarea id="fbText" maxlength="300" placeholder="한마디 (선택) 예) 2주 실험이 좋았어요, 연봉이 실제와 달라요" style="min-height:70px">${(st.fbt||"").replace(/</g,"&lt;")}</textarea>
       ${FB_API?`<label class="agree small"><input type="checkbox" id="fbPub"><span>이 한마디를 이름 없이 사이트 후기로 공개해도 좋아요 (운영자 확인 후 게시)</span></label>`:""}
       <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${FB_API?`<button class="btn" id="fbCopy" type="button" ${st.fbSent?"disabled":""}>${st.fbSent?"보냈어요":"피드백 보내기"}</button>`:""}<a class="btn ${FB_API?"alt":""}" id="fbMail" href="#" target="_blank" rel="noopener" style="text-decoration:none" ${FB_API?"hidden":""}>이메일로 바로 보내기</a><span class="hint" id="fbNote"></span></div>
