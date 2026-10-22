@@ -1323,7 +1323,7 @@ function result(){
   const goalCard = gp ? `<section class="card" id="goal"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">하고 싶은 일 준비 안내</span><h3>${gp.n}</h3><div class="chips"><span class="chip ${P.some(p=>p.key===gk)?"k":""}">${P.some(p=>p.key===gk)?"추천 3개 안에 있어요":"추천 밖이지만 준비 방법은 여기 있어요"}</span></div></div>
       <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(gp.prep)}</dd>${gp.sal?`<dt>연봉</dt><dd>연 ${gp.sal[0].toLocaleString()}만 → 경력 5년+ ${gp.sal[1].toLocaleString()}만원 (대략)</dd>`:""}${!gp.sal&&gp.salNote?`<dt>연봉</dt><dd>${gp.salNote}</dd>`:""}<dt>필요한 것</dt><dd>${gp.need}</dd>${GD&&GD.how?`<dt>준비 순서</dt><dd>${GD.how}</dd>`:""}</dl>
       ${GD&&GD.cert.length?`<div><p class="hint">자격·시험</p><ul class="glist">${GD.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기 ↗</a>`:""}</li>`).join("")}</ul></div>`:""}
-      ${firstBox(gk,gp.first)}${planBox(gk)}
+      ${firstBox(gk,gp.first)}${planBox(gk)}${affBox(gk)}
       <div class="links">${(GD?GD.links:[]).map(lk).join("")}<a href="${yt(gk)}" target="_blank" rel="noopener">현직자 영상 ↗</a></div></section>` : "";
   const planCard = plans.length ? `<div class="check"><p class="hint">준비 중이라고 고른 자격·시험</p><p>${plans.map(x=>x[0]).join(", ")} · 시험 일정은 <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷 ↗</a>에서 확인하고, 내일배움카드로 교육비를 줄일 수 있어요.</p></div>` : "";
   const supItem=x=>`<details class="sup"><summary class="sup-h"><b>${x.n}</b><span class="chip">${x.who}</span></summary><p class="hint" style="color:var(--ink)">${x.t}</p><div class="links">${x.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join("")}</div></details>`;
@@ -1361,7 +1361,7 @@ function result(){
       ${AIX[p.key]?`<p class="aix aix-${AIX[p.key]}"><b>AI 영향 ${AIXT[AIX[p.key]][0]}</b> · ${AIXT[AIX[p.key]][1]}</p>`:""}
       <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(p.prep)}</dd><dt>필요한 것</dt><dd>${p.need}</dd></dl>
       ${PRO[p.key]?`<div class="pro"><b>이 일의 장점</b><p>${PRO[p.key].t}</p><a class="srcl" href="${PRO[p.key].url}" target="_blank" rel="noopener">출처: ${PRO[p.key].src}</a></div>`:""}
-      ${p.try?`<p class="hint"><b style="color:var(--ink)">2주 안에 해 볼 것</b> · ${isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":p.try}</p>`:""}${planBox(p.key)}
+      ${p.try?`<p class="hint"><b style="color:var(--ink)">2주 안에 해 볼 것</b> · ${isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":p.try}</p>`:""}${planBox(p.key)}${affBox(p.key)}
       <a class="ytb" href="${yt(p.key)}" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 현직자 영상 보기 (유튜브)</a>
       </details>
       <div id="miss-${p.key}">${st.miss&&st.miss[p.key]!=null?`<p class="hint">알려 주셔서 고마워요 · ${MISSWHY[st.miss[p.key]]}</p>`:`<button type="button" class="linkbtn" data-miss="${p.key}">이 추천은 아니에요</button>`}</div>
@@ -1565,6 +1565,9 @@ const YTQ={sec:"시설경비 보안요원 현실",fac:"반도체 생산직 브�
 const yt=k=>"https://www.youtube.com/results?search_query="+encodeURIComponent(YTQ[k]||"");
 // '내일 할 일' 칸을 누르면 여는 채용공고 (공공 채용은 공식 사이트, 나머지는 사람인 검색)
 const JOBQ={sec:"시설경비",fac:"생산직 교대",tec:"전기 설비관리",spo:"생활체육 지도자",sal:"보험설계사",it:"신입 개발자",off:"사무직 신입",log:"지게차",mkt:"마케터 신입",car:"요양보호사",avs:"공항 보안검색",mlc:"군무원",edu:"강사",bop:"영업관리",pln:"서비스 기획",svc:"호텔 프론트",hcl:"산업간호사",kid:"청소년지도사",hsj:"고졸 채용",nur:"신규 간호사",ckg:"조리사",bty:"헤어 디자이너",aut:"자동차 정비",bld:"도배 타일",mtc:"물리치료사",eng:"공정 엔지니어 신입",rea:"공인중개사",avi:"항공 정비",doc:"약사",fin:"은행 신입",tax:"세무사무소",med:"기자 편집",dsn:"디자이너 신입",cns:"상담사",lgl:"법률사무소",arc:"건축기사 신입",trd:"무역사무",diet:"영양사",art:"공연기획"};
+// 제휴 링크 (운영자 인프런 파트너스). 그 길과 맞는 입문 강의만, 제휴 표시와 함께. 중학생에게는 안 보여요
+const AFF={it:["프로그래밍 시작하기: 파이썬 입문 (인프런, 유료)","https://inf.run/Khasz"]};
+function affBox(k){ const a=AFF[k]; if(!a||isMS()) return ""; return `<p class="hint aff">처음 해 보기 좋은 강의 · <a href="${a[1]}" target="_blank" rel="noopener sponsored">${a[0]} ↗</a><br><small>제휴 링크예요. 이 링크로 구매하면 운영자가 수수료를 받아요. 무료 강의로 먼저 시작해도 충분해요.</small></p>`; }
 const JOBSITE={pub:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],pbc:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],uni:["소방공무원 채용 공고 보기 (국가공무원 채용시스템)","https://gongmuwon.gosi.kr/spcsv/RpaApTestPbancLst.do"],env:["환경공무관 채용공고 보기 (클린아이 잡플러스)","https://job.cleaneye.go.kr"],own:["창업 지원사업 공고 보기 (K-Startup)","https://www.k-startup.go.kr"],adv:["학과 정보 보기 (커리어넷)","https://www.career.go.kr"],tch:["임용시험 정보 보기 (한국교육과정평가원)","https://www.kice.re.kr"],ath:["체육 단체 소식·채용 보기 (대한체육회)","https://www.sports.or.kr"],rail:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],doc:["면허시험 정보 보기 (국시원)","https://www.kuksiwon.or.kr"]};
 function jobLink(k){ if(sitKey()==="ms") return ["직업 정보 보기 (커리어넷)","https://www.career.go.kr"]; if(JOBSITE[k]) return JOBSITE[k]; return ["관련 채용공고 보기 (사람인)","https://www.saramin.co.kr/zf_user/search?searchword="+encodeURIComponent(JOBQ[k]||"")]; }
 const firstBox=(k,txt)=>{ const j=jobLink(k); if(sitKey()==="ms") txt=`커리어넷에서 '${(JOBS[k]||[""])[0]}' 직업 정보를 찾아 하는 일과 되는 법을 읽어 보세요.`; return `<a class="first" href="${j[1]}" target="_blank" rel="noopener"><b>내일 할 일 하나</b>${txt}<span class="go">${j[0]} ↗</span></a>`; };
