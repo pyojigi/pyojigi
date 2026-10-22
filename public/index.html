@@ -1612,7 +1612,21 @@ const AFF={it:["프로그래밍 시작하기: 파이썬 입문 (인프런, 유�
  arc:["초보자를 위한 오토캐드 입문 (인프런, 유료)","https://inf.run/PuHtj"]};
 function affBox(k){ const a=AFF[k]; if(!a||isMS()) return ""; return `<p class="hint aff">처음 해 보기 좋은 강의 · <a href="${a[1]}" target="_blank" rel="noopener sponsored">${a[0]} ↗</a><br><small>제휴 링크예요. 이 링크로 구매하면 운영자가 수수료를 받아요. 무료 강의로 먼저 시작해도 충분해요.</small></p>`; }
 // 쿠팡 파트너스 교재 링크 (운영자 계정). 자격 이름이 정확히 같을 때만, 쿠팡 대가성 문구와 함께
-const BOOK={"정보처리기사":["정보처리기능사 입문 교재","https://link.coupang.com/a/h3yl48dK56"],"컴퓨터활용능력":["컴퓨터활용능력 2급 필기 교재","https://link.coupang.com/a/h3AUHFQspw"],"전기기능사":["전기기능사 필기 교재","https://link.coupang.com/a/h3AOXWLGSG"],"지게차운전기능사":["지게차운전기능사 교재","https://link.coupang.com/a/h3yszz001k"]};
+const BOOK={ // [표시 이름, 링크] — 쿠팡 파트너스에서 직접 만든 링크, 상품명 확인함 (2026-10-22)
+ "정보처리기사":["이기적 정보처리기능사 필기 (입문)","https://link.coupang.com/a/h3BPIOIV3c"],
+ "컴퓨터활용능력":["시나공 컴활 2급 필기 기본서","https://link.coupang.com/a/h3AUHFQspw"],
+ "전기기능사":["에듀윌 전기기능사 필기 한권끝장","https://link.coupang.com/a/h3AOXWLGSG"],
+ "지게차운전기능사":["박문각 지게차운전기능사 필기","https://link.coupang.com/a/h3BPvifHPw"],
+ "요양보호사":["박문각 요양보호사 합격모의고사","https://link.coupang.com/a/h3BKMxhPj2"],
+ "간호조무사":["박문각 간호조무사 필기+실기","https://link.coupang.com/a/h3BLBA2wAm"],
+ "전산회계":["독공 전산회계 2급","https://link.coupang.com/a/h3BMUbbNq8"],
+ "전산회계·전산세무":["독공 전산회계 2급","https://link.coupang.com/a/h3BMUbbNq8"],
+ "한식조리기능사":["박문각 한식조리기능사 필기","https://link.coupang.com/a/h3BM7I41i8"],
+ "경비지도사":["시대에듀 경비지도사 1차 기출","https://link.coupang.com/a/h3BNk9APn2"],
+ "생활스포츠지도사 2급":["생활스포츠지도사 2급 필기 합격공식","https://link.coupang.com/a/h3BN6OlIIu"],
+ "공인중개사":["에듀윌 공인중개사 1차 기본서","https://link.coupang.com/a/h3BOkpjE4q"],
+ "직업상담사 2급":["에듀윌 직업상담사 2급 필기 기출","https://link.coupang.com/a/h3BOx2Zpwi"],
+ "자동차정비기능사":["에듀윌 자동차정비기능사 필기","https://link.coupang.com/a/h3BOLp7IsK"]};
 const CPN_NOTE="이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.";
 function bookA(n){ const b=BOOK[n]; return b&&!isMS()?` <a href="${b[1]}" target="_blank" rel="noopener sponsored">${b[0]} (쿠팡) ↗</a>`:""; }
 function bookNote(certs){ return !isMS()&&certs.some(c=>BOOK[c[0]])?`<p class="hint"><small>${CPN_NOTE}</small></p>`:""; }
