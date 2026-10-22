@@ -21,6 +21,7 @@ meta = '''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="google-site-verification" content="sYlME7471VsXeJt91Jrpw-SPSdKKNPL1IyIkw5MFWFc">
+<meta name="naver-site-verification" content="5ac34010da8ecdce736ba237c5c402cedb749726">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,viewport-fit=cover">
 <meta name="description" content="중학생·고등학생·자퇴·재수생·대학생·첫 취업 준비생을 위한 무료 진로 검사. 20분 질문으로 나한테 맞는 길 3개와 되는 법, 연봉, 받을 수 있는 지원을 정리해 드려요.">
 <meta property="og:type" content="website">
