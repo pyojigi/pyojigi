@@ -56,7 +56,31 @@ h1{font-size:104px;line-height:1.18;font-weight:900;letter-spacing:-4px}h2{font-
 .phone{position:absolute;left:50%;transform:translateX(-50%);top:470px;width:560px;border-radius:64px;background:#111;padding:22px;box-shadow:0 30px 60px rgba(0,0,0,.25)}
 .phone .scr{border-radius:44px;overflow:hidden;background:#F2F3EE}.phone img{width:100%;display:block}
 .call{position:absolute;left:80px;right:80px;bottom:150px;background:#1F4A37;color:#F7F3EA;border-radius:36px;padding:52px 56px;font-size:58px;line-height:1.3;font-weight:900;letter-spacing:-2px}.call small{display:block;font-size:34px;font-weight:700;color:#E8A49C;margin-bottom:14px;letter-spacing:0}
-.tag{position:absolute;left:80px;bottom:70px;font-size:26px;font-weight:700;opacity:.6}'''
+.tag{position:absolute;left:80px;bottom:70px;font-size:26px;font-weight:700;opacity:.6}
+/* 앱 테마 (사이트와 같은 디자인, 2026-10-22) */
+body{background:#F2F4F6;color:#191F28;letter-spacing:-1.5px}
+body.g{background:#0B8F5A;color:#fff}
+h1{font-weight:900;letter-spacing:-5px}h2{font-weight:900;letter-spacing:-4px}
+.r{color:#0B8F5A}body.g .r{color:#C8F5DE}
+.eb{color:#0B8F5A;background:#E8F6EF;padding:10px 22px;border-radius:999px;font-size:34px}
+body.g .eb{background:rgba(255,255,255,.18);color:#fff}
+.chip{background:#191F28;border-radius:28px}body.g .chip{background:#fff;color:#0B8F5A}
+.sub{opacity:1;color:#4E5968}body.g .sub{color:rgba(255,255,255,.9)}
+.src{color:#8B95A1;opacity:1}body.g .src{color:rgba(255,255,255,.75)}
+.save{color:#0B8F5A}
+.ul li{background:#fff;border-radius:28px;padding:30px 34px 30px 92px;font-size:44px}
+.ul li:before{left:36px;top:40px;background:#0B8F5A;clip-path:circle(50%);width:28px;height:28px}
+.blank div{background:#fff;border-radius:28px;padding:30px 34px;margin-bottom:24px;align-items:center}
+.blank span{border-bottom:4px solid #D1D6DB}
+.q{border:0;border-radius:28px;background:#fff}
+.y{background:#191F28}.n{background:#0B8F5A}
+.stats div{border-radius:28px}.stats b{color:#0B8F5A}
+.call{background:#fff;color:#191F28;border-radius:36px;box-shadow:0 0 0 4px #0B8F5A inset}.call small{color:#0B8F5A}
+.call{position:static;margin-top:44px}
+.tl .it:before{background:#D1D6DB}.tl .hot .d{color:#0B8F5A}
+.phone{background:#191F28}
+.logo b{font-weight:900}
+'''
 e = lambda s: s or ''
 
 def red(title, word):
@@ -77,8 +101,8 @@ def slide(s, n, N):
         if s.get('blanks'): body += '<div class=blank>' + ''.join(f'<div>{k}<span></span></div>' for k in range(1, s['blanks'] + 1)) + '</div>'
         if s.get('chip'): body += f'<div class=chip>{s["chip"]}</div>'
         if s.get('stats'): body += '<div class=stats>' + ''.join(f'<div><b>{a}</b>{b}</div>' for a, b in s['stats']) + '</div>'
-        body += '</div>'
         if s.get('call'): body += f'<div class=call><small>진짜는</small>{s["call"]}</div>'
+        body += '</div>'
     elif t == 'flow':
         body = f'<div class=h>{f"<div class=eb>{s["eyebrow"]}</div>" if s.get("eyebrow") else ""}<h2>{s["title"]}</h2></div><div class=fc><div class=q>{s["q1"]}</div><div class=ar><span>↓ 예</span><span>{s.get("q1no","아니오 →")}</span></div><div class=q>{s["q2"]}</div><div class=ar><span>↓ 예</span><span>↓ 아니오</span></div><div class=end><div class=y>{s["yes"]}</div><div class=n>{s["no"]}</div></div></div>'
     elif t == 'result':
@@ -100,6 +124,8 @@ def build(ids=None):
         for p in posts:
             if ids and p['id'] not in ids: continue
             d = OUT / p['id']; d.mkdir(parents=True, exist_ok=True)
+            if p.get('video'):  # 릴스: 미리 만든 영상을 그대로 복사
+                import shutil; shutil.copy(SRC / p['video'], d / p['video']); print('copied', p['id']); continue
             for old in d.glob('*.png'): old.unlink()
             N = len(p['slides'])
             for i, s in enumerate(p['slides'], 1):
@@ -109,8 +135,10 @@ def build(ids=None):
         b.close()
     rows = ''
     for p in posts:
-        imgs = ''.join(f'<a href="{p["id"]}/{i}.png" download="pyojigi_{p["id"]}_{i}.png"><img src="{p["id"]}/{i}.png" loading="lazy" alt="{i}번"></a>' for i in range(1, len(p['slides']) + 1))
-        rows += f'<section><h2>{html.escape(p.get("title", p["id"]))}</h2><p class=m>{p["id"]} · {len(p["slides"])}장 · 이미지를 길게 눌러 저장하고 1번부터 순서대로 올려요</p><div class=g>{imgs}</div><textarea readonly>{html.escape(p["caption"])}</textarea><button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent=\'복사했어요\'">글 복사</button></section>'
+        if p.get('video'):
+            imgs = f'<video src="{p["id"]}/{p["video"]}" controls playsinline style="width:100%;border-radius:8px"></video><a href="{p["id"]}/{p["video"]}" download="pyojigi_{p["id"]}.mp4">영상 저장하기</a>'
+        else: imgs = ''.join(f'<a href="{p["id"]}/{i}.png" download="pyojigi_{p["id"]}_{i}.png"><img src="{p["id"]}/{i}.png" loading="lazy" alt="{i}번"></a>' for i in range(1, len(p['slides']) + 1))
+        rows += f'<section><h2>{html.escape(p.get("title", p["id"]))}</h2><p class=m>{p["id"]} · {"릴스 영상 · 저장해서 릴스로 올려요 (음악은 인스타에서 골라 넣기)" if p.get("video") else str(len(p["slides"]))+"장 · 이미지를 길게 눌러 저장하고 1번부터 순서대로 올려요"}</p><div class={"v" if p.get("video") else "g"}>{imgs}</div><textarea readonly>{html.escape(p["caption"])}</textarea><button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent=\'복사했어요\'">글 복사</button></section>'
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'index.html').write_text(f'''<!doctype html><html lang=ko><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content=noindex><title>인스타 게시물 · 표지기 운영</title>
 <style>body{{font-family:system-ui,sans-serif;background:#F7F3EA;color:#1F4A37;margin:0;padding:16px;max-width:720px;margin:auto}}h1{{font-size:22px}}section{{background:#fff;border-radius:16px;padding:16px;margin:16px 0}}h2{{font-size:18px;margin:0 0 4px}}.m{{font-size:13px;opacity:.7;margin:0 0 10px}}
