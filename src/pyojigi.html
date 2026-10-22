@@ -974,6 +974,16 @@ function intro(){
   const has = Object.keys(st.ans).length>0;
   el(`<section style="display:flex;flex-direction:column;gap:24px">
     <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="eyebrow">중학생 · 고등학생 · 자퇴 · 재수 · 대학생 · 첫 취업</span>
+      <h1>어디로 가야 할지 모를 때,<br>20분이면 지도가 생깁니다</h1>
+      <p class="lede">아직 뭘 하고 싶은지 몰라도 괜찮아요. 성격 유형 검사가 아니라, 지금 상황과 좋아하는 것, 못 견디는 일까지 묻고 <strong>실제로 갈 수 있는 길 3개</strong>와 되는 법, 연봉, <strong>받을 수 있는 지원</strong>을 정리해 줘요.</p>
+    </div>
+    <label class="agree"><input type="checkbox" id="agree" ${agreed()?"checked":""}><span><b>(필수)</b> 서비스 개선을 위한 익명 이용 기록(시각, 상황 종류, 나이대, 추천 결과)에 동의해요. 답 내용과 이름·연락처는 저장하지 않아요. <a href="#" id="toPrivacy">개인정보 처리방침</a></span></label>
+    <p class="hint" id="agreeNote" role="alert"></p>
+    <div class="cta">
+      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">시작하기 · 약 38문항</button>`}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
       <div class="hero3" role="img" aria-label="방황에서 방향으로, 방향에서 계획으로">
         <div class="h3i"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 40 C12 12 24 46 30 24 S44 4 40 26 S52 46 58 16" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5"/><circle cx="58" cy="16" r="3.5" fill="var(--ink)"/></svg><b>방황</b><small>헤매는 지금</small></div>
         <div class="h3i"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M32 46 L32 28" stroke="var(--wood)" stroke-width="3.2" stroke-linecap="round"/><path d="M32 28 C32 20 22 16 12 8" fill="none" stroke="var(--muted)" stroke-width="2.6" stroke-linecap="round"/><path d="M32 28 C32 20 42 16 52 8" fill="none" stroke="var(--pine)" stroke-width="3.2" stroke-linecap="round"/><rect x="45.5" y="9" width="7" height="4" rx="1" fill="#A82E25"/><path d="M47 13 L51.5 13 L52 25 L49.5 22.5 L47 25 Z" fill="#D23F33"/></svg><b>방향</b><small>갈 길 3개</small></div>
@@ -986,9 +996,6 @@ function intro(){
         <p class="rn-comfort">지금 헤매고 있다면, 그건 잘못 걸어서가 아니라 아직 리본을 못 만났을 뿐이에요. 여기서 하나 찾아 드릴게요.</p>
         </div>
       </div>
-      <span class="eyebrow">중학생 · 고등학생 · 자퇴 · 재수 · 대학생 · 첫 취업</span>
-      <h1>어디로 가야 할지 모를 때,<br>20분이면 지도가 생깁니다</h1>
-      <p class="lede">아직 뭘 하고 싶은지 몰라도 괜찮아요. 성격 유형 검사가 아니라, 지금 상황과 좋아하는 것, 못 견디는 일까지 묻고 <strong>실제로 갈 수 있는 길 3개</strong>와 되는 법, 연봉, <strong>받을 수 있는 지원</strong>을 정리해 줘요.</p>
     </div>
     <div class="facts">
       <div class="fact"><b>255만 5천명</b><span>지난해 일도 구직도 안 하고 '쉬었음'이라 답한 사람, 1년 새 8만 8천명 늘었어요</span></div>
@@ -999,11 +1006,6 @@ function intro(){
       ${CH.map((c,i)=>`<div><em>${i+1}</em><p><strong>${c}</strong> · ${["나이, 지금 상황, 자격, 하고 싶은 일","생활비, 가족, 준비 기간, 딸 자격증","몸·머리, 사람, 반복, 칭찬받은 일","교대, 실적 압박, 감정노동","5년 뒤 연봉, 퇴근 후 시간","중고생·자퇴·재수·대학생·첫 취업·전역별 질문"][i]}</p></div>`).join("")}
     </div>
     <section id="reviews" class="card" hidden></section>
-    <label class="agree"><input type="checkbox" id="agree" ${agreed()?"checked":""}><span><b>(필수)</b> 서비스 개선을 위한 익명 이용 기록(시각, 상황 종류, 나이대, 추천 결과)에 동의해요. 답 내용과 이름·연락처는 저장하지 않아요. <a href="#" id="toPrivacy">개인정보 처리방침</a></span></label>
-    <p class="hint" id="agreeNote" role="alert"></p>
-    <div class="cta">
-      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">시작하기 · 약 38문항</button>`}
-    </div>
     <p class="src">답은 이 기기에만 저장되고, 중간에 나가도 이어서 할 수 있어요.</p>
   </section>`);
   const agBox=document.getElementById("agree");
@@ -1531,7 +1533,7 @@ const AFF={it:["프로그래밍 시작하기: 파이썬 입문 (인프런, 유�
  arc:["초보자를 위한 오토캐드 입문 (인프런, 유료)","https://inf.run/PuHtj"]};
 function affBox(k){ const a=AFF[k]; if(!a||isMS()) return ""; return `<p class="hint aff">처음 해 보기 좋은 강의 · <a href="${a[1]}" target="_blank" rel="noopener sponsored">${a[0]} ↗</a><br><small>제휴 링크예요. 이 링크로 구매하면 운영자가 수수료를 받아요. 무료 강의로 먼저 시작해도 충분해요.</small></p>`; }
 // 쿠팡 파트너스 교재 링크 (운영자 계정). 자격 이름이 정확히 같을 때만, 쿠팡 대가성 문구와 함께
-const BOOK={"정보처리기사":["정보처리기능사 입문 교재","https://link.coupang.com/a/h3yl48dK56"],"컴퓨터활용능력":["컴퓨터활용능력 교재","https://link.coupang.com/a/h3yqRcezuK"],"지게차운전기능사":["지게차운전기능사 교재","https://link.coupang.com/a/h3yszz001k"]};
+const BOOK={"정보처리기사":["정보처리기능사 입문 교재","https://link.coupang.com/a/h3yl48dK56"],"컴퓨터활용능력":["컴퓨터활용능력 2급 필기 교재","https://link.coupang.com/a/h3AUHFQspw"],"전기기능사":["전기기능사 필기 교재","https://link.coupang.com/a/h3AOXWLGSG"],"지게차운전기능사":["지게차운전기능사 교재","https://link.coupang.com/a/h3yszz001k"]};
 const CPN_NOTE="이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.";
 function bookA(n){ const b=BOOK[n]; return b&&!isMS()?` <a href="${b[1]}" target="_blank" rel="noopener sponsored">${b[0]} (쿠팡) ↗</a>`:""; }
 function bookNote(certs){ return !isMS()&&certs.some(c=>BOOK[c[0]])?`<p class="hint"><small>${CPN_NOTE}</small></p>`:""; }
