@@ -39,7 +39,9 @@ async function fromDB(db, n) {
   const refs = {}, kws = {};
   for (const r of await q(`SELECT ref AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='visit' AND ref IS NOT NULL GROUP BY ref ORDER BY c DESC LIMIT 200`, from)) refs[r.k] = r.c;
   for (const r of await q(`SELECT kw AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='visit' AND kw IS NOT NULL GROUP BY kw ORDER BY c DESC LIMIT 200`, from)) kws[r.k] = r.c;
-  return { days, refs, kws, runs: runs.map(r => ({ at: r.at, sit: r.sit, ag: r.ag, age: r.age, tops: [r.top1, r.top2, r.top3].filter(Boolean) })), total, since, store: "d1" };
+  const etc = {};
+  for (const r of await q(`SELECT qid || ':' || kw AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='etc' AND kw IS NOT NULL GROUP BY k ORDER BY c DESC LIMIT 200`, from)) etc[r.k] = r.c;
+  return { days, refs, kws, etc, runs: runs.map(r => ({ at: r.at, sit: r.sit, ag: r.ag, age: r.age, tops: [r.top1, r.top2, r.top3].filter(Boolean) })), total, since, store: "d1" };
 }
 
 async function fromKV(kv, n) {
@@ -52,13 +54,14 @@ async function fromKV(kv, n) {
   }
   const runs = [];
   for (const d of days) for (const r of (d.runs || []).slice().reverse()) runs.push(r);
-  const refs = {}, kws = {};
+  const refs = {}, kws = {}, etc = {};
   for (const d of days) {
     for (const [k, v] of Object.entries(d.ref || {})) refs[k] = (refs[k] || 0) + v;
     for (const [k, v] of Object.entries(d.kw || {})) kws[k] = (kws[k] || 0) + v;
+    for (const [k, v] of Object.entries(d.etc || {})) etc[k] = (etc[k] || 0) + v;
     delete d.runs;
   }
-  return { days, refs: top(refs), kws: top(kws), runs, store: "kv" };
+  return { days, refs: top(refs), kws: top(kws), etc: top(etc), runs, store: "kv" };
 }
 
 export async function onRequestGet({ request, env }) {

@@ -6,7 +6,8 @@
 import { SITS, PATHS, FB, json, ensure, SCHEMA, kstAt } from "../_lib/common.js";
 export { ensure, SCHEMA };
 const ST_TTL = 731 * 86400; // KV 날짜별 숫자는 2년 보관
-const TYPES = ["visit", "start", "finish", "feedback", "copy", "miss", "leave"];
+const TYPES = ["visit", "start", "finish", "feedback", "copy", "miss", "leave", "etc"];
+const ETC_Q = ["goal", "cert", "plan"]; // '기타'에 직접 적은 직업·자격 이름 (목록에 없던 것만)
 const inc = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
 const incCap = (st, name, key, cap = 80) => { const o = st[name] = st[name] || {}; if (Object.keys(o).length < cap || o[key]) inc(o, key); };
 
@@ -40,6 +41,13 @@ export function clean(e) {
   } else if (e.type === "feedback") { if (!FB.includes(e.fb)) return null; r.fb = e.fb; }
   else if (e.type === "miss") { if (!PATHS.includes(e.top) || !Number.isInteger(e.why) || e.why < 0 || e.why > 3) return null; r.top1 = e.top; r.why = e.why; }
   else if (e.type === "leave") { if (typeof e.at !== "string" || !/^[a-z0-9_-]{1,12}$/.test(e.at)) return null; r.qid = e.at; }
+  else if (e.type === "etc") {
+    // 직업·자격 이름만 받는다: 30자 이하, 숫자 5개 이상 연속(전화번호 등)·@(이메일)·주소 같은 건 거절
+    if (!ETC_Q.includes(e.q) || typeof e.t !== "string") return null;
+    const t = e.t.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF<>"'`]/g, " ").replace(/\s+/g, " ").trim();
+    if (!t || t.length > 30 || /\d{5,}|@|https?:|www\.|\d+-\d+-\d+/i.test(t)) return null;
+    r.qid = e.q; r.kw = t;
+  }
   return r;
 }
 
@@ -77,6 +85,7 @@ export async function onRequestPost({ request, env }) {
   else if (r.type === "copy") inc(st, "fbCopy");
   else if (r.type === "miss") { st.miss = st.miss || {}; inc(st.miss, r.top1 + ":" + r.why); }
   else if (r.type === "leave") incCap(st, "leave", r.qid);
+  else if (r.type === "etc") incCap(st, "etc", r.qid + ":" + r.kw, 100);
   await env.PYOJIGI_KV.put(key, JSON.stringify(st), { expirationTtl: ST_TTL });
   return json({ ok: true });
 }

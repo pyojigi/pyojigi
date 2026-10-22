@@ -78,6 +78,15 @@ const env = { DB: D1(raw), PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, FEEDBACK_KEY: RO,
   ok("leave: q id ok", (await E(env, { type: "leave", at: "ms1" })).s === 200);
   ok("leave: 13 chars rejected", (await E(env, { type: "leave", at: "abcdefghijklm" })).s === 400);
   ok("leave: uppercase rejected", (await E(env, { type: "leave", at: "Q1" })).s === 400);
+  ok("etc: goal ok", (await E(env, { type: "etc", q: "goal", t: "드론 조종사" })).s === 200);
+  ok("etc: plan ok", (await E(env, { type: "etc", q: "plan", t: "조주기능사" })).s === 200);
+  ok("etc: phone rejected", (await E(env, { type: "etc", q: "goal", t: "010-1234-5678" })).s === 400);
+  ok("etc: digits rejected", (await E(env, { type: "etc", q: "goal", t: "연락 01012345678" })).s === 400);
+  ok("etc: email rejected", (await E(env, { type: "etc", q: "goal", t: "a@b.com" })).s === 400);
+  ok("etc: url rejected", (await E(env, { type: "etc", q: "cert", t: "https://x.y" })).s === 400);
+  ok("etc: 31 chars rejected", (await E(env, { type: "etc", q: "goal", t: "가".repeat(31) })).s === 400);
+  ok("etc: bad q rejected", (await E(env, { type: "etc", q: "inc", t: "기타" })).s === 400);
+  ok("etc: tags stripped", raw.prepare("SELECT kw FROM events WHERE type='etc' AND qid='goal'").get().kw === "드론 조종사");
 }
 
 // ---------- 3. KV 만 있을 때 방문 ----------
@@ -90,9 +99,11 @@ const env = { DB: D1(raw), PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, FEEDBACK_KEY: RO,
   const stv = JSON.parse(kenv.PYOJIGI_KV.m.get(day));
   ok("kv: ref counted", stv.ref["search.naver.com"] === 2 && stv.kw["경비지도사"] === 2);
   ok("kv: cap 80 keys", Object.keys(stv.ref).length === 80 && Object.keys(stv.kw).length === 80, Object.keys(stv.ref).length);
+  await E(kenv, { type: "etc", q: "cert", t: "바리스타 2급" });
+  ok("kv: etc counted", JSON.parse(kenv.PYOJIGI_KV.m.get(day)).etc["cert:바리스타 2급"] === 1);
   ok("kv: st TTL 2y", kenv.PYOJIGI_KV.ttl[day] === 731 * 86400);
   const s = await S(kenv, RO);
-  ok("kv stats: refs/kws/readonly", s.s === 200 && s.j.store === "kv" && s.j.refs["search.naver.com"] === 2 && s.j.kws["경비지도사"] === 2 && s.j.readonly === true);
+  ok("kv stats: refs/kws/readonly", s.s === 200 && s.j.store === "kv" && s.j.refs["search.naver.com"] === 2 && s.j.kws["경비지도사"] === 2 && s.j.readonly === true && s.j.etc["cert:바리스타 2급"] === 1);
 }
 
 // ---------- 4. 문의 ----------
@@ -191,6 +202,7 @@ let code;
   const ro = await S(env, RO);
   const j = ro.j;
   ok("stats ro: 200 readonly", ro.s === 200 && j.readonly === true && ro.h === "no-store");
+  ok("stats ro: etc list", j.etc && j.etc["goal:드론 조종사"] === 1 && j.etc["plan:조주기능사"] === 1, JSON.stringify(j.etc));
   ok("stats ro: has refs/kws/asks/reviews", typeof j.refs === "object" && typeof j.kws === "object" && Array.isArray(j.asks) && Array.isArray(j.reviews) && j.refs["google.com"] === 1);
   ok("purge: events >2y deleted, <2y kept", !raw.prepare("SELECT 1 FROM events WHERE day='2024-09-01'").get() && !!raw.prepare("SELECT 1 FROM events WHERE day='2025-01-10'").get());
   ok("purge: rejected >90d deleted, others kept", !raw.prepare("SELECT 1 FROM reviews WHERE text='옛 거절'").get() && !!raw.prepare("SELECT 1 FROM reviews WHERE text='옛 승인'").get() && !!raw.prepare("SELECT 1 FROM reviews WHERE text='최근 거절'").get());

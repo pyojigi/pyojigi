@@ -267,6 +267,7 @@ button.jchip[aria-expanded="true"]{background:var(--pine);color:var(--surface)}
 .steps3 li b{font-size:13px}.steps3 li span{font-size:13px;color:var(--muted)}
 .steps3 li:last-child{background:var(--soft)}
 .ogrp .opts[hidden]{display:none}
+.etc{display:flex;flex-direction:column;gap:6px;margin-top:4px;padding-top:12px;border-top:1px dashed var(--line)}.etc label{font-size:14px;color:var(--muted)}.etcrow{display:flex;gap:8px}.etcrow input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}.etcrow .btn{flex:none;padding:10px 16px}
 details.sup>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:6px;position:relative;padding-right:22px}
 details.sup>summary::-webkit-details-marker{display:none}
 details.sup>summary::after{content:"›";position:absolute;right:4px;top:2px;color:var(--muted);transition:transform .15s}
@@ -446,15 +447,15 @@ const Q = [
  {id:"edu",cond:NOTY,ch:0,q:"최종 학력은?",o:[["고졸",{}],["전문대 졸",{}],["4년제 졸",{}],["대학원 이상",{mind:1}],["고등학교 재학·졸업 예정",{}],["대학 재학 중",{}]]},
  {id:"major",cond:NOTY,ch:0,q:"전공(또는 가장 오래 공부한 분야)은?",hint:"가장 가까운 학과를 골라 주세요",groups:MAJOR_GROUPS,o:MAJORS},
  {id:"exp",cond:NOTY,ch:0,q:"지금까지 일한 경력은 합쳐서?",hint:"아르바이트 제외, 4대보험 되는 일 기준",o:[["없음",{}],["1년 미만",{}],["1~3년",{}],["3년 이상",{stable:1}]]},
- {id:"cert",ch:0,multi:1,none:CERT_OWN.length,groups:CERT_G,q:"가지고 있는 자격·면허·특기를 모두 골라 주세요",hint:"분야를 누르면 자격이 나와요",o:CERT_O},
- {id:"goal",ch:0,q:"이미 하고 싶은 일이 정해져 있나요?",hint:"고르면 그 일에 필요한 자격증, 준비 기간, 신청 링크를 결과에 꼭 넣어 드려요. 목록에 없으면 마지막 질문에 적어 주세요.",o:GOALS.map(g=>[g[0],{},g[1]?{goal:g[1]}:undefined]),groups:GOAL_GROUPS},
+ {id:"cert",etc:1,ch:0,multi:1,none:CERT_OWN.length,groups:CERT_G,q:"가지고 있는 자격·면허·특기를 모두 골라 주세요",hint:"분야를 누르면 자격이 나와요",o:CERT_O},
+ {id:"goal",etc:1,ch:0,q:"이미 하고 싶은 일이 정해져 있나요?",hint:"고르면 그 일에 필요한 자격증, 준비 기간, 신청 링크를 결과에 꼭 넣어 드려요. 목록에 없으면 아래 기타 칸에 적어 주세요.",o:GOALS.map(g=>[g[0],{},g[1]?{goal:g[1]}:undefined]),groups:GOAL_GROUPS},
  {id:"inc",cond:ADULT,ch:0,q:"지금 월 수입은?",o:[["없음",{fast:2},{noinc:1}],["150만원 미만",{fast:1}],["150~250만원",{}],["250만원 이상",{}]]},
 
  {id:"buffer",cond:ADULT,ch:1,q:"수입이 끊겨도 생활비로 버틸 수 있는 기간은?",hint:"이 답이 추천 경로의 '현실성'을 가장 크게 바꿉니다",o:[["1개월도 어렵다",{fast:3},{urgent:2}],["1~3개월",{fast:2},{urgent:1}],["3~6개월",{}],["6개월 이상",{growth:1}]]},
  {id:"fam",cond:ADULT,ch:1,q:"내 수입에 기대는 가족이 있나요?",o:[["있다",{stable:2,money:1},{fam:1}],["일부 보탠다",{stable:1}],["없다",{}]]},
  {id:"debt",cond:ADULT,ch:1,q:"매달 갚아야 하는 돈이 있나요?",hint:"금액은 묻지 않아요",o:[["있다",{money:1,fast:1},{debtY:1}],["없다",{}]]},
  {id:"prep",cond:NOTMS,ch:1,q:"새 일을 위해 준비에 쓸 수 있는 기간은?",o:[["당장 일해야 한다",{fast:2},{maxPrep:1}],["3개월 정도",{},{maxPrep:3}],["6개월~1년",{growth:1},{maxPrep:12}],["1년 이상도 괜찮다",{growth:2},{maxPrep:24}]]},
- {id:"plan",ch:1,cond:()=>NOTMS()&&st.ans.prep!=null&&st.ans.prep>0,multi:1,none:CERT_PLAN.length,groups:PLAN_GROUPS,q:"준비하는 동안 따거나 붙으려는 자격·시험이 있나요?",hint:"지금 가진 자격만 보지 않고, 준비 기간 안에 갖출 계획까지 추천에 반영해요",o:PLAN_O},
+ {id:"plan",etc:1,ch:1,cond:()=>NOTMS()&&st.ans.prep!=null&&st.ans.prep>0,multi:1,none:CERT_PLAN.length,groups:PLAN_GROUPS,q:"준비하는 동안 따거나 붙으려는 자격·시험이 있나요?",hint:"지금 가진 자격만 보지 않고, 준비 기간 안에 갖출 계획까지 추천에 반영해요",o:PLAN_O},
  {id:"study",ch:1,q:"하루에 공부·준비에 낼 수 있는 시간은?",o:[["1시간 미만",{}],["1~2시간",{}],["3~4시간",{growth:1}],["하루 종일 가능",{growth:2}]]},
 
  {id:"bm",ch:2,q:"둘 중 덜 지치는 쪽은?",o:[["하루 종일 서서 움직이기",{body:3}],["하루 종일 앉아서 생각하기",{mind:3}],["반반 섞인 일",{body:1,mind:1}]]},
@@ -1029,6 +1030,24 @@ function loadReviews(){
 // 분류 단추 펼침 상태: 질문마다 하나만 펼침. 처음엔 고른 보기가 있는 분류를 펼쳐 둔다
 const OPENG={}, OPENP={};
 function openG(q,gi,hasSel){ if(OPENG[q.id]!=null) return OPENG[q.id]===gi; return !q.multi && hasSel>0; }
+// '기타' 직접 입력: 목록에 있으면 찾아서 체크, 없으면 이 기기에 적어 두고 (동의했으면) 이름만 익명으로 보내 다음 업데이트 때 목록에 넣는다
+const ETCN=t=>String(t||"").replace(/\([^)]*\)/g,"").replace(/[\s·.,/~\-_()]/g,"").toLowerCase();
+const ETCA={"컴활":"컴퓨터활용능력","정처기":"정보처리","정처산기":"정보처리","정보처리기사":"정보처리","한국사":"한국사능력검정","한능검":"한국사능력검정","간조":"간호조무사","요보사":"요양보호사","전기기사":"전기","전기산업기사":"전기","공인중개":"공인중개사","사복":"사회복지사","9급":"공무원","순경":"경찰","소방공무원":"소방","운전면허":"운전면허","1종":"운전면허","2종":"운전면허","프로그래머":"IT","개발자":"IT","코딩":"IT","유튜버":"콘텐츠","크리에이터":"콘텐츠"};
+function etcFind(q,txt){
+  let n=ETCN(txt); if(n.length<2) return -1;
+  const al=Object.keys(ETCA).find(a=>n===ETCN(a)||n.startsWith(ETCN(a))); if(al) n=ETCN(ETCA[al]);
+  const bad=k=>q.none===k||/^(아직 없다|딱히 없|해당 없|없음)/.test(q.o[k][0]);
+  let best=-1, bl=1e9;
+  q.o.forEach((o,k)=>{ if(bad(k)) return; const l=ETCN(o[0]); if(!l) return;
+    const hit=l===n||l.includes(n)||(n.includes(l)&&l.length>=2);
+    let alt=false; if(!hit&&q.id==="goal"&&o[2]&&o[2].goal) alt=(JOBS[o[2].goal]||[]).some(j=>{ const jn=ETCN(j); return jn===n||jn.includes(n)||(n.includes(jn)&&jn.length>=2); });
+    if((hit||alt)&&l.length<bl){ best=k; bl=l.length; } });
+  return best;
+}
+function etcBox(q){
+  const prev=(st.etc||{})[q.id]||"";
+  return `<div class="etc"><label for="etcIn"><b>기타</b> · 목록에서 못 찾았으면 직접 적어 주세요</label><div class="etcrow"><input id="etcIn" maxlength="30" autocomplete="off" placeholder="${q.id==="goal"?"예) 드론 조종사":"예) 조주기능사"}" value="${prev.replace(/"/g,"&quot;")}"><button type="button" class="btn alt" id="etcGo">확인</button></div><p class="hint" id="etcMsg" role="status"></p></div>`;
+}
 function question(){
   const L=list(), q=L[st.i]; if(!q){finish();return}
   const a=st.ans[q.id];
@@ -1060,6 +1079,7 @@ function question(){
     ${st.review&&miss.length?`<div class="warn">답하지 않은 질문이 <b>${miss.length}개</b> 있어요. 답을 고르면 다음 빈 질문으로, 다 채우면 결과로 넘어갑니다.</div>`:""}
     <div style="display:flex;flex-direction:column;gap:6px"><span class="eyebrow">${CH[q.ch]}</span><h2>${q.q}</h2>${q.hint?`<p class="hint">${q.hint}</p>`:""}${q.multi?`<p class="hint">여러 개 고를 수 있어요</p>`:""}</div>
     ${body}
+    ${q.etc?etcBox(q):""}
     <div class="nav"><button class="btn alt" id="back" type="button" ${st.i===0?"disabled":""}>이전</button>
     <button class="btn" id="next" type="button">${st.review?(missing().filter(m=>m!==q).length?"다음 빈 질문":"결과 보기"):(q.text?"결과 보기":"다음")}</button></div>
   </section>`);
@@ -1074,6 +1094,21 @@ function question(){
       if(q.id==="ag"){ st.ans.age=AGEMAP[k]; const sv=SITVIS[k]; if(st.ans.sit!=null && !sv.includes(st.ans.sit)) delete st.ans.sit; }
       save(); setTimeout(advance,160); b.classList.add("sel");}
   });
+  const eg=document.getElementById("etcGo"), ei=document.getElementById("etcIn");
+  if(eg&&ei){ const go=()=>{ const t=ei.value.trim(), msg=document.getElementById("etcMsg"); if(!t){ msg.textContent="이름을 적어 주세요."; return; }
+      const k=etcFind(q,t);
+      if(k>=0){
+        if(q.multi){ let arr=(st.ans[q.id]||[]).filter(x=>x!==q.none); if(!arr.includes(k)) arr.push(k); st.ans[q.id]=arr; }
+        else st.ans[q.id]=k;
+        const gi=(q.groups||[]).findIndex(g=>g[1].includes(k)); if(gi>=0){ OPENG[q.id]=gi; const g=q.groups[gi]; if(g[2]){ const pars=[...new Set(q.groups.filter(x=>x[2]).map(x=>x[2]))]; OPENP[q.id]=pars.indexOf(g[2]); } }
+        st.etc=Object.assign({},st.etc,{[q.id]:""}); save(); const y=window.scrollY; question(); window.scrollTo({top:y});
+        const m2=document.getElementById("etcMsg"); if(m2) m2.textContent=`목록에 있어요: '${q.o[k][0]}'에 체크해 뒀어요.`;
+      } else {
+        st.etc=Object.assign({},st.etc,{[q.id]:t}); save();
+        track({type:"etc",q:q.id,t});
+        msg.textContent="아직 목록에 없어요. 적어 주신 이름을 기록해 두고 다음 업데이트 때 넣을게요. 지금은 가장 가까운 걸 골라 주세요.";
+      } };
+    eg.onclick=go; ei.onkeydown=e=>{ if(e.key==="Enter"){ if(e.preventDefault) e.preventDefault(); go(); } }; }
   const n=document.getElementById("next"); if(n) n.onclick=()=>{
     if(q.text) st.ans[q.id]=document.getElementById("ta").value.trim(); save();
     if(st.review){ const rest=missing().filter(m=>m!==q); if(!rest.length){ st.review=0; finish(); return; }

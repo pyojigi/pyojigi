@@ -96,7 +96,7 @@ async function load(quiet){
   if(r.status===401){ $("msg").textContent="관리자 키가 맞지 않아요."; $("msg").className="err"; return; }
   if(r.status===429){ $("msg").textContent="키를 너무 많이 틀렸어요. 내일 다시 해 주세요."; $("msg").className="err"; return; }
   if(!r.ok){ $("msg").textContent="통계를 불러오지 못했어요. Cloudflare의 KV 연결(PYOJIGI_KV)을 확인해 주세요."; $("msg").className="err"; return; }
-  const {days,feedback=[],runs=[],total={},since=null,store="kv",refs={},kws={},asks=[],reviews=[],reviewCounts=null,readonly=false}=await r.json(); $("msg").textContent=""; window.__runs=runs; RO=!!readonly;
+  const {days,feedback=[],runs=[],total={},since=null,store="kv",refs={},kws={},etc={},asks=[],reviews=[],reviewCounts=null,readonly=false}=await r.json(); $("msg").textContent=""; window.__runs=runs; RO=!!readonly;
   const rc=reviewCounts||reviews.reduce((o,x)=>(o[x.status]=(o[x.status]||0)+1,o),{});
   const openN=asks.filter(a=>a.status==="open").length;
   const tot=k=>days.reduce((a,d)=>a+(d[k]||0),0);
@@ -122,6 +122,7 @@ async function load(quiet){
     ${reviews.length?reviews.map(rvItem).join(""):`<p class="muted">아직 공개 동의한 한마디가 없어요.</p>`}</section>
   <section class="card"><h2>들어온 곳 (이전 사이트)</h2>${bars(refs,k=>k)}<p class="muted">바로 앞에 보던 사이트 주소예요. 주소창에 직접 치거나 앱에서 열면 기록되지 않아요.</p></section>
   <section class="card"><h2>검색어</h2>${bars(kws,k=>k)}<p class="muted">검색 사이트가 알려 준 경우에만 남아요.</p></section>
+  <section class="card"><h2>기타 칸에 적은 것</h2>${bars(etc,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">목록에 없던 직업·자격이에요. 매일 새벽 작업이 확인해서 목록에 넣어요.</p></section>
   <section class="card"><h2>유입 경로 (?src=)</h2>${bars(sumObj(days,"src"),k=>k)}</section>
   <section class="card"><h2>상황별 완주</h2>${bars(sumObj(days,"sit"),k=>SIT[k]||k)}</section>
   <section class="card"><h2>나이대</h2>${Object.keys(sumObj(days,"ag")).length?bars(sumObj(days,"ag"),k=>AG[+k]||k):bars(sumObj(days,"age"),k=>AGE[+k]||k)}</section>
