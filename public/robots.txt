@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /stats.html
+Disallow: /api/
+Sitemap: https://pyojigi.pages.dev/sitemap.xml

@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//pyojigi//ko
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ql0rp0@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261203
+DTEND;VALUE=DATE:20261224
+SUMMARY:일반고 원서 접수 (시·도별)
+DESCRIPTION:2027학년도\, 서울 12/3~7부터 전북 12/21~23까지 지
+ 역마다 달라요\n공식 페이지: https://www.veritas-a.com/news/ar
+ ticleView.html?idxno=604064\n(표지기 캘린더)
+URL:https://www.veritas-a.com/news/articleView.html?idxno=604064
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 일반고 원서 접수 (시·도별)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

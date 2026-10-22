@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//pyojigi//ko
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:14p49t1@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261103
+DTEND;VALUE=DATE:20261106
+SUMMARY:특성화고 특별전형 원서 접수 (경기)
+DESCRIPTION:2027학년도 경기도 특성화고 특별전형\n공식 페
+ 이지: https://www.goe.go.kr/resource/goe/na/bbs_2430/2026/03/e88abfe2-
+ 8daa-494e-9cb8-a2d030225b45.pdf\n(표지기 캘린더)
+URL:https://www.goe.go.kr/resource/goe/na/bbs_2430/2026/03/e88abfe2-8daa-
+ 494e-9cb8-a2d030225b45.pdf
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 특성화고 특별전형 원서 접수 (경기
+ )
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

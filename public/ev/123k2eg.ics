@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//pyojigi//ko
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:123k2eg@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261101
+DTEND;VALUE=DATE:20261116
+SUMMARY:SK 아이젠(AIGEN) 1기 지원서·포트폴리오 접수
+DESCRIPTION:만 19~34세\, 학력·전공·코딩 경험 무관\, 2년 
+ 전일제 참여 가능자\n11월 AI 인터뷰 → 12월 초 사고역
+ 량 확인 → 12월 프로젝트 면접 → 2027년 1월 최종 선발.
+  활동 2027년 3월~2028년 12월(약 22개월)\, 50명 내외\, 월 30
+ 0만원 성장지원금\n공식 페이지: https://aigen.sk.com\n(표지
+ 기 캘린더)
+URL:https://aigen.sk.com
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: SK 아이젠(AIGEN) 1기 지원서·포트폴
+ 리오 접수
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

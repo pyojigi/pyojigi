@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//pyojigi//ko
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:8x5poo@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261106
+DTEND;VALUE=DATE:20261111
+SUMMARY:특성화고 특별전형 원서 접수 (전북)
+DESCRIPTION:2027학년도 전북 특성화고\n공식 페이지: https://
+ edujb.com/news/articleView.html?idxno=9510\n(표지기 캘린더)
+URL:https://edujb.com/news/articleView.html?idxno=9510
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 특성화고 특별전형 원서 접수 (전북
+ )
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

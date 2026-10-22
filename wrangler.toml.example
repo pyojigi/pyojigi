@@ -1,0 +1,14 @@
+name = "pyojigi"
+compatibility_date = "2026-06-01"
+pages_build_output_dir = "public"
+
+# 익명 통계와 하루 사용량을 저장하는 KV (Cloudflare 대시보드에서 만든 뒤 아래 id를 붙여 넣기)
+[[kv_namespaces]]
+binding = "PYOJIGI_KV"
+id = "여기에_KV_ID_붙여넣기"
+
+[vars]
+READ_LIMIT = "3"
+ASK_LIMIT = "6"
+DAILY_CAP = "100"
+# SALT는 비밀 변수로 설정 권장 (IP 해시에 쓰는 임의의 긴 문자열)

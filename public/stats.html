@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>표지기 운영 통계</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#EEF0EA;--surface:#FAFBF7;--ink:#1D2B24;--muted:#5D6B63;--line:#D3D9CF;--pine:#24543F;--red:#D23F33;--soft:#E2E8DD}
+@media (prefers-color-scheme: dark){:root{--bg:#121A16;--surface:#1A241F;--ink:#E6ECE6;--muted:#9AA89F;--line:#2E3B34;--pine:#7FC2A0;--red:#E86A5E;--soft:#22302A;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.6;padding:20px max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font-size:24px;margin:0}
+h2{font-size:17px;margin:0 0 8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input,select,button{font:inherit;font-size:15px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+button{background:var(--pine);color:var(--surface);border:0;font-weight:600;cursor:pointer}
+input{flex:1;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+.bar{display:grid;grid-template-columns:minmax(0,170px) 1fr 54px;gap:8px;align-items:center;font-size:14px;margin:4px 0}
+.bar i{display:block;height:10px;border-radius:3px;background:var(--pine)}
+.bar em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+.muted{color:var(--muted);font-size:13px}
+.err{color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>표지기 운영 통계</h1>
+  <p class="muted">익명 숫자만 모아요. 관리자 키는 Cloudflare에 넣은 ADMIN_KEY 값이에요. 이 페이지는 검색에 노출되지 않아요.</p>
+  <form class="card row" id="f">
+    <label for="k" class="muted" style="align-self:center">관리자 키</label>
+    <input id="k" type="password" autocomplete="current-password" required>
+    <select id="d" aria-label="기간"><option value="7">최근 7일</option><option value="30" selected>최근 30일</option><option value="90">최근 90일</option><option value="366">최근 1년</option><option value="all">처음부터 전부</option></select>
+    <button type="submit">불러오기</button>
+  </form>
+  <p id="msg" class="muted" aria-live="polite"></p>
+  <div id="out" hidden style="display:flex;flex-direction:column;gap:16px"></div>
+</div>
+<script>
+const SIT={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"};
+const AGE=["10대","20대 초반","20대 중반","20대 후반","30대 초반","30대 후반","40대 이상"];
+const AG=["10대","20대","30대","40대 이상"];
+const PATH={sec:"시설·첨단 보안직",fac:"반도체·제조 생산직",tec:"전기·설비 기술직",pub:"공무원·공기업",spo:"생활체육 지도자",sal:"영업·보험설계",it:"IT·데이터·AI",off:"사무·경영지원",log:"물류·운송",mkt:"콘텐츠·마케팅",car:"보건·돌봄",uni:"소방·경찰·교정",avs:"공항·항만 특수보안",mlc:"군무원·직업군인",edu:"교육·강사",bop:"영업관리·구매",pln:"기획·운영",pbc:"공무직·계약직",svc:"서비스·접객",hcl:"교대 없는 보건·의료",kid:"아동·청소년 지도",adv:"진학",hsj:"고졸 공채",own:"사업·프리랜서",env:"환경공무관·미화",tch:"학교 교사",nur:"간호사",ckg:"조리·외식",bty:"미용",aut:"자동차 정비",bld:"건설·인테리어 기능",mtc:"보건의료 기사",eng:"공학 엔지니어",rea:"공인중개사",ath:"운동선수",rail:"철도 기술직",avi:"항공정비사",fin:"금융·보험",tax:"세무·회계",med:"언론·출판·방송",dsn:"디자인",cns:"상담·심리",lgl:"법무 사무",arc:"건축·토목 기술직",trd:"무역·통번역",diet:"영양사",art:"문화예술",doc:"의약 면허직"};
+const QN={"ag":"나이대","d1":"그만둔 지 (학교 밖)","d2":"지금 생각 (학교 밖)","d3":"검정고시 (학교 밖)","r1":"몇 번째 준비 (재수)","r2":"지금 마음 (재수)","ms1":"지금 몇 학년인가요? (중학생)","ms2":"가고 싶은 고등학교 (중학생)","ms3":"공부는 나와 맞나요? (중학생)","ms4":"시간 가는 줄 모르고 하는 건? (중학생)","ms5":"사는 지역 (중학생)","sit":"지금 상황에 가장 가까운 건?","cur":"지금 하는 일 (쉬는 중이면 마지막으로 한 ","age":"나이대는?","edu":"최종 학력은?","major":"전공(또는 가장 오래 공부한 분야)은?","exp":"지금까지 일한 경력은 합쳐서?","cert":"가지고 있는 자격·특기를 모두 골라 주세요","goal":"이미 하고 싶은 일이 정해져 있나요?","inc":"지금 월 수입은?","buffer":"수입이 끊겨도 생활비로 버틸 수 있는 기간은","fam":"내 수입에 기대는 가족이 있나요?","debt":"매달 갚아야 하는 돈이 있나요?","prep":"새 일을 위해 준비에 쓸 수 있는 기간은?","plan":"준비하는 동안 따거나 붙으려는 자격·시험이 ","study":"하루에 공부·준비에 낼 수 있는 시간은?","bm":"둘 중 덜 지치는 쪽은?","ppl":"처음 보는 사람과 이야기하는 건?","rep":"매일 같은 일을 반복하는 건?","praise":"남에게 칭찬받았던 일을 모두 골라 주세요","team":"더 편한 일하는 방식은?","learn":"새로운 프로그램이나 기계를 배울 때 나는?","shift":"교대 근무, 야간 근무는?","press":"매달 실적 숫자로 평가받는 건?","emo":"화난 고객·민원을 상대하는 일은?","sit8":"하루 8시간 이상 모니터 앞에 앉아 있는 건","move":"지방 근무나 잦은 출장은?","unst":"달마다 수입이 들쭉날쭉한 건?","pay":"5년 뒤 바라는 연봉은?","after":"퇴근 후 시간은 얼마나 중요해요?","top":"일에서 딱 하나만 고른다면?","home":"앞으로 계획에 가까운 건?","five":"5년 뒤 내 모습으로 가장 끌리는 건?","j1":"취업 준비는 얼마나 했나요?","j2":"가장 많이 막히는 단계는?","j3":"공무원·공기업 시험도 고려하나요?","m1":"지금 직장을 떠나고 싶은 가장 큰 이유는?","m2":"이직한다면?","m3":"지금 직장에서 배운 것 중 들고 갈 수 있는","g1":"쉰 지 얼마나 됐나요?","g2":"그만둔 이유에 가까운 건?","g3":"요즘 하루 생활 리듬은?","g4":"요즘 기운은 어떤가요?","s1":"의욕이 없어진 지 얼마나 됐나요?","s2":"싫은 게 '일'인지 '지친 것'인지 고르면?","s3":"쉬는 날 기운이 돌아오나요?","w1":"끌리는 분야는?","w2":"그 분야를 위해 해본 게 있나요?","w3":"전환하는 동안 지금 일을 병행할 수 있나요?","mi0":"지금 어떤 상태인가요?","mi1":"복무 형태는?","mi2":"군에서 맡은 일(주특기)에 가까운 건?","mi3":"군 조직 생활은 나와 맞았나요?","h1":"다니는 학교는?","h2":"졸업하고 나서 가장 가까운 생각은?","h3":"공부(시험·과제)는 나와 맞나요?","c1":"지금 몇 학년인가요?","c2":"전공은 나와 맞나요?","c3":"졸업 후 가장 끌리는 길은?","free":"지금 가장 막막한 걸 한 줄로 적어 주세요"};
+const MISSWHY=["연봉이 실제와 달라요","나랑 안 맞아요","이미 해 봤어요","준비 기간이 비현실적이에요"];
+const $=id=>document.getElementById(id);
+try{ const s=sessionStorage.getItem("pk"); if(s) $("k").value=s; }catch(e){}
+const esc=t=>String(t).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function sumObj(days,key){ const o={}; for(const d of days){ for(const [k,v] of Object.entries(d[key]||{})) o[k]=(o[k]||0)+v; } return o; }
+function bars(obj,label){ const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]); const max=e.length?e[0][1]:1; const tot=e.reduce((a,b)=>a+b[1],0)||1;
+  return e.length? e.map(([k,v])=>`<div class="bar"><span>${esc(label(k))}</span><i style="width:${Math.max(2,v/max*100)}%"></i><em>${v} · ${Math.round(v/tot*100)}%</em></div>`).join("") : `<p class="muted">아직 기록이 없어요.</p>`; }
+$("f").onsubmit=async ev=>{
+  ev.preventDefault(); $("msg").textContent="불러오는 중..."; $("msg").className="muted";
+  const key=$("k").value.trim(); try{ sessionStorage.setItem("pk",key); }catch(e){}
+  let r; try{ r=await fetch(`/api/stats?days=${$("d").value}&key=${encodeURIComponent(key)}`); }catch(e){ $("msg").textContent="연결에 실패했어요. 인터넷을 확인해 주세요."; $("msg").className="err"; return; }
+  if(r.status===401){ $("msg").textContent="관리자 키가 맞지 않아요."; $("msg").className="err"; return; }
+  if(!r.ok){ $("msg").textContent="통계를 불러오지 못했어요. Cloudflare의 KV 연결(PYOJIGI_KV)을 확인해 주세요."; $("msg").className="err"; return; }
+  const {days,feedback=[],runs=[],total={},since=null,store="kv"}=await r.json(); $("msg").textContent=""; window.__runs=runs;
+  const tot=k=>days.reduce((a,d)=>a+(d[k]||0),0);
+  const visit=tot("visit"), start=tot("start"), fin=tot("finish"), low=tot("low"), copy=tot("fbCopy");
+  const fb=sumObj(days,"fb"); const fbN=Object.values(fb).reduce((a,b)=>a+b,0); const good=(fb["많이 됐어요"]||0)+(fb["조금 됐어요"]||0);
+  const pct=(a,b)=>b?Math.round(a/b*100)+"%":"-";
+  $("out").innerHTML=`
+  <div class="kpis">
+    <div class="kpi"><b>${visit}</b><span>방문</span></div>
+    <div class="kpi"><b>${start}</b><span>검사 시작</span></div>
+    <div class="kpi"><b>${fin}</b><span>완주 (${pct(fin,start)})</span></div>
+    <div class="kpi"><b>${pct(good,fbN)}</b><span>도움 됐다 (${fbN}명 응답)</span></div>
+    <div class="kpi"><b>${pct(low,fin)}</b><span>확신 낮음 비율</span></div>
+    ${store==="d1"?`<div class="kpi"><b>${total.finish||0}</b><span>누적 완주 (${since||"-"}부터)</span></div><div class="kpi"><b>${total.visit||0}</b><span>누적 방문</span></div>`:""}
+  </div>
+  <section class="card"><h2>유입 경로 (?src=)</h2>${bars(sumObj(days,"src"),k=>k)}</section>
+  <section class="card"><h2>상황별 완주</h2>${bars(sumObj(days,"sit"),k=>SIT[k]||k)}</section>
+  <section class="card"><h2>나이대</h2>${Object.keys(sumObj(days,"ag")).length?bars(sumObj(days,"ag"),k=>AG[+k]||k):bars(sumObj(days,"age"),k=>AGE[+k]||k)}</section>
+  <section class="card"><h2>1순위로 추천된 길</h2>${bars(sumObj(days,"top"),k=>PATH[k]||k)}</section>
+  <section class="card"><h2>3위 안에 나온 길 (1·2·3순위 모두)</h2>${bars(sumObj(days,"top3"),k=>PATH[k]||k)}<p class="muted">한 사람이 3개씩 받으니 합계는 완주의 약 3배예요.</p></section>
+  <section class="card"><h2>완주 기록 (익명, 최근 ${Math.min(runs.length,100)}건 표시 · 전체 ${runs.length}건)</h2>
+    <p class="muted">언제, 어떤 상황·나이대의 사람에게 어떤 길 3개가 나왔는지예요. 답 내용과 이름은 기록하지 않아요.</p>
+    <div class="row"><button type="button" id="csv">기록 전체를 엑셀(CSV)로 저장</button></div>
+    <div class="tbl"><table><thead><tr><th>시각</th><th>상황</th><th>나이대</th><th>1순위</th><th>2순위</th><th>3순위</th></tr></thead><tbody>
+    ${runs.slice(0,100).map(x=>`<tr><td>${esc(x.at||"")}</td><td>${esc(SIT[x.sit]||x.sit||"")}</td><td>${x.ag!=null?AG[x.ag]:(x.age!=null?AGE[x.age]:"")}</td>${[0,1,2].map(i=>`<td style="text-align:left">${esc(PATH[(x.tops||[])[i]]||(x.tops||[])[i]||"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="6" class="muted">아직 기록이 없어요.</td></tr>`}
+    </tbody></table></div></section>
+  <section class="card"><h2>만족도</h2>${bars(fb,k=>k)}<p class="muted">피드백 보내기 버튼 ${copy}회</p></section>
+  <section class="card"><h2>받은 한마디 (최근 ${feedback.length}개, 90일 보관)</h2>${feedback.length?feedback.map(x=>`<div style="border-top:1px solid var(--line);padding:10px 0"><p class="muted">${esc((x.at||"").slice(0,16).replace("T"," "))} · ${esc(x.fb||"만족도 없음")} · ${esc(SIT[x.sit]||"-")} · 추천 ${esc((x.top||[]).map(k=>PATH[k]||k).join(", "))}</p>${x.text?`<p style="margin:4px 0 0">${esc(x.text)}</p>`:""}${Object.keys(x.miss||{}).length?`<p class="muted">이건 아니에요: ${Object.entries(x.miss).map(([k,v])=>esc((PATH[k]||k)+" - "+(MISSWHY[v]||v))).join(" / ")}</p>`:""}</div>`).join(""):`<p class="muted">아직 받은 한마디가 없어요.</p>`}</section>
+  <section class="card"><h2>'이건 아니에요'가 많은 추천</h2>${bars(sumObj(days,"miss"),k=>{const [a,b]=k.split(":");return (PATH[a]||a)+" · "+(MISSWHY[+b]||b);})}</section>
+  <section class="card"><h2>결과 전에 그만둔 질문</h2>${bars(sumObj(days,"leave"),k=>QN[k]||k)}<p class="muted">한 질문에 몰려 있으면 그 질문이 어렵거나 너무 길다는 신호예요.</p></section>
+  <section class="card"><h2>날짜별</h2><div class="tbl"><table><thead><tr><th>날짜</th><th>방문</th><th>시작</th><th>완주</th><th>만족 응답</th></tr></thead><tbody>
+  ${days.map(d=>`<tr><td>${d.day}</td><td>${d.visit||0}</td><td>${d.start||0}</td><td>${d.finish||0}</td><td>${Object.values(d.fb||{}).reduce((a,b)=>a+b,0)}</td></tr>`).join("")}
+  </tbody></table></div></section>`;
+  $("out").hidden=false;
+  const cb=$("csv"); if(cb) cb.onclick=()=>{
+    const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+    const rows=[["시각","상황","나이대","1순위","2순위","3순위"],...window.__runs.map(x=>[x.at,SIT[x.sit]||x.sit,x.ag!=null?AG[x.ag]:(x.age!=null?AGE[x.age]:""),...[0,1,2].map(i=>PATH[(x.tops||[])[i]]||(x.tops||[])[i]||"")])];
+    const blob=new Blob(["\ufeff"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="pyojigi-records-"+new Date().toISOString().slice(0,10)+".csv"; document.body.appendChild(a); a.click(); a.remove();
+  };
+};
+</script>
+</body>
+</html>

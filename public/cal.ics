@@ -1,0 +1,255 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//pyojigi//ko
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:표지기 정부·기업 일정
+X-WR-TIMEZONE:Asia/Seoul
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+BEGIN:VEVENT
+UID:1tb9zaz@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261019
+DTEND;VALUE=DATE:20261023
+SUMMARY:마이스터고 원서 접수
+DESCRIPTION:2027학년도 마이스터고 지원 중3 (서울·경기·
+ 울산·전북 등 확인)\n공식 페이지: https://www.hifive.go.kr\n
+ (표지기 캘린더)
+URL:https://www.hifive.go.kr
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 마이스터고 원서 접수
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:8x5poo@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261106
+DTEND;VALUE=DATE:20261111
+SUMMARY:특성화고 특별전형 원서 접수 (전북)
+DESCRIPTION:2027학년도 전북 특성화고\n공식 페이지: https://
+ edujb.com/news/articleView.html?idxno=9510\n(표지기 캘린더)
+URL:https://edujb.com/news/articleView.html?idxno=9510
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 특성화고 특별전형 원서 접수 (전북
+ )
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:h8y2wm@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261126
+SUMMARY:특성화고 일반전형 원서 접수 (전북)
+DESCRIPTION:2027학년도 전북 특성화고\n공식 페이지: https://
+ edujb.com/news/articleView.html?idxno=9510\n(표지기 캘린더)
+URL:https://edujb.com/news/articleView.html?idxno=9510
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 특성화고 일반전형 원서 접수 (전북
+ )
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:14p49t1@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261103
+DTEND;VALUE=DATE:20261106
+SUMMARY:특성화고 특별전형 원서 접수 (경기)
+DESCRIPTION:2027학년도 경기도 특성화고 특별전형\n공식 페
+ 이지: https://www.goe.go.kr/resource/goe/na/bbs_2430/2026/03/e88abfe2-
+ 8daa-494e-9cb8-a2d030225b45.pdf\n(표지기 캘린더)
+URL:https://www.goe.go.kr/resource/goe/na/bbs_2430/2026/03/e88abfe2-8daa-
+ 494e-9cb8-a2d030225b45.pdf
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 특성화고 특별전형 원서 접수 (경기
+ )
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1s3warg@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261112
+DTEND;VALUE=DATE:20261114
+SUMMARY:특성화고 일반전형 원서 접수 (경기)
+DESCRIPTION:2027학년도 경기도 특성화고 일반전형\n공식 페
+ 이지: https://www.goe.go.kr/resource/goe/na/bbs_2430/2026/03/e88abfe2-
+ 8daa-494e-9cb8-a2d030225b45.pdf\n(표지기 캘린더)
+URL:https://www.goe.go.kr/resource/goe/na/bbs_2430/2026/03/e88abfe2-8daa-
+ 494e-9cb8-a2d030225b45.pdf
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 특성화고 일반전형 원서 접수 (경기
+ )
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ql0rp0@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261203
+DTEND;VALUE=DATE:20261224
+SUMMARY:일반고 원서 접수 (시·도별)
+DESCRIPTION:2027학년도\, 서울 12/3~7부터 전북 12/21~23까지 지
+ 역마다 달라요\n공식 페이지: https://www.veritas-a.com/news/ar
+ ticleView.html?idxno=604064\n(표지기 캘린더)
+URL:https://www.veritas-a.com/news/articleView.html?idxno=604064
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 일반고 원서 접수 (시·도별)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:t5k1in@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20260907
+DTEND;VALUE=DATE:20270123
+SUMMARY:한국폴리텍대학 2027학년도 신입생 원서 접수
+DESCRIPTION:전국 28개 캠퍼스 159개 학과 5\,550명 (전기·반
+ 도체·기계·자동화 등)\n공식 페이지: https://ipsi.kopo.ac.k
+ r\n(표지기 캘린더)
+URL:https://ipsi.kopo.ac.kr
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 한국폴리텍대학 2027학년도 신입생 
+ 원서 접수
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1p7cayz@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261007
+DTEND;VALUE=DATE:20261017
+SUMMARY:청년미래적금 2차 가입 신청
+DESCRIPTION:만 19~34세 소득 있는 청년\n공식 페이지: https://
+ www.korea.kr/news/policyNewsView.do?newsId=148972819\n(표지기 캘린
+ 더)
+URL:https://www.korea.kr/news/policyNewsView.do?newsId=148972819
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 청년미래적금 2차 가입 신청
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:c0aal2@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261112
+DTEND;VALUE=DATE:20261114
+SUMMARY:청년미래적금 2차 심사 결과 안내
+DESCRIPTION:2차 신청자\n공식 페이지: https://www.korea.kr/news/p
+ olicyNewsView.do?newsId=148972819\n(표지기 캘린더)
+URL:https://www.korea.kr/news/policyNewsView.do?newsId=148972819
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 청년미래적금 2차 심사 결과 안내
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1wy45u@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261128
+SUMMARY:청년미래적금 2차 계좌 개설
+DESCRIPTION:가입 가능 안내를 받은 분\n공식 페이지: https:/
+ /www.korea.kr/news/policyNewsView.do?newsId=148972819\n(표지기 캘린
+ 더)
+URL:https://www.korea.kr/news/policyNewsView.do?newsId=148972819
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: 청년미래적금 2차 계좌 개설
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1s7kgiz@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261022
+DTEND;VALUE=DATE:20261023
+SUMMARY:SK 아이젠(AIGEN) 설명회 신청 마감
+DESCRIPTION:10/28(수) 13시 오프라인 설명회 참석 신청\, 23:59
+  마감\n공식 페이지: https://aigen.sk.com\n(표지기 캘린더)
+URL:https://aigen.sk.com
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: SK 아이젠(AIGEN) 설명회 신청 마감
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:nbct4g@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261028
+DTEND;VALUE=DATE:20261029
+SUMMARY:SK 아이젠(AIGEN) 오프라인 설명회
+DESCRIPTION:13시\, 한국고등교육재단 컨퍼런스홀 (사전 신
+ 청자)\n공식 페이지: https://aigen.sk.com\n(표지기 캘린더)
+URL:https://aigen.sk.com
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: SK 아이젠(AIGEN) 오프라인 설명회
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:15r3yjr@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261026
+DTEND;VALUE=DATE:20261110
+SUMMARY:SSAFY 17기 교육생 모집
+DESCRIPTION:29세 이하 미취업\, 대학·마이스터고 졸업(예
+ 정)자\, 전공 무관\n2027년 1월부터 1년\, 전국 5개 캠퍼스
+  무료 교육 + 월 100만원 교육지원비\n공식 페이지: https:
+ //www.ssafy.com\n(표지기 캘린더)
+URL:https://www.ssafy.com
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: SSAFY 17기 교육생 모집
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:123k2eg@pyojigi
+DTSTAMP:20261022T072547Z
+DTSTART;VALUE=DATE:20261101
+DTEND;VALUE=DATE:20261116
+SUMMARY:SK 아이젠(AIGEN) 1기 지원서·포트폴리오 접수
+DESCRIPTION:만 19~34세\, 학력·전공·코딩 경험 무관\, 2년 
+ 전일제 참여 가능자\n11월 AI 인터뷰 → 12월 초 사고역
+ 량 확인 → 12월 프로젝트 면접 → 2027년 1월 최종 선발.
+  활동 2027년 3월~2028년 12월(약 22개월)\, 50명 내외\, 월 30
+ 0만원 성장지원금\n공식 페이지: https://aigen.sk.com\n(표지
+ 기 캘린더)
+URL:https://aigen.sk.com
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:내일부터: SK 아이젠(AIGEN) 1기 지원서·포트폴
+ 리오 접수
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
