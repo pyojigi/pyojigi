@@ -15,7 +15,7 @@ JSON 형식:
   {"t":"text","eyebrow":"① 지금 할 일","title":"...","sub":"...","bullets":["..."],"blanks":3,"chip":"...","call":"아래 큰 상자 문구(진짜는 ...)","stats":[["28","개 캠퍼스"]],"src":"출처 ..."},
   {"t":"flow","eyebrow":"...","title":"...","q1":"...","q1no":"...","q2":"...","yes":"...","no":"..."},
   {"t":"result","title":"...","img":"result_card_it.png"},
-  {"t":"cta","title":"내 상황에 맞는<br>길 3개","sub":"...","chip":"20분 · 무료 · 가입 없음"}
+  {"t":"cta","title":"내 상황에 맞는<br>길 3개","sub":"...","chip":"10분 · 무료 · 가입 없음"}
  ]}
 규칙: 사실(날짜·숫자·제도)은 공식 출처로 확인한 것만, 출처를 src 에 적는다. 지어낸 후기·실존 인물 얼굴·남의 캐릭터 금지.
 """
@@ -110,7 +110,7 @@ def slide(s, n, N):
         body = f'<div class=h style="top:180px"><h2 style="font-size:80px">{s["title"]}</h2></div><div class=phone><div class=scr><img src="{img}"></div></div><div class=tag>실제 검사 결과 화면 예시</div>'
     elif t == 'cta':
         cls = 'g'
-        body = f'<div class=h style="top:330px"><h1>{s["title"]}</h1>{f"<div class=sub>{s["sub"]}</div>" if s.get("sub") else ""}<div class=chip style="font-size:52px;padding:26px 44px">{s.get("chip","20분 · 무료 · 가입 없음")}</div><div class=sub style="margin-top:60px;font-weight:800">👉 프로필 링크에서 시작</div></div>'
+        body = f'<div class=h style="top:330px"><h1>{s["title"]}</h1>{f"<div class=sub>{s["sub"]}</div>" if s.get("sub") else ""}<div class=chip style="font-size:52px;padding:26px 44px">{s.get("chip","10분 · 무료 · 가입 없음")}</div><div class=sub style="margin-top:60px;font-weight:800">👉 프로필 링크에서 시작</div></div>'
     else:
         raise ValueError('모르는 슬라이드 종류: ' + t)
     if s.get('src') and t != 'cover': body += f'<div class=src>출처: {s["src"]}</div>'

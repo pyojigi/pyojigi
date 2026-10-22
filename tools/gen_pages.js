@@ -81,7 +81,7 @@ ${blocks.map(ldTag).join('\n')}<style>${CSS}</style></head><body><div class="w">
 <header><a class="logo" href="/">${LOGO}<span>표지기<small>길 잃은 사람을 위한 리본</small></span></a><a href="/jobs/">직업 안내</a></header>
 ${crumbs ? `<nav class="src" aria-label="현재 위치">${crumbHtml(crumbs)}</nav>` : ''}
 ${body}
-<footer><nav aria-label="사이트 링크"><a href="/">20분 진로 검사</a><a href="/jobs/">직업별 안내</a><a href="/for/">상황별 안내</a>${HAS_GUIDE() ? '<a href="/guide/">진로 가이드</a>' : ''}<a href="/privacy.html">개인정보 처리방침</a><a href="/#ask">문의</a></nav>${foot ? `<p>연봉·일정은 출처 기준이며 바뀔 수 있어요. 마지막 확인 ${TODAY}.</p>` : ''}</footer>
+<footer><nav aria-label="사이트 링크"><a href="/">10분 진로 검사</a><a href="/jobs/">직업별 안내</a><a href="/for/">상황별 안내</a>${HAS_GUIDE() ? '<a href="/guide/">진로 가이드</a>' : ''}<a href="/privacy.html">개인정보 처리방침</a><a href="/#ask">문의</a></nav>${foot ? `<p>연봉·일정은 출처 기준이며 바뀔 수 있어요. 마지막 확인 ${TODAY}.</p>` : ''}</footer>
 </div></body></html>`;
 }
 
@@ -100,7 +100,7 @@ ${G.cert.length ? `<h2>자격증·시험</h2><ul>${G.cert.map(c => `<li><b>${esc
 ${R.length ? `<h2>준비 단계 (대략적인 시간)</h2><ol>${R.map(r => `<li>${esc(r[0])} <span class="src">약 ${r[1]}시간</span></li>`).join('')}</ol>` : ''}
 ${PRO ? `<h2>이 일의 장점</h2><div class="card"><p>${esc(PRO.t)}</p><p class="src">출처: <a href="${esc(PRO.url)}" rel="noopener">${esc(PRO.src)}</a></p></div>` : ''}
 <h2>오늘 해 볼 것</h2><ul><li>${esc(p.first)}</li>${p.try ? `<li>${esc(p.try)}</li>` : ''}<li><a href="${yt(k)}" rel="noopener">현직자 영상 보기 (유튜브)</a></li></ul>
-<a class="cta" href="/?src=job-${k}">이 길이 나한테 맞는지 20분 검사로 확인하기</a>
+<a class="cta" href="/?src=job-${k}">이 길이 나한테 맞는지 10분 검사로 확인하기</a>
 <h2>같은 분야 다른 직업</h2><div class="chips">${M.PATHS.filter(x => x.key !== k && CAT[x.key] === CAT[k]).map(x => `<a href="/jobs/${x.key}.html">${esc(short(x.n))}</a>`).join('')}</div>`;
   const url = `/jobs/${k}.html`;
   const occ = { '@context': 'https://schema.org', '@type': 'Occupation', name: nm, description: clip(`${p.n}. ${J.length ? '세부 직업: ' + J.join(', ') + '. ' : ''}${p.need}`, 300), inLanguage: 'ko', mainEntityOfPage: SITE + url, occupationLocation: { '@type': 'Country', name: '대한민국' } };
@@ -174,7 +174,7 @@ function sitPage([slug, h1, desc, sitIdx, extra, tips, links]) {
 <h2>이 상황에서 많이 추천되는 길</h2><p class="src">표지기 검사에서 같은 상황의 응답 3,000건을 돌려 3위 안에 많이 나온 길이에요.</p>
 <div class="chips">${tops.map(k => `<a href="/jobs/${k}.html">${esc(short(P[k].n))}</a>`).join('')}</div>
 <h2>도움받을 곳</h2><ul>${links.map(l => `<li><a href="${esc(l[1])}" rel="noopener">${esc(l[0])}</a></li>`).join('')}</ul>
-<a class="cta" href="/?src=for-${slug}">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`;
+<a class="cta" href="/?src=for-${slug}">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`;
   const url = `/for/${slug}.html`;
   const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: 'ko', mainEntity: tips.map((t, i) => ({ '@type': 'Question', name: Q[i], acceptedAnswer: { '@type': 'Answer', text: t } })) };
   return { url, h1, html: page({ url, title: `${h1} | 표지기`, desc, body, og: `/og/for-${slug}.png`, ogAlt: `${h1} · 표지기`, ld: [faq], crumbs: [['표지기', '/'], ['상황별 안내', '/for/'], [h1, url]] }) };
@@ -184,9 +184,9 @@ function sitPage([slug, h1, desc, sitIdx, extra, tips, links]) {
 const BIG_POST = `<svg viewBox="0 0 220 280" role="img" aria-label="리본이 없는 표지 기둥"><path d="M110 40 L110 268" stroke="var(--wood)" stroke-width="14" stroke-linecap="round"/><path d="M20 66 C70 52 150 50 200 64" fill="none" stroke="var(--wood)" stroke-width="14" stroke-linecap="round"/><path d="M138 120 C150 132 150 150 138 160" fill="none" stroke="#D23F33" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 10" opacity=".7"/><text x="150" y="112" font-size="40" font-weight="700" fill="#D23F33" font-family="system-ui,sans-serif">?</text><path d="M20 268 L200 268" stroke="#9AA89F" stroke-width="4" stroke-linecap="round" stroke-dasharray="4 12"/></svg>`;
 function notFound() {
   const body = `<div class="lost">${BIG_POST}<h1>이 길에는 리본이 없어요</h1><p class="lede">주소가 바뀌었거나 잘못 적힌 것 같아요. 괜찮아요, 아래 리본을 따라가면 다시 길이 나와요.</p></div>
-<a class="cta" href="/?src=404">20분 진로 검사 시작하기</a>
+<a class="cta" href="/?src=404">10분 진로 검사 시작하기</a>
 <div class="card"><b>이런 곳은 어때요?</b><ul><li><a href="/jobs/">직업별 안내</a> · 되는 법, 연봉, 자격증, 준비 기간</li><li><a href="/for/">상황별 안내</a> · 중학생, 고등학생, 자퇴, 재수, 대학생, 첫 취업</li><li><a href="/">처음 화면으로</a></li></ul></div>`;
-  return page({ url: '/404.html', title: '페이지를 찾을 수 없어요 | 표지기', desc: '찾는 페이지가 없어요. 20분 진로 검사, 직업별 안내, 상황별 안내에서 다시 길을 찾아보세요.', body, noindex: true, type: 'website', article: false, foot: false });
+  return page({ url: '/404.html', title: '페이지를 찾을 수 없어요 | 표지기', desc: '찾는 페이지가 없어요. 10분 진로 검사, 직업별 안내, 상황별 안내에서 다시 길을 찾아보세요.', body, noindex: true, type: 'website', article: false, foot: false });
 }
 
 // ---------- 개인정보 처리방침 ----------
@@ -299,7 +299,7 @@ function guidePage(file) {
   const slug = file.replace(/\.md$/, ''), url = `/guide/${slug}.html`;
   const faq = []; const fm = body.split(/##\s*자주 묻는 질문/)[1] || '';
   for (const m of fm.matchAll(/\*\*Q\.\s*(.+?)\*\*\s*\n\s*A\.\s*(.+)/g)) faq.push({ '@type': 'Question', name: m[1].trim(), acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/\[출처:[^\]]*\]/g, '').trim() } });
-  const html = `<h1>${esc(meta.h1)}</h1>${md(body)}<a class="cta" href="/?src=guide-${slug}">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`;
+  const html = `<h1>${esc(meta.h1)}</h1>${md(body)}<a class="cta" href="/?src=guide-${slug}">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`;
   return { url, h1: meta.h1, html: page({ url, title: `${meta.title} | 표지기`, desc: meta.desc, body: html, ld: faq.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq }] : [], crumbs: [['표지기', '/'], ['진로 가이드', '/guide/'], [meta.h1, url]] }) };
 }
 
@@ -317,14 +317,14 @@ const collection = (url, name, desc, items) => ({ '@context': 'https://schema.or
   const desc = `${M.PATHS.length}개 직업 분야의 하는 일, 되는 법, 연봉, 자격증, 준비 기간을 한곳에 모았어요.`;
   put('/jobs/', 'jobs/index.html', page({ url: '/jobs/', title: '직업별 되는 법·연봉·자격증 모음 | 표지기', desc, type: 'website', article: false, og: '/og/jobs.png', ogAlt: '직업별 안내 · 표지기',
     ld: [collection('/jobs/', '직업별 안내', desc, jobPages)],
-    body: `<h1>직업별 안내</h1><p class="lede">${M.PATHS.length}개 분야의 하는 일, 되는 법, 연봉, 자격증, 준비 기간.</p>${cats.map(c => `<h2>${esc(c[1])}</h2><div class="chips">${c[2].filter(k => P[k]).map(k => `<a href="/jobs/${k}.html">${esc(short(P[k].n))}</a>`).join('')}</div>`).join('')}<a class="cta" href="/?src=jobs">내게 맞는 길 3개 찾기 (20분, 무료)</a>`,
+    body: `<h1>직업별 안내</h1><p class="lede">${M.PATHS.length}개 분야의 하는 일, 되는 법, 연봉, 자격증, 준비 기간.</p>${cats.map(c => `<h2>${esc(c[1])}</h2><div class="chips">${c[2].filter(k => P[k]).map(k => `<a href="/jobs/${k}.html">${esc(short(P[k].n))}</a>`).join('')}</div>`).join('')}<a class="cta" href="/?src=jobs">내게 맞는 길 3개 찾기 (10분, 무료)</a>`,
     crumbs: [['표지기', '/'], ['직업별 안내', '/jobs/']] }));
 }
 {
   const desc = '중학생, 고등학생, 자퇴, 재수, 대학생, 군 복무, 첫 취업 준비 등 10대·20대 초 상황별 진로 안내.';
   put('/for/', 'for/index.html', page({ url: '/for/', title: '10대·20대 초 상황별 진로 안내 (중고생·자퇴·재수·대학생·첫 취업) | 표지기', desc, type: 'website', article: false, og: '/og/for.png', ogAlt: '상황별 진로 안내 · 표지기',
     ld: [collection('/for/', '상황별 안내', desc, sitPages)],
-    body: `<h1>상황별 안내</h1><ul>${SIT.map(s => `<li><a href="/for/${s[0]}.html">${esc(s[1])}</a></li>`).join('')}</ul><a class="cta" href="/?src=for">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`,
+    body: `<h1>상황별 안내</h1><ul>${SIT.map(s => `<li><a href="/for/${s[0]}.html">${esc(s[1])}</a></li>`).join('')}</ul><a class="cta" href="/?src=for">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`,
     crumbs: [['표지기', '/'], ['상황별 안내', '/for/']] }));
 }
 const guidePages = fs.existsSync(GDIR) ? fs.readdirSync(GDIR).filter(f => f.endsWith('.md')).sort().map(guidePage) : [];
@@ -333,7 +333,7 @@ if (guidePages.length) {
   const desc = '국민내일배움카드, 청년 지원, 고졸 취업, 전공 고민처럼 10대·20대 초가 많이 찾는 진로 정보를 공식 출처로 정리했어요.';
   put('/guide/', 'guide/index.html', page({ url: '/guide/', title: '10대·20대 초 진로 가이드 (지원 제도·취업 준비) | 표지기', desc, type: 'website', article: false,
     ld: [collection('/guide/', '진로 가이드', desc, guidePages)],
-    body: `<h1>진로 가이드</h1><ul>${guidePages.map(g => `<li><a href="${g.url}">${esc(g.h1)}</a></li>`).join('')}</ul><a class="cta" href="/?src=guide">내 상황에 맞는 길 3개 찾기 (20분, 무료)</a>`,
+    body: `<h1>진로 가이드</h1><ul>${guidePages.map(g => `<li><a href="${g.url}">${esc(g.h1)}</a></li>`).join('')}</ul><a class="cta" href="/?src=guide">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`,
     crumbs: [['표지기', '/'], ['진로 가이드', '/guide/']] }));
   pages.push('/guide/');
 }

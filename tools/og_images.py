@@ -141,7 +141,7 @@ def for_specs(pub: Path):
 
 
 def all_specs(pub: Path):
-    yield "og.png", dict(title="20분이면 내 길 3개가 보여요", sub="중학생·고등학생·대학생·첫 취업 무료 진로 검사",
+    yield "og.png", dict(title="10분이면 내 길 3개가 보여요", sub="중학생·고등학생·대학생·첫 취업 무료 진로 검사",
                           pills=["가입 없이", "답은 내 기기에만 저장"], fs=88)
     n = len([f for f in (pub / "jobs").glob("*.html") if f.name != "index.html"])
     yield "og/jobs.png", dict(kick="직업별 안내", title=f"{n}개 분야, 되는 법·연봉·자격증", sub="준비 기간과 오늘 해 볼 것까지 한곳에")

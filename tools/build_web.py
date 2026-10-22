@@ -23,10 +23,10 @@ meta = '''<!doctype html>
 <meta name="google-site-verification" content="sYlME7471VsXeJt91Jrpw-SPSdKKNPL1IyIkw5MFWFc">
 <meta name="naver-site-verification" content="5ac34010da8ecdce736ba237c5c402cedb749726">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,viewport-fit=cover">
-<meta name="description" content="중학생·고등학생·자퇴·재수생·대학생·첫 취업 준비생을 위한 무료 진로 검사. 20분 질문으로 나한테 맞는 길 3개와 되는 법, 연봉, 받을 수 있는 지원을 정리해 드려요.">
+<meta name="description" content="중학생·고등학생·자퇴·재수생·대학생·첫 취업 준비생을 위한 무료 진로 검사. 10분 질문으로 나한테 맞는 길 3개와 되는 법, 연봉, 받을 수 있는 지원을 정리해 드려요.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="표지기 · 10대·20대 초 무료 진로 검사">
-<meta property="og:description" content="20분 질문으로 내 진로 3개와 받을 수 있는 지원까지">
+<meta property="og:description" content="10분 질문으로 내 진로 3개와 받을 수 있는 지원까지">
 <meta property="og:image" content="https://pyojigi.pages.dev/og.png">
 <meta property="og:url" content="https://pyojigi.pages.dev/">
 <meta property="og:site_name" content="표지기">
