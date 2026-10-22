@@ -1922,11 +1922,25 @@ function icsOf(evs,name){
 const WEBV = typeof FB_API==="string";
 function calOk(){ try{ return localStorage.getItem("pyojigi_cal_ok")==="1"; }catch(e){ return !!st.calOk; } }
 function setCalOk(){ st.calOk=1; save(); try{ localStorage.setItem("pyojigi_cal_ok","1"); }catch(e){} }
-function sendIcs(ev){
-  // 미리보기(claude.ai)는 일정 파일을 내려받을 수 없어 구글 캘린더 추가 화면으로 연다
+// 기기별로 확실히 열리는 방법을 고른다 (2026-10-23 '캘린더가 안 열림' 버그)
+// - 안드로이드 크롬은 .ics 를 '다운로드'만 하고 캘린더를 안 열어요 → 구글 캘린더 추가 화면
+// - 인스타·카톡·페북·네이버 앱 안 브라우저는 .ics 를 아예 막아요 → 구글 캘린더 추가 화면
+// - 아이폰 사파리·PC 는 .ics 를 열면 기본 캘린더 '추가' 화면이 떠요
+function calMode(){ const ua=(navigator.userAgent||"");
+  const inapp=/Instagram|FBAN|FBAV|FB_IAB|KAKAOTALK|NAVER\(inapp|Line\/|DaumApps|everytimeApp/i.test(ua);
+  if(/Android/i.test(ua) || inapp) return "g"; return "ics"; }
+function inApp(){ return /Instagram|FBAN|FBAV|FB_IAB|KAKAOTALK|NAVER\(inapp|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent||""); }
+function sendIcs(ev, mode){
+  mode = mode || calMode();
+  if(mode==="g"){
+    const a=document.createElement("a"); a.href=gcal(ev); a.target="_blank"; a.rel="noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("구글 캘린더가 열리면 '저장'을 한 번 눌러 주세요.");
+    return;
+  }
   const a=document.createElement("a"); a.href="/ev/"+evUid(ev)+".ics";
   document.body.appendChild(a); a.click(); a.remove();
-  toast("캘린더 앱이 열리면 '추가'를 한 번 눌러 주세요.");
+  toast("캘린더 앱이 열리면 '추가'를 한 번 눌러 주세요. 안 열리면 옆의 '구글 캘린더'를 눌러 주세요.");
 }
 function toast(msg){ let t=document.getElementById("toast"); if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; t.setAttribute("role","status"); document.body.appendChild(t); } t.textContent=msg; t.hidden=false; clearTimeout(t._h); t._h=setTimeout(()=>{t.hidden=true;},4000); }
 function addCal(ev){
@@ -1935,10 +1949,11 @@ function addCal(ev){
   sh=document.createElement("div"); sh.id="calSheet"; sh.className="sheet"; sh.setAttribute("role","dialog"); sh.setAttribute("aria-label","캘린더 추가 동의");
   sh.innerHTML=`<div class="sheet-in"><b>내 캘린더에 바로 넣을까요?</b>
     <p class="hint" style="color:var(--ink)">누르면 이 일정을 휴대폰(또는 PC)의 기본 캘린더로 보내요. 한 번 동의하면 다음부터는 누르자마자 바로 넣어요. 이름·연락처 같은 정보는 어디에도 보내지 않고, 동의 여부는 이 기기에만 저장돼요.</p>
-    <p class="hint">${WEBV?"휴대폰 보안 때문에 캘린더 앱이 열리면 '추가'를 한 번 눌러야 해요. 모든 일정을 자동으로 받으려면 캘린더 위쪽의 '한 번에 구독'을 써 보세요.":"지금 보는 미리보기 화면에서는 구글 캘린더로 열려요. 표지기 사이트에서는 휴대폰 기본 캘린더로 바로 들어가요."}</p>
-    <div class="row">${WEBV?`<button class="btn" type="button" id="calYes">동의하고 넣기</button>`:`<a class="btn" id="calYes" href="${gcal(ev)}" target="_blank" rel="noopener" style="text-decoration:none">동의하고 넣기</a>`}<button class="ghost" type="button" id="calNo">취소</button></div></div>`;
+    <p class="hint">${WEBV?(inApp()?"인스타·카톡 안에서 열린 화면이라 구글 캘린더로 넣어요. 아이폰 기본 캘린더에 넣으려면 오른쪽 위 ⋯ → '외부 브라우저로 열기' 후 다시 눌러 주세요.":"캘린더가 열리면 '추가'(또는 '저장')를 한 번 눌러야 해요. 모든 일정을 자동으로 받으려면 캘린더 위쪽의 '한 번에 구독'을 써 보세요."):"지금 보는 미리보기 화면에서는 구글 캘린더로 열려요. 표지기 사이트에서는 휴대폰 기본 캘린더로 바로 들어가요."}</p>
+    <div class="row">${WEBV?`<button class="btn" type="button" id="calYes">동의하고 넣기</button><button class="ghost" type="button" id="calAlt">${calMode()==="g"?"일정 파일로 받기":"구글 캘린더로 넣기"}</button>`:`<a class="btn" id="calYes" href="${gcal(ev)}" target="_blank" rel="noopener" style="text-decoration:none">동의하고 넣기</a>`}<button class="ghost" type="button" id="calNo">취소</button></div></div>`;
   document.body.appendChild(sh);
   document.getElementById("calYes").onclick=()=>{ setCalOk(); setTimeout(()=>{ sh.remove(); if(st.phase==="cal") calendar(); },0); if(WEBV) sendIcs(ev); };
+  const alt=document.getElementById("calAlt"); if(alt) alt.onclick=()=>{ setCalOk(); setTimeout(()=>{ sh.remove(); if(st.phase==="cal") calendar(); },0); sendIcs(ev, calMode()==="g"?"ics":"g"); };
   document.getElementById("calNo").onclick=()=>sh.remove();
   sh.onclick=e=>{ if(e.target===sh) sh.remove(); };
 }
@@ -1961,7 +1976,7 @@ function calendar(){
   for(let dd=1;dd<=days;dd++){ const key=ymd(new Date(y,m,dd)); const evs=live.filter(ev=>ev.s<=key&&ev.e>=key);
     cells+=`<button type="button" class="cd ${key===ymd(today)?"today":""} ${key===calSel?"sel":""} ${key<ymd(today)?"past":""}" data-day="${key}" aria-label="${m+1}월 ${dd}일${evs.length?" 일정 "+evs.length+"개":""}"><span>${dd}</span><i>${evs.slice(0,3).map(ev=>`<b class="dot ${ev.cat}"></b>`).join("")}</i></button>`; }
   const selEv=live.filter(ev=>ev.s<=calSel&&ev.e>=calSel);
-  const evRow=ev=>{const stt=evState(ev,today);return `<div class="ev"><div class="sup-h"><b>${ev.n}</b><span class="chip ${stt==="예정"?"":"k"}">${stt}</span></div><p class="hint">${md(ev.s)}${ev.s!==ev.e?" ~ "+md(ev.e):""}${ev.who?" · "+ev.who:""}</p>${ev.act?`<p class="hint" style="color:var(--ink)">${ev.act}</p>`:""}<div class="links"><a href="${ev.url}" target="_blank" rel="noopener">홈페이지 ↗</a>${!WEBV&&calOk()?`<a href="${gcal(ev)}" target="_blank" rel="noopener">내 캘린더에 추가 ↗</a>`:`<button type="button" class="linkbtn" data-add="${evUid(ev)}">내 캘린더에 추가</button>`}</div></div>`;};
+  const evRow=ev=>{const stt=evState(ev,today);return `<div class="ev"><div class="sup-h"><b>${ev.n}</b><span class="chip ${stt==="예정"?"":"k"}">${stt}</span></div><p class="hint">${md(ev.s)}${ev.s!==ev.e?" ~ "+md(ev.e):""}${ev.who?" · "+ev.who:""}</p>${ev.act?`<p class="hint" style="color:var(--ink)">${ev.act}</p>`:""}<div class="links"><a href="${ev.url}" target="_blank" rel="noopener">홈페이지 ↗</a>${!WEBV&&calOk()?`<a href="${gcal(ev)}" target="_blank" rel="noopener">내 캘린더에 추가 ↗</a>`:`<button type="button" class="linkbtn" data-add="${evUid(ev)}">내 캘린더에 추가</button>${WEBV?`<a class="linkbtn" href="${gcal(ev)}" target="_blank" rel="noopener">구글 캘린더 ↗</a>`:""}`}</div></div>`;};
   el(`<section style="display:flex;flex-direction:column;gap:18px">
     <div style="display:flex;flex-direction:column;gap:6px"><span class="eyebrow">정부·기업 캘린더</span><h1>신청 날짜를 놓치지 마세요</h1><p class="lede">정부의 장학금·적금·청년 지원과 기업이 직접 운영하는 교육·채용 연계 프로그램의 모집 일정을 모았어요. 끝난 일정은 자동으로 빠집니다.</p></div>
     ${subCard()}
