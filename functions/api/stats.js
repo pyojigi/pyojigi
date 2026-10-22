@@ -1,10 +1,10 @@
 // 운영자 통계: /api/stats?key=관리자키&days=30   (days=all 이면 처음부터 전부)
 // 필요한 설정: 비밀 변수 ADMIN_KEY (본인만 아는 긴 문자열)
-import { ensure } from "./event.js";
+// 선택: FEEDBACK_KEY (8자 이상) - 통계·문의·후기를 보기만 하는 키. 응답에 readonly:true, 답변·승인은 못 한다
+import { json, ensure, kstDay as kst, keyRole, kstDay, whoHash, allow } from "../_lib/common.js";
+import { listAsks, listReviews, reviewCounts, purgeOld } from "../_lib/store.js";
 
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
-const kst = (ms = 0) => new Date(Date.now() + 9 * 3600e3 - ms).toISOString().slice(0, 10);
+const top = (obj, n = 200) => Object.fromEntries(Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n));
 
 async function fromDB(db, n) {
   await ensure(db);
@@ -36,7 +36,10 @@ async function fromDB(db, n) {
   const runs = await q(`SELECT at, sit, ag, age, top1, top2, top3 FROM events WHERE type='finish' AND day >= ? ORDER BY id DESC LIMIT 2000`, from);
   const all = await q(`SELECT type, COUNT(*) AS c, MIN(day) AS first FROM events GROUP BY type`);
   const total = {}; let since = null; for (const r of all) { total[r.type] = r.c; if (!since || r.first < since) since = r.first; }
-  return { days, runs: runs.map(r => ({ at: r.at, sit: r.sit, ag: r.ag, age: r.age, tops: [r.top1, r.top2, r.top3].filter(Boolean) })), total, since, store: "d1" };
+  const refs = {}, kws = {};
+  for (const r of await q(`SELECT ref AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='visit' AND ref IS NOT NULL GROUP BY ref ORDER BY c DESC LIMIT 200`, from)) refs[r.k] = r.c;
+  for (const r of await q(`SELECT kw AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='visit' AND kw IS NOT NULL GROUP BY kw ORDER BY c DESC LIMIT 200`, from)) kws[r.k] = r.c;
+  return { days, refs, kws, runs: runs.map(r => ({ at: r.at, sit: r.sit, ag: r.ag, age: r.age, tops: [r.top1, r.top2, r.top3].filter(Boolean) })), total, since, store: "d1" };
 }
 
 async function fromKV(kv, n) {
@@ -49,18 +52,30 @@ async function fromKV(kv, n) {
   }
   const runs = [];
   for (const d of days) for (const r of (d.runs || []).slice().reverse()) runs.push(r);
-  for (const d of days) delete d.runs;
-  return { days, runs, store: "kv" };
+  const refs = {}, kws = {};
+  for (const d of days) {
+    for (const [k, v] of Object.entries(d.ref || {})) refs[k] = (refs[k] || 0) + v;
+    for (const [k, v] of Object.entries(d.kw || {})) kws[k] = (kws[k] || 0) + v;
+    delete d.runs;
+  }
+  return { days, refs: top(refs), kws: top(kws), runs, store: "kv" };
 }
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const key = url.searchParams.get("key") || "";
-  if (!env.ADMIN_KEY || key.length < 8 || key !== env.ADMIN_KEY) return json({ error: "unauthorized" }, 401);
+  const role = keyRole(env, key);
+  if (!role) {
+    const day = kstDay();
+    if (!(await allow(env, "badkey", await whoHash(request, env, day), day, 20))) return json({ error: "limit" }, 429);
+    return json({ error: "unauthorized" }, 401);
+  }
+  const readonly = role === "readonly";
   const dp = url.searchParams.get("days") || "30";
   const n = dp === "all" ? 0 : Math.min(Math.max(parseInt(dp, 10) || 30, 1), 366);
 
   let out = null;
+  try { await purgeOld(env); } catch (e) { if (env.DEBUG) console.log("PURGEERR", e.message); }
   if (env.DB) { try { out = await fromDB(env.DB, n); } catch (e) { if (env.DEBUG) console.log("DBERR", e.message); out = null; } }
   if (!out) { if (!env.PYOJIGI_KV) return json({ error: "off" }, 503); out = await fromKV(env.PYOJIGI_KV, n); }
 
@@ -78,5 +93,10 @@ export async function onRequestGet({ request, env }) {
     notes.sort().reverse();
     for (const name of notes.slice(0, 100)) { const raw = await env.PYOJIGI_KV.get(name); if (raw) feedback.push(JSON.parse(raw)); }
   }
-  return json({ ...out, feedback });
+
+  // 보관 기간 지난 기록 정리 (이용 기록 2년, 답변·완료 문의 1년, 거절 후기 90일) 후 문의·후기
+  let asks = [], reviews = [], counts = { pending: 0, approved: 0, rejected: 0 };
+  try { asks = await listAsks(env, 200); } catch (e) { if (env.DEBUG) console.log("ASKERR", e.message); }
+  try { reviews = await listReviews(env, { limit: 200 }); counts = await reviewCounts(env); } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); }
+  return json({ ...out, feedback, asks, reviews, reviewCounts: counts, readonly });
 }

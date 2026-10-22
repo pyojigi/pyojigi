@@ -87,7 +87,7 @@ export async function onRequestPost({ request, env }) {
   const sk = `st:${day}`;
   const st = JSON.parse((await env.PYOJIGI_KV.get(sk)) || "{}");
   st[isRead ? "aiRead" : "aiAsk"] = (st[isRead ? "aiRead" : "aiAsk"] || 0) + 1;
-  await env.PYOJIGI_KV.put(sk, JSON.stringify(st));
+  await env.PYOJIGI_KV.put(sk, JSON.stringify(st), { expirationTtl: 731 * 86400 }); // 2년 보관
 
   return json({
     text,

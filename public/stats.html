@@ -18,7 +18,8 @@ h2{font-size:17px;margin:0 0 8px}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 input,select,button{font:inherit;font-size:15px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
 button{background:var(--pine);color:var(--surface);border:0;font-weight:600;cursor:pointer}
-input{flex:1;min-width:0}
+input{flex:1 1 180px;min-width:0}
+#f select{flex:1 1 auto}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
@@ -32,14 +33,35 @@ th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white
 th:first-child,td:first-child{text-align:left}
 .muted{color:var(--muted);font-size:13px}
 .err{color:var(--red)}
+.bar span{overflow-wrap:anywhere;min-width:0}
+textarea{font:inherit;font-size:15px;width:100%;min-height:84px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button.warn{background:transparent;color:var(--red);border:1.5px solid var(--red)}
+button:disabled{opacity:.5;cursor:default}
+.item{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:8px}
+.item:first-of-type{border-top:0}
+.item p{margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:13px;color:var(--muted)}
+.txt{white-space:pre-wrap;overflow-wrap:anywhere}
+.reply{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--soft);border-radius:8px;padding:8px 10px;font-size:14px}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.chip.open,.chip.pending{color:var(--red)}
+.chip.answered,.chip.approved{color:var(--pine)}
+.chip.closed,.chip.rejected{color:var(--muted)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
+.note{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:14px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{background:var(--red);color:#fff}
+@media (max-width:480px){.bar{grid-template-columns:minmax(0,120px) 1fr 64px}h1{font-size:21px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>표지기 운영 통계</h1>
-  <p class="muted">익명 숫자만 모아요. 관리자 키는 Cloudflare에 넣은 ADMIN_KEY 값이에요. 이 페이지는 검색에 노출되지 않아요.</p>
+  <p class="muted">익명 숫자만 모아요. 관리자 키는 Cloudflare에 넣은 ADMIN_KEY 값이에요. 보기만 하는 키(FEEDBACK_KEY)로 열면 답변·승인 버튼은 숨겨져요. 이 페이지는 검색에 노출되지 않아요.</p>
   <form class="card row" id="f">
-    <label for="k" class="muted" style="align-self:center">관리자 키</label>
+    <label for="k" class="muted" style="align-self:center">키</label>
     <input id="k" type="password" autocomplete="current-password" required>
     <select id="d" aria-label="기간"><option value="7">최근 7일</option><option value="30" selected>최근 30일</option><option value="90">최근 90일</option><option value="366">최근 1년</option><option value="all">처음부터 전부</option></select>
     <button type="submit">불러오기</button>
@@ -47,6 +69,7 @@ th:first-child,td:first-child{text-align:left}
   <p id="msg" class="muted" aria-live="polite"></p>
   <div id="out" hidden style="display:flex;flex-direction:column;gap:16px"></div>
 </div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>
 const SIT={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"};
 const AGE=["10대","20대 초반","20대 중반","20대 후반","30대 초반","30대 후반","40대 이상"];
@@ -56,17 +79,26 @@ const QN={"ag":"나이대","d1":"그만둔 지 (학교 밖)","d2":"지금 생각
 const MISSWHY=["연봉이 실제와 달라요","나랑 안 맞아요","이미 해 봤어요","준비 기간이 비현실적이에요"];
 const $=id=>document.getElementById(id);
 try{ const s=sessionStorage.getItem("pk"); if(s) $("k").value=s; }catch(e){}
-const esc=t=>String(t).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const esc=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ASKST={open:"답변 대기",answered:"답변함",closed:"완료"};
+const RVST={pending:"승인 대기",approved:"공개 중",rejected:"거절"};
+const chip=(map,st)=>`<span class="chip ${esc(st)}">${esc(map[st]||st)}</span>`;
+let toastT; function toast(t,bad){ const el=$("toast"); el.textContent=t; el.className="on"+(bad?" bad":""); clearTimeout(toastT); toastT=setTimeout(()=>{el.className=bad?"bad":"";},2600); }
 function sumObj(days,key){ const o={}; for(const d of days){ for(const [k,v] of Object.entries(d[key]||{})) o[k]=(o[k]||0)+v; } return o; }
 function bars(obj,label){ const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]); const max=e.length?e[0][1]:1; const tot=e.reduce((a,b)=>a+b[1],0)||1;
   return e.length? e.map(([k,v])=>`<div class="bar"><span>${esc(label(k))}</span><i style="width:${Math.max(2,v/max*100)}%"></i><em>${v} · ${Math.round(v/tot*100)}%</em></div>`).join("") : `<p class="muted">아직 기록이 없어요.</p>`; }
-$("f").onsubmit=async ev=>{
-  ev.preventDefault(); $("msg").textContent="불러오는 중..."; $("msg").className="muted";
-  const key=$("k").value.trim(); try{ sessionStorage.setItem("pk",key); }catch(e){}
+let KEY="", RO=false;
+$("f").onsubmit=ev=>{ ev.preventDefault(); load(false); };
+async function load(quiet){
+  if(!quiet){ $("msg").textContent="불러오는 중..."; $("msg").className="muted"; }
+  const key=$("k").value.trim(); KEY=key; try{ sessionStorage.setItem("pk",key); }catch(e){}
   let r; try{ r=await fetch(`/api/stats?days=${$("d").value}&key=${encodeURIComponent(key)}`); }catch(e){ $("msg").textContent="연결에 실패했어요. 인터넷을 확인해 주세요."; $("msg").className="err"; return; }
   if(r.status===401){ $("msg").textContent="관리자 키가 맞지 않아요."; $("msg").className="err"; return; }
+  if(r.status===429){ $("msg").textContent="키를 너무 많이 틀렸어요. 내일 다시 해 주세요."; $("msg").className="err"; return; }
   if(!r.ok){ $("msg").textContent="통계를 불러오지 못했어요. Cloudflare의 KV 연결(PYOJIGI_KV)을 확인해 주세요."; $("msg").className="err"; return; }
-  const {days,feedback=[],runs=[],total={},since=null,store="kv"}=await r.json(); $("msg").textContent=""; window.__runs=runs;
+  const {days,feedback=[],runs=[],total={},since=null,store="kv",refs={},kws={},asks=[],reviews=[],reviewCounts=null,readonly=false}=await r.json(); $("msg").textContent=""; window.__runs=runs; RO=!!readonly;
+  const rc=reviewCounts||reviews.reduce((o,x)=>(o[x.status]=(o[x.status]||0)+1,o),{});
+  const openN=asks.filter(a=>a.status==="open").length;
   const tot=k=>days.reduce((a,d)=>a+(d[k]||0),0);
   const visit=tot("visit"), start=tot("start"), fin=tot("finish"), low=tot("low"), copy=tot("fbCopy");
   const fb=sumObj(days,"fb"); const fbN=Object.values(fb).reduce((a,b)=>a+b,0); const good=(fb["많이 됐어요"]||0)+(fb["조금 됐어요"]||0);
@@ -78,8 +110,18 @@ $("f").onsubmit=async ev=>{
     <div class="kpi"><b>${fin}</b><span>완주 (${pct(fin,start)})</span></div>
     <div class="kpi"><b>${pct(good,fbN)}</b><span>도움 됐다 (${fbN}명 응답)</span></div>
     <div class="kpi"><b>${pct(low,fin)}</b><span>확신 낮음 비율</span></div>
+    <div class="kpi"><b>${openN}</b><span>답변 기다리는 문의</span></div>
     ${store==="d1"?`<div class="kpi"><b>${total.finish||0}</b><span>누적 완주 (${since||"-"}부터)</span></div><div class="kpi"><b>${total.visit||0}</b><span>누적 방문</span></div>`:""}
   </div>
+  ${RO?`<p class="note">읽기 전용 키로 열었어요. 답변·완료·후기 승인은 관리자 키로만 할 수 있어요.</p>`:""}
+  <section class="card"><h2>문의 (최근 ${asks.length}건 · 답변 대기 ${openN}건)</h2>
+    <p class="muted">사용자는 받은 확인 코드로 답변을 봐요. 답변했거나 완료한 문의는 1년 뒤 지워져요.</p>
+    ${asks.length?asks.map(askItem).join(""):`<p class="muted">아직 받은 문의가 없어요.</p>`}</section>
+  <section class="card"><h2>후기 승인</h2>
+    <p class="muted">공개에 동의한 한마디만 여기에 와요. 승인한 것만 사이트 후기에 보여요. 공개 중 <b>${rc.approved||0}</b>개 · 승인 대기 <b>${rc.pending||0}</b>개 · 거절 ${rc.rejected||0}개</p>
+    ${reviews.length?reviews.map(rvItem).join(""):`<p class="muted">아직 공개 동의한 한마디가 없어요.</p>`}</section>
+  <section class="card"><h2>들어온 곳 (이전 사이트)</h2>${bars(refs,k=>k)}<p class="muted">바로 앞에 보던 사이트 주소예요. 주소창에 직접 치거나 앱에서 열면 기록되지 않아요.</p></section>
+  <section class="card"><h2>검색어</h2>${bars(kws,k=>k)}<p class="muted">검색 사이트가 알려 준 경우에만 남아요.</p></section>
   <section class="card"><h2>유입 경로 (?src=)</h2>${bars(sumObj(days,"src"),k=>k)}</section>
   <section class="card"><h2>상황별 완주</h2>${bars(sumObj(days,"sit"),k=>SIT[k]||k)}</section>
   <section class="card"><h2>나이대</h2>${Object.keys(sumObj(days,"ag")).length?bars(sumObj(days,"ag"),k=>AG[+k]||k):bars(sumObj(days,"age"),k=>AGE[+k]||k)}</section>
@@ -105,7 +147,40 @@ $("f").onsubmit=async ev=>{
     const blob=new Blob(["\ufeff"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="pyojigi-records-"+new Date().toISOString().slice(0,10)+".csv"; document.body.appendChild(a); a.click(); a.remove();
   };
-};
+}
+function askItem(a){
+  const c=esc(a.code);
+  const tools=RO||a.status==="closed"?"":`<label class="muted" for="rp-${c}">${a.status==="answered"?"답변 고치기":"답변"}</label>
+    <textarea id="rp-${c}" maxlength="1000" placeholder="사용자가 확인 코드로 보게 될 답변이에요.">${esc(a.reply||"")}</textarea>
+    <div class="row"><button type="button" data-act="reply" data-code="${c}">답변 저장</button><button type="button" class="ghost" data-act="close" data-code="${c}">완료</button></div>`;
+  return `<div class="item"><div class="meta">${chip(ASKST,a.status)}<span>${esc(a.kind)}</span><span>${esc(a.at)}</span><span class="code">${c}</span></div>
+    <p class="txt">${esc(a.text)}</p>
+    ${a.reply?`<div class="reply"><span class="muted">보낸 답변 · ${esc(a.replied_at||"")}</span>\n${esc(a.reply)}</div>`:""}
+    ${tools}</div>`;
+}
+function rvItem(x){
+  const id=esc(x.id);
+  const tools=RO?"":`<div class="row">${x.status!=="approved"?`<button type="button" data-act="approve" data-id="${id}">승인</button>`:""}${x.status!=="rejected"?`<button type="button" class="ghost" data-act="reject" data-id="${id}">거절</button>`:""}<button type="button" class="warn" data-act="delete" data-id="${id}">삭제</button></div>`;
+  return `<div class="item"><div class="meta">${chip(RVST,x.status)}<span>${esc(x.at)}</span><span>${esc(x.fb||"만족도 없음")}</span><span>${esc(SIT[x.sit]||"-")}</span></div>
+    <p class="txt">${esc(x.text)}</p>${tools}</div>`;
+}
+const DONE={reply:"답변을 저장했어요",close:"완료로 바꿨어요",approve:"승인했어요. 사이트 후기에 보여요",reject:"거절했어요",delete:"삭제했어요"};
+const ERR={unauthorized:"관리자 키로만 할 수 있어요",empty:"답변을 적어 주세요",long:"답변은 1000자까지예요",notfound:"이미 지워졌거나 없는 항목이에요",limit:"시도가 너무 많아요"};
+$("out").addEventListener("click",async ev=>{
+  const b=ev.target.closest("button[data-act]"); if(!b||RO) return;
+  const act=b.dataset.act; let body;
+  if(act==="reply"){ const t=document.getElementById("rp-"+b.dataset.code); const v=(t&&t.value||"").trim(); if(!v){ toast("답변을 적어 주세요",true); t&&t.focus(); return; } body={action:"reply",code:b.dataset.code,reply:v}; }
+  else if(act==="close") body={action:"close",code:b.dataset.code};
+  else if(act==="approve"||act==="reject") body={action:"review",id:b.dataset.id,approve:act==="approve"};
+  else if(act==="delete"){ if(!confirm("이 후기를 지울까요? 되돌릴 수 없어요.")) return; body={action:"delete_review",id:b.dataset.id}; }
+  else return;
+  b.disabled=true;
+  try{
+    const r=await fetch("/api/admin",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({key:KEY,...body})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok){ toast(DONE[act]); await load(true); } else { toast(ERR[j.error]||"저장하지 못했어요. 잠시 뒤 다시 해 주세요",true); b.disabled=false; }
+  }catch(e){ toast("연결에 실패했어요",true); b.disabled=false; }
+});
 </script>
 </body>
 </html>
