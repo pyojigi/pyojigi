@@ -271,5 +271,18 @@ for (const [label, kenv] of [["kv-only", { PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, F
   ok("privacy: no user agent", !/Mozilla|TESTUA/.test(dump));
 }
 
+// 자동 승인 전 '승인 대기'로 남은 옛 후기는 통계를 열면 자동 규칙대로 정리된다 (D1·KV 둘 다)
+{
+  const { createReview } = await import("../../functions/_lib/store.js");
+  for (const [label, penv] of [["d1", { DB: D1(), PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, FEEDBACK_KEY: RO }], ["kv", { PYOJIGI_KV: KV(), ADMIN_KEY: ADMIN, FEEDBACK_KEY: RO }]]) {
+    await createReview(penv, { text: "진로 고민에 도움이 많이 됐어요", fb: null, sit: "ms" });
+    await createReview(penv, { text: "👍", fb: null, sit: "mil" });
+    const s = await S(penv, RO);
+    const st2 = Object.fromEntries(s.j.reviews.map(r => [r.text, r.status]));
+    ok(`old pending cleanup ${label}`, s.s === 200 && st2["진로 고민에 도움이 많이 됐어요"] === "approved" && st2["👍"] === "rejected" && s.j.reviewCounts.pending === 0, JSON.stringify([st2, s.j.reviewCounts]));
+    ok(`old pending cleanup ${label}: public`, (await R(penv)).j.reviews.length === 1);
+  }
+}
+
 console.log(fail ? `${fail} FAILED, ${pass} passed` : `ALL PASS (${pass} checks)`);
 process.exit(fail ? 1 : 0);

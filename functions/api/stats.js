@@ -2,7 +2,8 @@
 // 필요한 설정: 비밀 변수 ADMIN_KEY (본인만 아는 긴 문자열)
 // 선택: FEEDBACK_KEY (8자 이상) - 통계·문의·후기를 보기만 하는 키. 응답에 readonly:true, 답변·승인은 못 한다
 import { json, ensure, kstDay as kst, keyRole, kstDay, whoHash, allow } from "../_lib/common.js";
-import { listAsks, listReviews, reviewCounts, purgeOld } from "../_lib/store.js";
+import { listAsks, listReviews, reviewCounts, purgeOld, setReview } from "../_lib/store.js";
+import { autoOK } from "./feedback.js";
 
 const top = (obj, n = 200) => Object.fromEntries(Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n));
 
@@ -100,6 +101,13 @@ export async function onRequestGet({ request, env }) {
   // 보관 기간 지난 기록 정리 (이용 기록 2년, 답변·완료 문의 1년, 거절 후기 90일) 후 문의·후기
   let asks = [], reviews = [], counts = { pending: 0, approved: 0, rejected: 0 };
   try { asks = await listAsks(env, 200); } catch (e) { if (env.DEBUG) console.log("ASKERR", e.message); }
-  try { reviews = await listReviews(env, { limit: 200 }); counts = await reviewCounts(env); } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); }
+  try {
+    reviews = await listReviews(env, { limit: 200 });
+    // 자동 승인 전환(2026-10-23) 전에 들어와 '승인 대기'로 남은 후기는 같은 자동 규칙으로 한 번 정리한다
+    const old = reviews.filter(r => r.status === "pending");
+    for (const r of old) await setReview(env, r.id, autoOK(r.text) ? "approved" : "rejected");
+    if (old.length) reviews = await listReviews(env, { limit: 200 });
+    counts = await reviewCounts(env);
+  } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); }
   return json({ ...out, feedback, asks, reviews, reviewCounts: counts, readonly });
 }
