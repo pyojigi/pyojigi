@@ -4,7 +4,7 @@
 // - 시각은 모두 한국 시간(KST) "YYYY-MM-DD HH:MM"
 
 export const SITS = ["job", "move", "gap", "slump", "switch", "mil", "hs", "col", "ms", "drop", "retake"];
-export const PATHS = ["sec","fac","tec","pub","spo","sal","it","off","log","mkt","car","uni","avs","mlc","edu","bop","pln","pbc","svc","hcl","kid","adv","hsj","own","env","tch","nur","ckg","bty","aut","bld","mtc","eng","rea","ath","rail","avi","fin","tax","med","dsn","cns","lgl","arc","trd","diet","art","doc"];
+export const PATHS = ["sec","fac","tec","pub","spo","sal","it","off","log","mkt","car","uni","avs","mlc","edu","bop","pln","pbc","svc","hcl","kid","adv","hsj","own","env","tch","nur","ckg","bty","aut","bld","mtc","eng","rea","ath","rail","avi","fin","tax","med","dsn","cns","lgl","arc","trd","diet","art","doc","law","pro"];
 export const FB = ["많이 됐어요", "조금 됐어요", "별로예요"];
 
 export const json = (obj, status = 200, extra = {}) =>
