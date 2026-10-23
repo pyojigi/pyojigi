@@ -1233,7 +1233,7 @@ const ETCA_CERT={"무대기술":"무대예술전문인","무대예술":"무대�
 const ETCA={"컴활":"컴퓨터활용능력","정처기":"정보처리","정처산기":"정보처리","정보처리기사":"정보처리","한국사":"한국사능력검정","한능검":"한국사능력검정","간조":"간호조무사","요보사":"요양보호사","전기기사":"전기","전기산업기사":"전기","공인중개":"공인중개사","사복":"사회복지사","9급":"공무원","순경":"경찰","소방공무원":"소방","운전면허":"운전면허","운전병":"운전면허","1종":"운전면허","2종":"운전면허","프로그래머":"IT","개발자":"IT","코딩":"IT","유튜버":"콘텐츠","크리에이터":"콘텐츠"};
 function etcFind(q,txt){
   let n=ETCN(txt); if(n.length<2) return -1;
-  const AL=q.id==="cur"?Object.assign({},ETCA,ETCA_CUR):q.id==="cert"?Object.assign({},ETCA,ETCA_CERT):ETCA;
+  const AL=q.id==="cur"?Object.assign({},ETCA,ETCA_CUR):(q.id==="cert"||q.id==="plan")?Object.assign({},ETCA,ETCA_CERT):ETCA;
   const al=Object.keys(AL).find(a=>n===ETCN(a)||n.startsWith(ETCN(a))||(q.id==="cur"&&n.includes(ETCN(a)))); if(al) n=ETCN(AL[al]);
   const bad=k=>q.none===k||/^(아직 없다|딱히 없|해당 없|없음|일해본 적 없음|기타)/.test(q.o[k][0]);
   let best=-1, bl=1e9;
