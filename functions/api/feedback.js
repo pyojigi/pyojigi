@@ -3,11 +3,13 @@
 // - 이름·연락처·IP·브라우저 정보는 저장하지 않는다. 같은 사람 하루 5번까지 (IP는 해시로만 이틀 보관)
 // - 저장된 피드백은 90일 뒤 자동 삭제된다. 이메일로 보내지 않고 통계 페이지(/stats.html)에서만 본다
 // - public: true (사용자가 "이 한마디를 사이트 후기로 공개해도 좋아요"에 체크)이고 한마디가 있으면
-//   후기 승인 대기(pending)로도 넣는다. 운영자가 승인해야만 /api/reviews 에 보인다
+//   후기로도 넣는다. 서버가 바로 승인(approved)/거절(rejected)을 정하고, 승인된 것만 /api/reviews 에 보인다
 import { SITS, PATHS, FB, json, kstDay, whoHash, allow, cleanText } from "../_lib/common.js";
 import { createReview } from "../_lib/store.js";
 
-// 후기 자동 공개 (2026-10-23 운영자 결정): 아래에 하나도 안 걸리면 바로 공개, 걸리면 운영자 승인 대기
+// 후기 승인 전부 자동 (2026-10-23 운영자 결정): 아래에 하나도 안 걸리면 바로 공개(approved),
+// 걸리면 바로 거절(rejected) — 운영자 승인 대기(pending)는 더 이상 만들지 않는다.
+// 거절된 후기는 통계 페이지(/stats.html)에서 보이고 운영자가 원하면 승인으로 바꿀 수 있다. 90일 뒤 자동 삭제.
 // 연락처·주소·링크 / 학교 이름 / 욕설·성적 표현 / 위기 신호 / 너무 짧은 글
 const HOLD = [
   /\d{4,}|\d{2,4}-\d{3,4}-\d{4}|@|https?:|www\.|\.com|\.kr|카톡|카카오톡|오픈채팅|오픈톡|인스타|디엠|dm\b|텔레그램|연락/i,
@@ -45,6 +47,6 @@ export async function onRequestPost({ request, env }) {
   };
   const id = `fbk:${day}:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   await env.PYOJIGI_KV.put(id, JSON.stringify(rec), { expirationTtl: KEEP_DAYS * 86400 });
-  if (isPublic) { try { await createReview(env, { text, fb, sit, status: autoOK(text) ? "approved" : "pending" }); } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); } }
+  if (isPublic) { try { await createReview(env, { text, fb, sit, status: autoOK(text) ? "approved" : "rejected" }); } catch (e) { if (env.DEBUG) console.log("REVIEWERR", e.message); } }
   return json({ ok: true });
 }

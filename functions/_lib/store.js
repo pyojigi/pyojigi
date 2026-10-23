@@ -124,7 +124,7 @@ export async function purgeOld(env) {
 
 // ---------- 후기 ----------
 export async function createReview(env, { text, fb, sit, status = "pending" }) {
-  if (status !== "approved") status = "pending";
+  if (status !== "approved" && status !== "rejected") status = "pending";
   const at = kstAt();
   try { const d = await db(env); if (d) { await d.prepare(`INSERT INTO reviews (at, text, fb, sit, status) VALUES (?, ?, ?, ?, ?)`).bind(at, text, fb, sit, status).run(); return true; } }
   catch (e) { dbErr(env, e); }
