@@ -816,7 +816,8 @@ const ROAD={
 };
 // 답한 준비 기간·하루 시간만큼만 주차별로 배치 (주 5일 기준)
 function planFor(k){
-  const L0=ROAD[k]; if(!L0) return null;
+  let L0=ROAD[k]; if(!L0) return null;
+  if(k==="hsj" && sitKey()==="drop" && st.ans.d3!==0) L0=[["꿈드림에 연락해 검정고시 접수일·준비 지원 확인",2],...L0.slice(1)];
   const L=(AIX[k]==="high"||AIX[k]==="mid") && L0.length>1 ? [...L0.slice(0,-1),["AI 도구로 실무 과제 1개 해내고 결과를 포트폴리오에 넣기",10],L0[L0.length-1]] : L0;
   const pr=st.ans.prep, sd=st.ans.study;
   const weeks=[4,13,26,52][pr==null?1:pr]||13, per=[0.5,1.5,3.5,6][sd==null?1:sd]||1.5, wk=per*5;
@@ -971,6 +972,8 @@ function topTraits(t,n){return Object.entries(t).filter(e=>e[1]>0).sort((a,b)=>b
 
 function lowConf(P){ const a=P[0].s, c=P[2].s; return a<30 || (a-c)<4; }
 function employed(f){const k=sitKey(); return k==="move"||k==="slump"||(k==="switch"&&st.ans.w3===0)||(k==="mil"&&f&&f.inSvc)}
+// 학교를 그만두고 검정고시를 아직 안 붙은 사람에게는 고졸 채용 길을 '검정고시 먼저'로 보여 준다 (점수는 그대로, 글만)
+const HSJ_DROP={n:"검정고시 → 고졸 채용",prepAdd:" (검정고시에 붙은 뒤부터)",need:"먼저 검정고시에 붙어야 고졸 학력이 인정돼요(1년에 두 번, 보통 4월·8월). 그다음 '고졸 이상'을 뽑는 공기업·대기업·금융권 채용에 지원할 수 있어요. 학교 추천이 필요한 특성화고 전형은 빼고요. 입사 후 재직자 전형으로 학위도 딸 수 있어요",first:"가까운 꿈드림(학교 밖 청소년 지원센터)에 연락해 다음 검정고시 접수 날짜와 무료 준비 지원을 물어보세요.",firstLink:["꿈드림 센터 찾기","https://www.kdream.or.kr"],try:"꿈드림에서 검정고시 과목·접수일을 확인하고, '고졸 이상' 채용 공고 3개를 찾아 지원 조건을 적어 보기"};
 function score(){
   const {t,f}=tally(); const k=sitKey(), emp=employed(f), g=goalKey(f);
   const leaving = k==="switch" || (k==="move"&&(!f.same||f.mv==="fit")) || (k==="slump"&&f.sl==="work") || (k==="gap"&&f.gw==="fit");
@@ -1062,6 +1065,7 @@ function score(){
       else if(pr===4) tb=Math.min(1,(W.meaning||0)/3);
       s+=Math.round(tb*3); }
     if(block) s=-9999; else s-=1000*v.length;
+    if(p.key==="hsj" && k==="drop" && !f.ged) return {...p,...HSJ_DROP,s,v,note,why:[...new Set(why)].slice(0,3)};
     return {...p,s,v,note,why:[...new Set(why)].slice(0,3)};
   }).sort((a,b)=>b.s-a.s);
   // 본인이 직접 고른 방향은 조건에 걸리지 않는 한 반드시 상위 3위 안에 보여준다
@@ -1435,7 +1439,9 @@ function planDraw(k,search){
   const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM && p.key!==k).sort((a,b)=>a.prep-b.prep)[0];
   if(shorter) items.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 일하면서 이 길을 준비하는 방법`);
   if(SPn.includes("국민내일배움카드")) items.push("교육비는 국민내일배움카드로 줄이기 (5년간 300만원까지)");
-  box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>약 ${c.prepM}개월</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${c.F}개월째 · 약 ${c.pay.toLocaleString()}만원</span></li></ol>
+  const ged = k==="hsj" && sitKey()==="drop" && st.ans.d3!==0 ? "검정고시 뒤 " : "";
+  if(ged) items.unshift("이 길은 검정고시에 붙은 다음부터 시작돼요. 위 기간에 검정고시 준비 기간을 더해서 보세요 (시험은 1년에 두 번, 보통 4월·8월)");
+  box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>${ged}약 ${c.prepM}개월</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${ged}${c.F}개월째 · 약 ${c.pay.toLocaleString()}만원</span></li></ol>
     ${items.length?`<p class="hint" style="color:var(--ink)"><b>그동안 기댈 수 있는 것</b></p><ul class="glist">${items.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}`;
 }
 function calcDraw(){
@@ -1513,10 +1519,10 @@ function result(){
       ${p.note?`<p class="why"><b>${p.note}</b></p>`:""}${p.why.length?`<p class="why">맞는 이유: ${p.why.join(", ")}</p>`:""}
       ${p.sal?salBar(p.sal):p.salNote?`<p class="hint"><b style="color:var(--ink)">연봉</b> · ${p.salNote}</p>`:`<p class="hint">진학 경로라 연봉 대신 학과별 졸업 후 진로를 비교해 보세요. <a href="https://www.career.go.kr" target="_blank" rel="noopener">커리어넷 학과정보</a></p>`}
       ${p.v&&p.v.length?`<p class="hint" style="color:var(--blaze-ink);background:var(--blaze);border-radius:6px;padding:6px 10px">맞지 않는 점: ${p.v.join(", ")}</p>`:""}
-      ${firstBox(p.key,p.first)}
+      ${firstBox(p.key,p.first,p.firstLink)}
       <details class="more pmore"><summary>자세히 보기 · 준비 기간, 필요한 것, 장점, 계획, 영상</summary>
       ${AIX[p.key]?`<p class="aix aix-${AIX[p.key]}"><b>AI 영향 ${AIXT[AIX[p.key]][0]}</b> · ${AIXT[AIX[p.key]][1]}</p>`:""}
-      <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(p.prep)}</dd><dt>필요한 것</dt><dd>${p.need}</dd></dl>
+      <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(p.prep)+(p.prepAdd||"")}</dd><dt>필요한 것</dt><dd>${p.need}</dd></dl>
       ${PRO[p.key]?`<div class="pro"><b>이 일의 장점</b><p>${PRO[p.key].t}</p><a class="srcl" href="${PRO[p.key].url}" target="_blank" rel="noopener">출처: ${PRO[p.key].src}</a></div>`:""}
       ${p.try?`<p class="hint"><b style="color:var(--ink)">2주 안에 해 볼 것</b> · ${isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":p.try}</p>`:""}${planBox(p.key)}${affBox(p.key)}
       <a class="ytb" href="${yt(p.key)}" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 현직자 영상 보기 (유튜브)</a>
@@ -1753,7 +1759,7 @@ function bookA(n){ const b=BOOK[n]; return b&&!isMS()?` <a href="${b[1]}" target
 function bookNote(certs){ return !isMS()&&certs.some(c=>BOOK[c[0]])?`<p class="hint"><small>${CPN_NOTE}</small></p>`:""; }
 const JOBSITE={pub:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],pbc:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],uni:["소방공무원 채용 공고 보기 (국가공무원 채용시스템)","https://gongmuwon.gosi.kr/spcsv/RpaApTestPbancLst.do"],env:["환경공무관 채용공고 보기 (클린아이 잡플러스)","https://job.cleaneye.go.kr"],own:["창업 지원사업 공고 보기 (K-Startup)","https://www.k-startup.go.kr"],adv:["학과 정보 보기 (커리어넷)","https://www.career.go.kr"],tch:["임용시험 정보 보기 (한국교육과정평가원)","https://www.kice.re.kr"],ath:["체육 단체 소식·채용 보기 (대한체육회)","https://www.sports.or.kr"],rail:["공공기관 채용공고 보기 (잡알리오)","https://job.alio.go.kr"],doc:["면허시험 정보 보기 (국시원)","https://www.kuksiwon.or.kr"]};
 function jobLink(k){ if(sitKey()==="ms") return ["직업 정보 보기 (커리어넷)","https://www.career.go.kr"]; if(JOBSITE[k]) return JOBSITE[k]; return ["관련 채용공고 보기 (사람인)","https://www.saramin.co.kr/zf_user/search?searchword="+encodeURIComponent(JOBQ[k]||"")]; }
-const firstBox=(k,txt)=>{ const j=jobLink(k); if(sitKey()==="ms") txt=`커리어넷에서 '${(JOBS[k]||[""])[0]}' 직업 정보를 찾아 하는 일과 되는 법을 읽어 보세요.`; return `<a class="first" href="${j[1]}" target="_blank" rel="noopener"><b>내일 할 일 하나</b>${txt}<span class="go">${j[0]} ↗</span></a>`; };
+const firstBox=(k,txt,lk)=>{ const j=lk||jobLink(k); if(sitKey()==="ms") txt=`커리어넷에서 '${(JOBS[k]||[""])[0]}' 직업 정보를 찾아 하는 일과 되는 법을 읽어 보세요.`; return `<a class="first" href="${j[1]}" target="_blank" rel="noopener"><b>내일 할 일 하나</b>${txt}<span class="go">${j[0]} ↗</span></a>`; };
 
 // 상황별 정부 지원제도 추천
 const W24="https://www.work24.go.kr";
