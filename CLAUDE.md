@@ -17,6 +17,7 @@
 3. 검사 전부 통과 확인:
    - `node tests/run.js 30000 2000` → "오류 0건", "통과 2000"
    - `node tests/majors2.js 50` → 마지막 줄 100%
+   - `node tests/routine.js` → 준비계획 시간표 "오류 0건"
    - `cd tests/mock && for t in v2 d1 t mail; do node --no-warnings $t.mjs; done` → 모두 ALL PASS
 4. 검사가 하나라도 실패하면 main에 올리지 않는다. 고칠 수 없으면 `FEEDBACK_LOG.md`에 이유를 적고 멈춘다.
 5. 커밋 메시지는 한국어로 무엇을 왜 고쳤는지.

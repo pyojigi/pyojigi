@@ -53,6 +53,17 @@ function runFlow(rnd, opts = {}) {
   if (paths !== 3) throw new Error('결과 경로 카드 ' + paths + '개');
   if (/undefined|NaN|\[object Object\]/.test(h)) throw new Error('결과 화면에 undefined/NaN: ' + (h.match(/.{50}(undefined|NaN|\[object Object\]).{30}/) || [''])[0]);
   const miss = api.missing().length;
+  // 맞춤 준비계획: 입력 화면과 여러 생활 패턴의 결과 화면에 빈 값이 없는지
+  if (!h.includes('id="rtGo"') || !h.includes('id="imgRes"')) throw new Error('저장·준비계획 버튼 없음');
+  api.st.rt = null; api.st.phase = 'plan'; api.render(); { const ph = env.getHTML(); if (!ph.includes('id="rtMake"')) throw new Error('준비계획 입력 화면 없음'); if (/undefined|NaN|\[object Object\]/.test(ph)) throw new Error('준비계획 입력에 undefined/NaN'); }
+  const P0 = (h.match(/data-miss="([a-z]+)"/) || [])[1];
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  const fix = pick(['yes', 'no', 'shift']), wake = pick([300, 360, 420, 480, 600]), sleep = pick([1260, 1350, 1410, 1440, 1500]);
+  api.st.rt = { k: P0, wk: pick([4, 13, 26, 52]), wake, sleep, fix, out: fix === 'yes' ? wake + pick([30, 60, 90]) : null, home: fix === 'yes' ? pick([960, 1080, 1140, 1260]) : null, h: pick([30, 60, 120, 180, 240, 360]) };
+  api.st.rtEdit = 0; api.render();
+  { const ph = env.getHTML(); if (/undefined|NaN|\[object Object\]/.test(ph)) throw new Error('준비계획에 undefined/NaN: ' + JSON.stringify(api.st.rt) + ' ' + (ph.match(/.{60}(undefined|NaN|\[object Object\]).{30}/) || [''])[0]);
+    if (!ph.includes('id="rtImg"') && !ph.includes('id="rtMake"')) throw new Error('준비계획 화면 이상 ' + JSON.stringify(api.st.rt)); }
+  api.st.phase = 'result'; api.st.rtEdit = 0;
   api.st.phase = 'cal'; api.render();
   for (let j = 0; j < 14; j++) { const nx = env.document.getElementById(j < 7 ? 'calNext' : 'calPrev'); if (!nx) throw new Error('캘린더 이동 버튼 없음'); nx.onclick(); const ch = env.getHTML(); if (/undefined|NaN|\[object Object\]/.test(ch)) throw new Error('캘린더에 undefined/NaN'); if (!/class="cgrid"/.test(ch)) throw new Error('캘린더 격자 없음'); }
   if (!/막막함에 대한 짧은 답|class="path/.test(h)) throw new Error('결과 화면 구성 이상');

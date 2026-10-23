@@ -415,6 +415,42 @@ body{word-break:keep-all;overflow-wrap:anywhere}
 .top3 li em{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--tint);color:var(--pine);font-weight:800;font-size:14px}
 .top3 li:first-child{box-shadow:0 0 0 2px var(--pine) inset}
 .care{background:var(--tint);border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.6}.care b{display:block;margin-bottom:4px}.care a{color:var(--pine);font-weight:700}
+
+/* 결과 이미지 저장 + 맞춤 준비계획 (2026-10-23) */
+.keep{gap:12px}.keep .btn{width:100%}
+.plv{display:flex;flex-direction:column;gap:16px}
+.plv-h{display:flex;flex-direction:column;gap:10px}
+.plv-act{display:flex;flex-direction:column;gap:10px}.plv-act .btn,.plv>.btn{width:100%}
+.plv-act .btn.alt{background:var(--surface);box-shadow:0 0 0 1.5px var(--line) inset}
+.plv>.linkbtn{align-self:center;margin-top:4px}
+.plv-note{background:var(--blaze);color:var(--blaze-ink);border-radius:14px;padding:12px 14px;font-size:14px}
+.plv-err{color:#D9363E;font-weight:600;font-size:14px;text-align:center}
+.rq{gap:12px}
+.pks{display:flex;flex-wrap:wrap;gap:8px}.pks.col{flex-direction:column}
+.pk{font:inherit;font-size:15px;font-weight:600;background:var(--soft);color:var(--ink);border:1.5px solid transparent;border-radius:12px;padding:12px 16px;cursor:pointer;text-align:left}
+.pks:not(.col) .pk{flex:1 1 calc(33% - 8px);text-align:center;padding:12px 6px}
+.pks.four .pk{flex:1 1 calc(25% - 8px)}
+.pk.sel{background:var(--tint);border-color:var(--pine);color:var(--pine)}
+.pk:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.tpair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tpair[hidden]{display:none}
+.tpair label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:600}
+.tpair select{font:inherit;font-size:16px;font-weight:600;color:var(--ink);background:var(--soft);border:1.5px solid transparent;border-radius:12px;padding:12px 10px;width:100%;-webkit-appearance:none;appearance:none}
+.tpair select:focus-visible{outline:3px solid var(--sky)}
+.tt{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tt li{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:10px 10px;border-radius:10px;font-size:15px}
+.tt.rel li{grid-template-columns:118px 1fr}
+.tt time{font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.tt small{font-size:12px;color:var(--muted)}
+.tt li.on{background:var(--tint)}.tt li.on time,.tt li.on span,.tt li.on small{color:var(--pine);font-weight:700}
+.tt li.fx span{font-weight:700}
+.ph{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ph li{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-top:1px solid var(--line)}.ph li:first-child{border-top:0;padding-top:0}
+.ph li div{display:flex;gap:8px;align-items:baseline}.ph b{color:var(--pine);font-size:14px}.ph small{color:var(--muted);font-size:12px}
+.ph em{font-style:normal;font-size:12px;font-weight:700;color:var(--blaze-ink);background:var(--blaze);border-radius:4px;padding:0 5px}
+.imgsheet{align-items:center}.imgsheet .sheet-in{max-height:calc(100dvh - 32px);overflow:auto}
+.imgsheet img{width:100%;max-height:55vh;object-fit:contain;border-radius:12px;background:var(--soft);-webkit-touch-callout:default}
+.imgsheet .ghost{align-self:center}
 </style>
 
 </head>
@@ -815,12 +851,12 @@ const ROAD={
  env:[["우리 지역 지난 공고 3개 조사",4],["체력검정 종목 연습 (주 3회)",40],["인성검사·면접 준비",10],["공고 나면 서류 접수",4]]
 };
 // 답한 준비 기간·하루 시간만큼만 주차별로 배치 (주 5일 기준)
-function planFor(k){
+function planFor(k,o){
   let L0=ROAD[k]; if(!L0) return null;
   if(k==="hsj" && sitKey()==="drop" && st.ans.d3!==0) L0=[["꿈드림에 연락해 검정고시 접수일·준비 지원 확인",2],...L0.slice(1)];
   const L=(AIX[k]==="high"||AIX[k]==="mid") && L0.length>1 ? [...L0.slice(0,-1),["AI 도구로 실무 과제 1개 해내고 결과를 포트폴리오에 넣기",10],L0[L0.length-1]] : L0;
   const pr=st.ans.prep, sd=st.ans.study;
-  const weeks=[4,13,26,52][pr==null?1:pr]||13, per=[0.5,1.5,3.5,6][sd==null?1:sd]||1.5, wk=per*5;
+  const weeks=(o&&o.weeks)||[4,13,26,52][pr==null?1:pr]||13, per=(o&&o.per)||[0.5,1.5,3.5,6][sd==null?1:sd]||1.5, wk=per*5;
   let w=0; const rows=[];
   for(const [t,h,fix] of L){ const need=fix||Math.max(1,Math.ceil(h/wk)); const a=w+1, b=w+need; rows.push({t,h,a,b,out:a>weeks,part:a<=weeks&&b>weeks}); w=b; }
   const inside=rows.filter(r=>!r.out&&!r.part);
@@ -1101,7 +1137,7 @@ function el(h){app.innerHTML=h; app.firstElementChild&&app.firstElementChild.cla
 
 function drawTrail(){
   const L=list(), box=document.getElementById("trailBox");
-  box.hidden = ["intro","cal","all","privacy","dict","ask"].includes(st.phase);
+  box.hidden = ["intro","plan","cal","all","privacy","dict","ask"].includes(st.phase);
   const mb=document.getElementById("meaningBar"); if(mb) mb.hidden = st.phase==="intro"||st.phase==="q";
   document.getElementById("resetBtn").hidden = true;
   if(box.hidden) return;
@@ -1495,7 +1531,7 @@ function result(){
       <ol class="top3">${P.map((p,i)=>`<li><em>${i+1}</em><b>${p.n}</b></li>`).join("")}</ol>
       <div class="chips">${tops.map(x=>`<span class="chip k">${TRAIT[x]}</span>`).join("")}</div>
       ${(f.flat||f.longslump)&&!(free&&CRISIS_RE.test(free))?`<div class="care"><b>요즘 많이 지쳤다면</b><p>진로보다 내 몸과 마음이 먼저예요. 혼자 견디지 말고 이야기해 보세요. 청소년·청년(만 24세까지) <a href="tel:1388">1388</a>, 마음이 힘들 때 <a href="tel:109">109</a>(24시간), 위급하면 112·119.</p></div>`:""}
-      <nav class="jump" aria-label="결과 바로가기">${isMS()?`<button type="button" data-go="run">한 달 알아보기 계획</button>`:free && CRISIS_RE.test(free) ? "" : `<button type="button" data-go="run">첫 월급까지</button>`}<button type="button" data-go="paths">추천 길 3개</button><button type="button" data-go="money">돈 지원 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button>${corp.length?`<button type="button" data-go="corp">기업 프로그램 ${corp.length}개</button>`:""}${gp?`<button type="button" data-go="goal">하고 싶은 일 준비</button>`:""}</nav>
+      <nav class="jump" aria-label="결과 바로가기">${isMS()?`<button type="button" data-go="run">한 달 알아보기 계획</button>`:free && CRISIS_RE.test(free) ? "" : `<button type="button" data-go="run">첫 월급까지</button>`}<button type="button" data-go="paths">추천 길 3개</button><button type="button" data-go="keep">저장·준비계획</button><button type="button" data-go="money">돈 지원 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button>${corp.length?`<button type="button" data-go="corp">기업 프로그램 ${corp.length}개</button>`:""}${gp?`<button type="button" data-go="goal">하고 싶은 일 준비</button>`:""}</nav>
     </div>
     ${free?`<section class="card"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">막막함에 대한 짧은 답</span><p class="hint">“${free.replace(/</g,"&lt;")}”</p></div><div class="ans">${freeAnswer(free).map(x=>`<p>${x}</p>`).join("")}</div></section>`:""}
     ${isMS()?msCard(P,f):(free && CRISIS_RE.test(free) ? "" : calcCard(P,f))}
@@ -1537,6 +1573,10 @@ function result(){
       <p class="src">지원 금액과 요건은 해마다 바뀔 수 있어 신청 전 각 기관에서 최종 확인됩니다.</p>
     </section>
     ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요. 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
+    <section class="card keep" id="keep"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">저장하고 이어가기</span><h3>결과를 사진으로 갖고 가세요</h3><p class="hint">갤러리에 저장해 두면 다시 들어오지 않아도 바로 볼 수 있어요.</p></div>
+      <button class="btn" id="rtGo" type="button">${st.rt?"내 준비계획 보기":"나에게 딱 맞는 준비계획"}</button>
+      <button class="btn alt" id="imgRes" type="button">결과 이미지로 저장</button>
+    </section>
     <section class="card" id="fbCard"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">피드백</span><h3>이 결과가 도움이 됐나요?</h3><p class="hint">${FB_API?"보내기를 누르면 운영자 이메일로 바로 전달돼 다음 버전에 반영돼요. 이름·연락처는 적지 마세요.":"누르면 내용이 채워진 메일 쓰기 화면이 열려요. 보내기만 누르면 운영자에게 바로 전달돼요."}</p></div>
       <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${["많이 됐어요","조금 됐어요","별로예요"].map(x=>`<button type="button" class="opt fbopt ${st.fb===x?"sel":""}" data-fb="${x}" style="flex:1;min-width:0;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap;font-size:15px"><span>${x}</span></button>`).join("")}</div>
       <textarea id="fbText" maxlength="300" placeholder="한마디 (선택) 예) 2주 실험이 좋았어요, 연봉이 실제와 달라요" style="min-height:70px">${(st.fbt||"").replace(/</g,"&lt;")}</textarea>
@@ -1586,6 +1626,8 @@ function result(){
   app.querySelectorAll(".jump button").forEach(b=>b.onclick=()=>{ const el2=document.getElementById(b.dataset.go); if(el2&&el2.scrollIntoView) el2.scrollIntoView({behavior:"smooth",block:"start"}); });
   document.getElementById("edit").onclick=()=>{st.phase="q"; st.i=0; st.review=0; save(); render()};
   document.getElementById("again").onclick=reset;
+  document.getElementById("rtGo").onclick=()=>{ st.phase="plan"; st.rtEdit=0; save(); render(); };
+  document.getElementById("imgRes").onclick=()=>makeImage("result");
 }
 
 const FB_API="/api/feedback";
@@ -2349,7 +2391,7 @@ function privacy(){
   });
 })();
 
-function reset(){ st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null}; save(); render(); }
+function reset(){ st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null}; save(); render(); }
 document.getElementById("resetBtn").onclick=reset;
 
 // 문의 이메일 (스팸 수집기를 피하려고 화면에서 조립)
@@ -2357,14 +2399,282 @@ const MAIL=["songminhyeok1005","naver.com"].join("@");
 function fillMail(){ const a=document.getElementById("mail"); if(a){ a.href="mailto:"+MAIL; a.textContent=MAIL; }
   if(app.querySelectorAll) app.querySelectorAll("a.mailto").forEach(x=>{ x.href="mailto:"+MAIL; x.textContent=MAIL; }); }
 try{ if(window.addEventListener) window.addEventListener("pagehide",()=>{ if(st.phase==="q" && !st.done){ const q=list()[st.i]; if(q) track({type:"leave",at:q.id}); } else track({type:"leave",at:st.phase}); }); }catch(e){}
+// ===== 결과 이미지 저장 + 나에게 딱 맞는 준비계획 (2026-10-23 운영자 요청) =====
+// 이미지는 이 기기 안에서 canvas로 그린다. 시각·답은 서버로 보내지 않고 이 기기에만 저장한다.
+function tLabel(m){ m=((m%1440)+1440)%1440; const h=Math.floor(m/60), mm=String(m%60).padStart(2,"0");
+  if(h===0) return `밤 12:${mm}`; if(h<5) return `새벽 ${h}:${mm}`; if(h<12) return `오전 ${h}:${mm}`; if(h===12) return `낮 12:${mm}`; return `오후 ${h-12}:${mm}`; }
+function durTxt(m){ const h=Math.floor(m/60), r=m%60; return (h?h+"시간":"")+(r?(h?" ":"")+r+"분":"")||"0분"; }
+const RT_STUDY=[30,60,120,180,240,360];
+const RT_WEEKS=[[4,"1개월"],[13,"3개월"],[26,"6개월"],[52,"1년"]];
+function rtDefaults(P,gk){
+  const pr=st.ans.prep, sd=st.ans.study;
+  return {k:(gk&&PATHS.some(p=>p.key===gk))?gk:P[0].key, wk:pr==null?null:[4,13,26,52][pr], wake:null, sleep:null, fix:null, out:null, home:null, h:sd==null?null:[30,120,240,360][sd]};
+}
+// 평일 하루 시간표: 고정 일정을 먼저 놓고, 남는 시간에 공부를 90분씩 나눠 넣는다
+function routinePlan(rt){
+  const W=rt.wake; let S=rt.sleep; if(S<=W) S+=1440;
+  if(S-W<360) return {err:"일어나는 시각과 자는 시각을 다시 확인해 주세요. 깨어 있는 시간이 6시간보다 짧아요."};
+  const fixed=[], add=(a,b,t,kind)=>{ if(b>a) fixed.push({a,b,t,kind}); };
+  let dinner=false;
+  if(rt.fix==="yes"){
+    let O=rt.out, H=rt.home; if(O<W) O+=1440; if(H<=O) H+=1440;
+    if(O<W+30) return {err:"집을 나서는 시각은 일어나고 30분 뒤보다 늦어야 해요."};
+    if(H>S-60) return {err:"집에 오는 시각이 자는 시각과 너무 가까워요. 두 시각을 다시 확인해 주세요."};
+    add(W,Math.min(W+60,O),"씻고 아침 먹기","life");
+    add(O,H,isMS()||["hs","col"].includes(sitKey())?"학교 (오가는 시간 포함)":"학교·일 (오가는 시간 포함)","fix");
+    const hm=H%1440; dinner = hm>=990 && hm<1200;
+    add(H,Math.min(H+60,S-30),dinner?"저녁 먹고 쉬기":"쉬기","life");
+  } else add(W,W+60,"씻고 아침 먹기","life");
+  add(S-30,S,"폰 내려놓고 잠 준비","life");
+  const over=(a,b)=>fixed.some(x=>a<x.b&&b>x.a);
+  for(const [a,b,t] of [[720,780,"점심"],[1080,1140,"저녁"]]){
+    if(t==="저녁"&&dinner) continue;
+    for(const o of [0,1440]){ const A=a+o, B=b+o; if(A>=W&&B<=S-30&&!over(A,B)){ add(A,B,t,"life"); break; } }
+  }
+  fixed.sort((x,y)=>x.a-y.a);
+  const want=rt.h; let left=want; const rows=[]; let cur=W;
+  const fill=(a,b)=>{ let t=a;
+    while(left>=30 && b-t>=30){ const c=Math.min(90,left,b-t); const c2=c-c%30||c; rows.push({a:t,b:t+c2,t:"공부",kind:"study"}); t+=c2; left-=c2;
+      if(left>=30 && b-t>=40){ rows.push({a:t,b:t+10,t:"쉬기",kind:"rest"}); t+=10; } }
+    if(b-t>=15) rows.push({a:t,b,t:"자유 시간",kind:"free"});
+    else if(b>t){ const L=rows[rows.length-1]; if(L&&L.kind!=="study"&&L.b===t) L.b=b; else rows.push({a:t,b,t:"쉬기",kind:"rest"}); } };
+  for(const x of fixed){ if(x.a>cur) fill(cur,x.a); rows.push(x); cur=Math.max(cur,x.b); }
+  if(cur<S) fill(cur,S);
+  rows.sort((x,y)=>x.a-y.a);
+  const got=want-left;
+  return {rows,want,got,capped:got<want,W,S};
+}
+function rtWeekend(rt){
+  return rt.fix==="yes" ? "주말(쉬는 날)에는 오전에 평일만큼 공부하고, 오후는 쉬어요. 하루는 완전히 쉬어도 괜찮아요."
+    : "주말에는 하루만 평일처럼 공부하고, 하루는 푹 쉬어요.";
+}
+function rtShift(rt){
+  const work=Math.min(rt.h,150), w2=Math.max(work-30,0), off=Math.min(360,Math.round(rt.h*1.5/30)*30||30), a=Math.ceil(off/2/30)*30, b=off-a;
+  return {work,off,
+    workRows:[["일어나서 30분","씻고 먹기",0],["출근 전 30분","어제 공부한 것 복습",1],["퇴근하고 1시간","씻고 쉬기",0],...(w2?[[`그다음 ${durTxt(w2)}`,"공부",1]]:[]),["자기 30분 전","폰 내려놓고 잠 준비",0]],
+    offRows:[["일어나서 1시간","밀린 잠 채우고 아침 먹기",0],[`오전 ${durTxt(a)}`,"공부",1],["점심 1시간","밥 먹고 쉬기",0],...(b?[[`오후 ${durTxt(b)}`,"공부",1]]:[]),["나머지","쉬기·운동",0]]};
+}
+function rtPhases(rt){
+  if(isMS()) return null;
+  const p=planFor(rt.k,{weeks:rt.wk,per:rt.h/60}); if(!p) return null;
+  const now=new Date(), d=(n)=>{ const x=new Date(now); x.setDate(x.getDate()+n); return `${x.getMonth()+1}/${x.getDate()}`; };
+  const rows=p.rows.filter(r=>!r.out).map(r=>({wk:r.a===r.b?`${r.a}주차`:`${r.a}~${r.b}주차`,date:`${d((r.a-1)*7)}~${d(r.b*7-1)}`,t:r.t,part:r.part}));
+  const cut=p.rows.filter(r=>r.out).map(r=>r.t);
+  const sum = p.end<=p.weeks ? `${p.end}주면 모두 끝나요. 남는 ${p.weeks-p.end}주는 지원·면접 준비에 쓰세요.`
+    : `이 시간표로는 끝까지 약 ${p.end}주가 걸려요. ${p.wlabel} 안에는 ${p.last?`'${p.last}'까지`:"첫 단계 일부만"} 할 수 있어요.`;
+  return {rows,cut,sum};
+}
+function rtPath(rt){ return PATHS.find(p=>p.key===rt.k)||PATHS[0]; }
+
+function planView(){
+  const {t,f}=tally(); const P=score().slice(0,3), gk=guideKey(f);
+  const back=()=>{ st.phase="result"; save(); render(); };
+  if(!st.rt || st.rtEdit) return rtForm(P,gk,back);
+  const rt=st.rt, p=rtPath(rt), wl=(RT_WEEKS.find(x=>x[0]===rt.wk)||RT_WEEKS[1])[1];
+  const R=rt.fix==="shift"?null:routinePlan(rt);
+  if(R&&R.err){ st.rtEdit=1; return rtForm(P,gk,back,R.err); }
+  const SH=rt.fix==="shift"?rtShift(rt):null, PH=rtPhases(rt);
+  const ttRows=rows=>`<ol class="tt">${rows.map(r=>`<li class="${r.kind==="study"?"on":r.kind==="fix"?"fx":""}"><time>${tLabel(r.a)}</time><span>${r.t}</span><small>${durTxt(r.b-r.a)}</small></li>`).join("")}</ol>`;
+  const relRows=rows=>`<ol class="tt rel">${rows.map(r=>`<li class="${r[2]?"on":""}"><time>${r[0]}</time><span>${r[1]}</span></li>`).join("")}</ol>`;
+  el(`<section class="plv">
+    <div class="plv-h"><span class="eyebrow">나에게 딱 맞는 준비계획</span><h1>${p.n}</h1>
+      <div class="chips"><span class="chip k">${wl} 준비</span><span class="chip">하루 공부 ${durTxt(SH?SH.work:R.got)}</span>${SH?`<span class="chip">교대 근무</span>`:`<span class="chip">${tLabel(rt.wake)} 기상</span>`}</div></div>
+    ${R&&R.capped?`<p class="plv-note">남는 시간이 ${durTxt(R.got)}뿐이라 하루 공부를 ${durTxt(R.got)}로 맞췄어요. 더 하려면 일어나는 시각을 당기거나 주말에 채워 주세요.</p>`:""}
+    ${SH?`<section class="card"><h3>근무하는 날</h3>${relRows(SH.workRows)}</section><section class="card"><h3>쉬는 날</h3>${relRows(SH.offRows)}</section>`
+      :`<section class="card"><h3>평일 하루</h3>${ttRows(R.rows)}<p class="hint">${rtWeekend(rt)}</p></section>`}
+    ${PH?`<section class="card"><h3>주차별로 할 일</h3><ol class="ph">${PH.rows.map(r=>`<li><div><b>${r.wk}</b><small>${r.date}</small></div><span>${r.t}${r.part?" <em>일부</em>":""}</span></li>`).join("")}</ol><p class="hint">${PH.sum}</p></section>`
+      :`<section class="card"><h3>먼저 해 볼 것</h3><p>${isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":(p.try||p.first||"")}</p></section>`}
+    <div class="plv-act"><button class="btn" id="rtImg" type="button">계획 이미지로 저장</button><button class="btn alt" id="rtEdit" type="button">다시 정하기</button></div>
+    <button class="linkbtn" id="rtBack" type="button">결과로 돌아가기</button>
+  </section>`);
+  document.getElementById("rtBack").onclick=back;
+  document.getElementById("rtEdit").onclick=()=>{ st.rtEdit=1; save(); render(); };
+  document.getElementById("rtImg").onclick=()=>makeImage("plan");
+}
+function rtForm(P,gk,back,err){
+  const d=Object.assign(rtDefaults(P,gk), st.rt||{});
+  const ks=[...P.map(p=>p.key)]; if(gk&&!ks.includes(gk)&&PATHS.some(p=>p.key===gk)) ks.push(gk);
+  if(!ks.includes(d.k)) d.k=ks[0];
+  const pick=(f,v,lab,on)=>`<button type="button" class="pk${on?" sel":""}" data-f="${f}" data-v="${v}" aria-pressed="${on?"true":"false"}">${lab}</button>`;
+  const opts=(from,to,v)=>{ let h=`<option value="" ${v==null?"selected":""} disabled>골라 주세요</option>`; for(let m=from;m<=to;m+=30) h+=`<option value="${m}" ${m===v?"selected":""}>${tLabel(m)}${m>=1440?" (다음 날)":""}</option>`; return h; };
+  el(`<section class="plv">
+    <div class="plv-h"><span class="eyebrow">나에게 딱 맞는 준비계획</span><h1>하루를 알려 주세요</h1><p class="lede">다섯 가지만 고르면 시간표와 주차별 할 일을 만들어 드려요.</p></div>
+    <div class="card rq"><h3>1. 어떤 길을 준비할까요?</h3><div class="pks col">${ks.map(k=>pick("k",k,(PATHS.find(p=>p.key===k)||{}).n,d.k===k)).join("")}</div></div>
+    <div class="card rq"><h3>2. 준비 기간은?</h3><div class="pks four">${RT_WEEKS.map(([w,l])=>pick("wk",w,l,d.wk===w)).join("")}</div></div>
+    <div class="card rq"><h3>3. 평일에 일어나는 시각과 자는 시각은?</h3><div class="tpair"><label>일어나는 시각<select id="rtWake">${opts(240,720,d.wake)}</select></label><label>자는 시각<select id="rtSleep">${opts(1200,1620,d.sleep)}</select></label></div></div>
+    <div class="card rq"><h3>4. 학교·회사·알바처럼 평일에 매일 나가는 일정이 있나요?</h3><div class="pks col">${[["yes","있어요 (매일 같은 시간)"],["no","없어요"],["shift","교대 근무라 매번 달라요"]].map(([v,l])=>pick("fix",v,l,d.fix===v)).join("")}</div>
+      <div class="tpair" id="rtFixT" ${d.fix==="yes"?"":"hidden"}><label>집을 나서는 시각<select id="rtOut">${opts(240,1380,d.out)}</select></label><label>집에 돌아오는 시각<select id="rtHome">${opts(360,1560,d.home)}</select></label></div></div>
+    <div class="card rq"><h3>5. 하루에 공부할 시간은?</h3><div class="pks">${RT_STUDY.map(m=>pick("h",m,durTxt(m),d.h===m)).join("")}</div></div>
+    <p class="plv-err" id="rtErr" role="alert" ${err?"":"hidden"}>${err||""}</p>
+    <button class="btn" id="rtMake" type="button">계획 만들기</button>
+    <button class="linkbtn" id="rtBack" type="button">${st.rt?"취소":"결과로 돌아가기"}</button>
+  </section>`);
+  const num=v=>v===""||v==null?null:+v;
+  app.querySelectorAll(".pk").forEach(b=>b.onclick=()=>{ const f=b.dataset.f, v=b.dataset.v; d[f]=f==="k"||f==="fix"?v:+v;
+    app.querySelectorAll(`.pk[data-f="${f}"]`).forEach(x=>{ const on=x===b; x.classList.toggle("sel",on); x.setAttribute("aria-pressed",String(on)); });
+    if(f==="fix"){ const ft=document.getElementById("rtFixT"); if(ft) ft.hidden=v!=="yes"; } hideErr(); });
+  const hideErr=()=>{ const er=document.getElementById("rtErr"); if(er) er.hidden=true; };
+  ["rtWake","rtSleep","rtOut","rtHome"].forEach(id=>{ const e=document.getElementById(id); if(e) e.onchange=hideErr; });
+  document.getElementById("rtBack").onclick=()=>{ st.rtEdit=0; save(); if(st.rt) render(); else back(); };
+  document.getElementById("rtMake").onclick=()=>{
+    const g=id=>{ const e=document.getElementById(id); return e?num(e.value):null; };
+    d.wake=g("rtWake"); d.sleep=g("rtSleep"); d.out=g("rtOut"); d.home=g("rtHome");
+    const miss = d.wk==null?"2. 준비 기간을 골라 주세요.": d.wake==null?"3. 일어나는 시각을 골라 주세요.": d.sleep==null?"3. 자는 시각을 골라 주세요.": d.fix==null?"4. 매일 나가는 일정이 있는지 골라 주세요."
+      : d.fix==="yes"&&(d.out==null||d.home==null)?"4. 집을 나서는 시각과 돌아오는 시각을 골라 주세요.": d.h==null?"5. 하루 공부 시간을 골라 주세요.":null;
+    const er=document.getElementById("rtErr");
+    const R=miss?null:d.fix==="shift"?{}:routinePlan(d);
+    const msg=miss||(R&&R.err)||"";
+    if(msg){ if(er){ er.textContent=msg; er.hidden=false; if(er.scrollIntoView) er.scrollIntoView({behavior:"smooth",block:"center"}); } return; }
+    st.rt={k:d.k,wk:d.wk,wake:d.wake,sleep:d.sleep,fix:d.fix,out:d.fix==="yes"?d.out:null,home:d.fix==="yes"?d.home:null,h:d.h}; st.rtEdit=0; save(); render();
+  };
+}
+
+// ----- 이미지 그리기 -----
+const IMG_F='"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+const IC={bg:"#F2F4F6",card:"#FFFFFF",ink:"#191F28",muted:"#6B7684",line:"#E5E8EB",pine:"#0B8F5A",tint:"#E8F6EF",soft:"#F2F4F6",warm:"#FFF4E5",warmInk:"#8A4B00"};
+function imgPainter(ctx,W){
+  const g={ctx,y:0,x:64,w:W-128,dry:true,texts:[]};
+  g.font=(s,wt)=>{ ctx.font=`${wt||400} ${s}px ${IMG_F}`; };
+  g.wrap=(text,maxW)=>{ const out=[];
+    for(const para of String(text).split("\n")){ let line="";
+      const pushLong=w=>{ let l=""; for(const ch of w){ if(ctx.measureText(l+ch).width>maxW&&l){ out.push(l); l=ch; } else l+=ch; } return l; };
+      for(const w of para.split(/(\s+)/)){ if(!w) continue; const tt=line+w;
+        if(ctx.measureText(tt).width<=maxW) line=tt;
+        else if(!line.trim()) line=pushLong(w.trimStart());
+        else { out.push(line.trimEnd()); line=w.trim()?pushLong(w):""; } }
+      out.push(line.trimEnd()); }
+    return out; };
+  g.text=(s,o={})=>{ const size=o.size||30, lh=o.lh||Math.round(size*1.45), x=o.x!=null?o.x:g.x, w=o.w||g.w-(x-g.x);
+    g.font(size,o.weight); g.texts.push(String(s)); const L=g.wrap(s,w);
+    if(!g.dry){ ctx.fillStyle=o.color||IC.ink; ctx.textBaseline="middle"; ctx.textAlign=o.align||"left";
+      L.forEach((l,i)=>ctx.fillText(l,o.align==="right"?x+w:o.align==="center"?x+w/2:x,g.y+lh*i+lh/2)); ctx.textAlign="left"; }
+    if(!o.stay) g.y+=lh*L.length; return lh*L.length; };
+  g.gap=n=>{ g.y+=n; };
+  g.rr=(x,y,w,h,r,fill,stroke)=>{ if(g.dry) return; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+    if(fill){ ctx.fillStyle=fill; ctx.fill(); } if(stroke){ ctx.lineWidth=4; ctx.strokeStyle=stroke; ctx.stroke(); } };
+  g.box=(fn,o={})=>{ const pad=o.pad==null?40:o.pad, y0=g.y, x0=g.x, w0=g.w, dry0=g.dry;
+    g.dry=true; g.x=x0+pad; g.w=w0-pad*2; g.y=y0+pad; fn(); const h=g.y-y0+pad; g.dry=dry0;
+    g.rr(x0,y0,w0,h,o.r||32,o.fill||IC.card,o.stroke);
+    g.y=y0+pad; fn(); g.x=x0; g.w=w0; g.y=y0+h; return h; };
+  g.chips=(list,o={})=>{ const size=o.size||28, ph=22, hgt=size+28, gap=12; g.font(size,700); let x=g.x, y=g.y;
+    for(const c of list){ g.texts.push(c); const tw=ctx.measureText(c).width+ph*2; if(x+tw>g.x+g.w&&x>g.x){ x=g.x; y+=hgt+gap; }
+      if(!g.dry){ g.rr(x,y,tw,hgt,hgt/2,o.bg||IC.tint); ctx.fillStyle=o.color||IC.pine; ctx.textBaseline="middle"; ctx.fillText(c,x+ph,y+hgt/2); }
+      x+=tw+gap; }
+    g.y=y+hgt; };
+  g.brand=(right)=>{ const y=g.y;
+    if(!g.dry){ g.rr(g.x,y+6,16,40,4,IC.pine); }
+    g.text("표지기",{x:g.x+30,size:38,weight:800,lh:52,stay:1});
+    if(right) g.text(right,{size:26,color:IC.muted,lh:52,align:"right",stay:1});
+    g.y=y+52; };
+  g.foot=()=>{ g.gap(44); if(!g.dry){ ctx.fillStyle=IC.line; ctx.fillRect(g.x,g.y,g.w,2); } g.gap(30);
+    g.text("pyojigi.pages.dev",{size:30,weight:800,color:IC.pine,lh:42});
+    g.text("10대·20대 초를 위한 무료 진로 검사",{size:24,color:IC.muted,lh:36}); };
+  return g;
+}
+function imgRender(draw){
+  const W=1080, c=document.createElement("canvas"); c.width=W; c.height=10; let ctx=c.getContext("2d");
+  let g=imgPainter(ctx,W); g.y=72; draw(g); const H=Math.ceil(g.y+72);
+  c.height=H; ctx=c.getContext("2d"); ctx.fillStyle=IC.bg; ctx.fillRect(0,0,W,H);
+  g=imgPainter(ctx,W); g.dry=false; g.y=72; draw(g); return c;
+}
+function imgTexts(draw){ const c=document.createElement("canvas"); const g=imgPainter(c.getContext("2d"),1080); draw(g); return g.texts.join(" "); }
+function todayTxt(){ const d=new Date(); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`; }
+function drawResultImg(g){
+  const {t,f}=tally(), P=score().slice(0,3), tops=topTraits(t,4);
+  const sitName={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"}[sitKey()||"job"];
+  let SP=[]; try{ SP=supports(f,P)||[]; }catch(e){}
+  g.brand(todayTxt()); g.gap(48);
+  g.text(`진로 검사 결과 · ${sitName}`,{size:30,weight:700,color:IC.pine}); g.gap(6);
+  g.text("내가 갈 수 있는 길 3개",{size:64,weight:800,lh:82}); g.gap(20);
+  if(tops.length){ g.chips(tops.map(x=>TRAIT[x]).filter(Boolean)); g.gap(36); } else g.gap(16);
+  P.forEach((p,i)=>{
+    g.box(()=>{ const y=g.y;
+      if(!g.dry){ g.ctx.beginPath(); g.ctx.arc(g.x+26,y+30,26,0,Math.PI*2); g.ctx.fillStyle=i===0?IC.pine:IC.soft; g.ctx.fill(); }
+      g.text(String(i+1),{x:g.x,w:52,size:28,weight:800,color:i===0?"#fff":IC.ink,lh:60,align:"center",stay:1});
+      g.text(p.n,{x:g.x+72,size:42,weight:800,lh:60}); g.gap(10);
+      if(p.sal) g.text(`연봉  연 ${p.sal[0].toLocaleString()}만 → 경력 5년+ ${p.sal[1].toLocaleString()}만원 (대략)`,{size:28,color:IC.muted});
+      else if(p.salNote) g.text(`연봉  ${p.salNote}`,{size:28,color:IC.muted});
+      g.text(`준비 기간  ${isMS()?"고등학교 이후 본격적으로":prepTxt(p.prep)}`,{size:28,color:IC.muted});
+      const tr=isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":p.try;
+      if(i===0&&tr){ g.gap(18); g.box(()=>{ g.text("2주 안에 해 볼 것",{size:26,weight:700,color:IC.pine}); g.gap(4); g.text(tr,{size:28}); },{fill:IC.tint,pad:28,r:20}); }
+    },{stroke:i===0?IC.pine:null});
+    g.gap(20);
+  });
+  if(SP.length){ g.gap(8); g.box(()=>{ g.text(`받을 수 있는 지원 ${SP.length}개`,{size:32,weight:800}); g.gap(10);
+      SP.slice(0,4).forEach(x=>g.text(`· ${x.n}`,{size:28,color:IC.ink}));
+      if(SP.length>4) g.text(`그 밖에 ${SP.length-4}개는 사이트 결과에서 볼 수 있어요`,{size:24,color:IC.muted}); }); }
+  g.gap(20); g.text("연봉은 공개 채용공고 기준의 대략적인 범위예요. 지원 요건은 신청 전 각 기관에서 확인해 주세요.",{size:22,color:IC.muted,lh:32});
+  g.foot();
+}
+function drawPlanImg(g){
+  const rt=st.rt, p=rtPath(rt), wl=(RT_WEEKS.find(x=>x[0]===rt.wk)||RT_WEEKS[1])[1];
+  const R=rt.fix==="shift"?null:routinePlan(rt), SH=rt.fix==="shift"?rtShift(rt):null, PH=rtPhases(rt);
+  g.brand(todayTxt()); g.gap(48);
+  g.text("나에게 딱 맞는 준비계획",{size:30,weight:700,color:IC.pine}); g.gap(6);
+  g.text(p.n,{size:60,weight:800,lh:78}); g.gap(20);
+  g.chips([`${wl} 준비`,`하루 공부 ${durTxt(SH?SH.work:R.got)}`,SH?"교대 근무":`${tLabel(rt.wake)} 기상`]); g.gap(32);
+  const row=(time,label,dur,on,fx)=>{ const y=g.y, h=64;
+    if(on&&!g.dry) g.rr(g.x-16,y+2,g.w+32,h-4,14,IC.tint);
+    g.text(time,{x:g.x,w:230,size:28,weight:on?800:600,color:on?IC.pine:IC.muted,lh:h,stay:1});
+    if(dur) g.text(dur,{x:g.x,size:24,color:on?IC.pine:IC.muted,lh:h,align:"right",stay:1});
+    g.text(label,{x:g.x+240,w:g.w-240-(dur?150:0),size:30,weight:on||fx?700:500,color:on?IC.pine:IC.ink,lh:h}); g.y=Math.max(g.y,y+h); };
+  if(SH){
+    g.box(()=>{ g.text("근무하는 날",{size:34,weight:800}); g.gap(12); SH.workRows.forEach(r=>row(r[0],r[1],"",r[2])); }); g.gap(20);
+    g.box(()=>{ g.text("쉬는 날",{size:34,weight:800}); g.gap(12); SH.offRows.forEach(r=>row(r[0],r[1],"",r[2])); });
+  } else {
+    g.box(()=>{ g.text("평일 하루",{size:34,weight:800}); g.gap(12); R.rows.forEach(r=>row(tLabel(r.a),r.t,durTxt(r.b-r.a),r.kind==="study",r.kind==="fix")); g.gap(14); g.text(rtWeekend(rt),{size:26,color:IC.muted}); });
+  }
+  g.gap(20);
+  if(PH&&PH.rows.length){ g.box(()=>{ g.text("주차별로 할 일",{size:34,weight:800}); g.gap(16);
+      PH.rows.forEach((r,i)=>{ if(i){ g.gap(10); if(!g.dry){ g.ctx.fillStyle=IC.line; g.ctx.fillRect(g.x,g.y,g.w,2); } g.gap(14); }
+        g.text(`${r.wk}  ·  ${r.date}`,{size:26,weight:700,color:IC.pine}); g.text(r.t+(r.part?" (기간 안에 일부)":""),{size:30}); });
+      g.gap(16); g.text(PH.sum,{size:26,color:IC.muted}); }); }
+  else g.box(()=>{ g.text("먼저 해 볼 것",{size:34,weight:800}); g.gap(10); g.text(isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":(p.try||p.first||""),{size:30}); });
+  g.foot();
+}
+async function makeImage(kind){
+  const draw=kind==="plan"?drawPlanImg:drawResultImg;
+  if(kind==="plan"&&!st.rt) return;
+  toast("이미지를 만드는 중이에요...");
+  try{
+    try{ if(document.fonts&&document.fonts.load){ const tx=imgTexts(draw); await Promise.all([400,500,600,700,800].map(w=>document.fonts.load(`${w} 30px "Pretendard Variable"`,tx))); } }catch(e){}
+    const c=imgRender(draw), name=`표지기_${kind==="plan"?"준비계획":"검사결과"}_${todayTxt().replace(/\./g,"")}.png`;
+    showImgSheet(c,name,kind==="plan"?"준비계획 이미지":"검사 결과 이미지");
+    const t=document.getElementById("toast"); if(t) t.hidden=true;
+  }catch(e){ toast("이미지를 만들지 못했어요. 다시 눌러 주세요."); }
+}
+function isIOS(){ const u=navigator.userAgent||""; return /iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1); }
+function showImgSheet(c,name,title){
+  const url=c.toDataURL("image/png");
+  let blob=null; try{ const b=atob(url.split(",")[1]), a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); blob=new Blob([a],{type:"image/png"}); }catch(e){}
+  let file=null; try{ if(blob) file=new File([blob],name,{type:"image/png"}); }catch(e){}
+  const canShare=!!(file&&navigator.canShare&&navigator.canShare({files:[file]}));
+  const ios=isIOS(), ia=inApp();
+  let sh=document.getElementById("imgSheet"); if(sh) sh.remove();
+  sh=document.createElement("div"); sh.id="imgSheet"; sh.className="sheet imgsheet"; sh.setAttribute("role","dialog"); sh.setAttribute("aria-label",title);
+  sh.innerHTML=`<div class="sheet-in"><h3>${title}</h3><img src="${url}" alt="${title}">
+    <button class="btn" id="imgSave" type="button">갤러리에 저장</button>
+    <p class="hint" id="imgHint">${ia?"인스타·카톡 안에서는 저장 버튼이 안 될 수 있어요. 그럴 땐 위 이미지를 꾹 눌러 저장해 주세요.":ios?"공유 창이 뜨면 '이미지 저장'을 눌러 주세요. 사진 앱에 들어가요.":"저장하면 갤러리의 '다운로드(Download)' 앨범에 들어가요. 안 되면 위 이미지를 꾹 눌러 저장해 주세요."}</p>
+    <button class="ghost" id="imgClose" type="button">닫기</button></div>`;
+  document.body.appendChild(sh);
+  const close=()=>sh.remove();
+  sh.onclick=e=>{ if(e.target===sh) close(); };
+  document.getElementById("imgClose").onclick=close;
+  document.getElementById("imgSave").onclick=()=>{
+    if(ios&&canShare){ navigator.share({files:[file]}).catch(()=>{}); return; }
+    try{ const a=document.createElement("a"); a.href=blob?URL.createObjectURL(blob):url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("저장을 시작했어요. 갤러리의 다운로드 앨범을 확인해 주세요."); }
+    catch(e){ if(canShare) navigator.share({files:[file]}).catch(()=>{}); else toast("이미지를 꾹 눌러 저장해 주세요."); }
+  };
+}
+
 function render(){
   if(st.phase==="q" && st.i>=list().length){ st.phase="result"; }
   drawTrail();
-  ({intro,q:question,mid,result,cal:calendar,all:allProgs,privacy,dict,ask})[st.phase]();
+  ({intro,q:question,mid,result,plan:planView,cal:calendar,all:allProgs,privacy,dict,ask})[st.phase]();
   // 화면마다 다른 제목과 현재 위치(탐색경로)
-  const TT={intro:"표지기 · 10대·20대 초 무료 진로 검사",mid:"중간 점검 · 표지기",result:"내 길 3개 · 표지기",cal:"정부·기업 캘린더 · 표지기",all:"지원제도 모아보기 · 표지기",privacy:"개인정보 안내 · 표지기",dict:"직업백과사전 · 표지기",ask:"문의하기 · 표지기"};
+  const TT={intro:"표지기 · 10대·20대 초 무료 진로 검사",mid:"중간 점검 · 표지기",result:"내 길 3개 · 표지기",plan:"내 준비계획 · 표지기",cal:"정부·기업 캘린더 · 표지기",all:"지원제도 모아보기 · 표지기",privacy:"개인정보 안내 · 표지기",dict:"직업백과사전 · 표지기",ask:"문의하기 · 표지기"};
   try{ document.title = st.phase==="q" ? `질문 ${st.i+1} / ${list().length} · 표지기` : (TT[st.phase]||"표지기"); }catch(e){}
-  const CN={result:"내 결과",cal:"정부·기업 캘린더",all:"지원제도 모아보기",privacy:"개인정보 안내",dict:"직업백과사전",ask:"문의하기"};
+  const CN={result:"내 결과",plan:"내 준비계획",cal:"정부·기업 캘린더",all:"지원제도 모아보기",privacy:"개인정보 안내",dict:"직업백과사전",ask:"문의하기"};
   if(CN[st.phase] && app.insertAdjacentHTML){ app.insertAdjacentHTML("afterbegin",`<nav class="crumb" aria-label="현재 위치"><a href="#" data-crumb="1">표지기</a><span aria-hidden="true"> › </span><span aria-current="page">${CN[st.phase]}</span></nav>`); const cb=app.querySelector("[data-crumb]"); if(cb) cb.onclick=e=>{ if(e&&e.preventDefault) e.preventDefault(); st.phase="intro"; render(); }; }
   fillMail();
 }
