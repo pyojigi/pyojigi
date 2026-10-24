@@ -1247,9 +1247,9 @@ const OPENG={}, OPENP={};
 function openG(q,gi,hasSel){ if(OPENG[q.id]!=null) return OPENG[q.id]===gi; return !q.multi && hasSel>0; }
 // '기타' 직접 입력: 목록에 있으면 찾아서 체크, 없으면 이 기기에 적어 두고 (동의했으면) 이름만 익명으로 보내 다음 업데이트 때 목록에 넣는다
 const ETCN=t=>String(t||"").replace(/\([^)]*\)/g,"").replace(/[\s·.,/~\-_()]/g,"").toLowerCase();
-const ETCA_CUR={"태권도":"체육","도장":"체육","사범":"체육","헬스":"체육","트레이너":"체육","코치":"체육","네일":"매장","미용":"매장","헤어":"매장","알바":"매장","아르바이트":"매장","카페":"매장","바리스타":"매장","편의점":"매장","서빙":"매장","식당":"매장","주방":"매장","배달":"물류","택배":"물류","공장":"생산","생산직":"생산","경비원":"보안","보안요원":"보안","콜센터":"상담","간호":"돌봄","요양":"돌봄","학원":"교육","과외":"교육"};
-const ETCA_CERT={"무대기술":"무대예술전문인","무대예술":"무대예술전문인","무대조명":"무대예술전문인","무대음향":"무대예술전문인","무대기계":"무대예술전문인"};
-const ETCA={"컴활":"컴퓨터활용능력","정처기":"정보처리","정처산기":"정보처리","정보처리기사":"정보처리","한국사":"한국사능력검정","한능검":"한국사능력검정","간조":"간호조무사","요보사":"요양보호사","전기기사":"전기","전기산업기사":"전기","공인중개":"공인중개사","사복":"사회복지사","9급":"공무원","순경":"경찰","소방공무원":"소방","운전면허":"운전면허","운전병":"운전면허","1종":"운전면허","2종":"운전면허","프로그래머":"IT","개발자":"IT","코딩":"IT","유튜버":"콘텐츠","크리에이터":"콘텐츠"};
+const ETCA_CUR={"어린이집":"돌봄","보육":"돌봄","태권도":"체육","도장":"체육","사범":"체육","헬스":"체육","트레이너":"체육","코치":"체육","네일":"매장","미용":"매장","헤어":"매장","알바":"매장","아르바이트":"매장","카페":"매장","바리스타":"매장","편의점":"매장","서빙":"매장","식당":"매장","주방":"매장","배달":"물류","택배":"물류","공장":"생산","생산직":"생산","경비원":"보안","보안요원":"보안","콜센터":"상담","간호":"돌봄","요양":"돌봄","학원":"교육","과외":"교육"};
+const ETCA_CERT={"웹디자인":"컴퓨터그래픽스운용·웹디자인 기능사","무대기술":"무대예술전문인","무대예술":"무대예술전문인","무대조명":"무대예술전문인","무대음향":"무대예술전문인","무대기계":"무대예술전문인"};
+const ETCA={"컴활":"컴퓨터활용능력","정처기":"정보처리","정처산기":"정보처리","정보처리기사":"정보처리","한국사":"한국사능력검정","한능검":"한국사능력검정","간조":"간호조무사","요보사":"요양보호사","전기기사":"전기","전기산업기사":"전기","공인중개":"공인중개사","사복":"사회복지사","9급":"공무원","순경":"경찰","소방공무원":"소방","운전면허":"운전면허","운전병":"운전면허","1종":"운전면허","2종":"운전면허","프로그래머":"IT","개발자":"IT","코딩":"IT","심리학":"상담·심리","심리상담":"상담·심리","유튜버":"콘텐츠","크리에이터":"콘텐츠"};
 function etcFind(q,txt){
   let n=ETCN(txt); if(n.length<2) return -1;
   const AL=q.id==="cur"?Object.assign({},ETCA,ETCA_CUR):(q.id==="cert"||q.id==="plan")?Object.assign({},ETCA,ETCA_CERT):ETCA;
@@ -1262,6 +1262,14 @@ function etcFind(q,txt){
     if((hit||alt)&&l.length<bl){ best=k; bl=l.length; } });
   return best;
 }
+// '기타'에 적은 이름은 결과를 볼 때 한 번만 보낸다 (확인을 여러 번 누르거나 고쳐 적어도 마지막 것 1건). 같은 기기에서 같은 이름은 다시 보내지 않는다
+function etcFlush(){ try{
+  let sent=[]; try{ sent=JSON.parse(localStorage.getItem("pj_etc_sent")||"[]"); }catch(e){}
+  for(const [qid,t] of Object.entries(st.etc||{})){ if(!t) continue; const q=Q.find(x=>x.id===qid); if(!q) continue;
+    const ki=q.o.findIndex(o=>/^기타/.test(o[0])); if(!q.multi && ki>=0 && st.ans[qid]!==ki) continue; // 기타 대신 목록에서 골랐으면 안 보냄
+    const key=qid+":"+ETCN(t); if(sent.includes(key)) continue; sent.push(key); track({type:"etc",q:qid,t}); }
+  try{ localStorage.setItem("pj_etc_sent",JSON.stringify(sent.slice(-50))); }catch(e){}
+}catch(e){} }
 function etcBox(q){
   const prev=(st.etc||{})[q.id]||"";
   return `<div class="etc"><label for="etcIn"><b>기타</b> · 목록에서 못 찾았으면 직접 적어 주세요</label><div class="etcrow"><input id="etcIn" maxlength="30" autocomplete="off" placeholder="${q.id==="goal"?"예) 드론 조종사":"예) 조주기능사"}" value="${prev.replace(/"/g,"&quot;")}"><button type="button" class="btn alt" id="etcGo">확인</button></div><p class="hint" id="etcMsg" role="status"></p></div>`;
@@ -1328,7 +1336,6 @@ function question(){
       } else {
         if(!q.multi){ const ki=q.o.findIndex(o=>/^기타/.test(o[0])); if(ki>=0) st.ans[q.id]=ki; }
         st.etc=Object.assign({},st.etc,{[q.id]:t}); save();
-        track({type:"etc",q:q.id,t});
         msg.textContent="아직 목록에 없어요. 적어 주신 이름을 기록해 두고 다음 업데이트 때 넣을게요. 지금은 가장 가까운 걸 골라 주세요.";
       } };
     eg.onclick=go; ei.onkeydown=e=>{ if(e.key==="Enter"){ if(e.preventDefault) e.preventDefault(); go(); } }; }
@@ -1372,7 +1379,7 @@ function mid(){
   document.getElementById("go").onclick=()=>{st.phase="q"; save(); render()};
 }
 
-function finish(){ const first=!st.done; st.phase="result"; st.done=1; save(); render(); if(first){ try{ const P=score(); track({type:"finish",sit:sitKey(),age:st.ans.age,ag:st.ans.ag,top:P[0].key,tops:P.slice(0,3).map(p=>p.key),low:lowConf(P)}); }catch(e){} } }
+function finish(){ const first=!st.done; st.phase="result"; st.done=1; save(); render(); if(first){ try{ const P=score(); track({type:"finish",sit:sitKey(),age:st.ans.age,ag:st.ans.ag,top:P[0].key,tops:P.slice(0,3).map(p=>p.key),low:lowConf(P)}); }catch(e){} etcFlush(); } }
 
 function msReality(f,P){
   const out=["중학생 때 정할 건 평생 직업이 아니라 고등학교 방향이에요. 아래 직업 3개는 정답이 아니라 '먼저 알아볼 후보'예요. 연봉은 그 일을 하는 어른 기준이에요."];

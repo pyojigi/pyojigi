@@ -74,7 +74,7 @@ doc = R(doc, 'const FB_API=null; // 웹 빌드에서 "/api/feedback"으로 바�
 doc = R(doc, 'document.getElementById("start").onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();render()};',
              'document.getElementById("start").onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();track({type:"start"});render()};')
 doc = R(doc, 'function finish(){ st.phase="result"; st.done=1; save(); render(); }',
-             'function finish(){ const first=!st.done; st.phase="result"; st.done=1; save(); render(); if(first){ try{ const P=score(); track({type:"finish",sit:sitKey(),age:st.ans.age,ag:st.ans.ag,top:P[0].key,tops:P.slice(0,3).map(p=>p.key),low:lowConf(P)}); }catch(e){} } }')
+             'function finish(){ const first=!st.done; st.phase="result"; st.done=1; save(); render(); if(first){ try{ const P=score(); track({type:"finish",sit:sitKey(),age:st.ans.age,ag:st.ans.ag,top:P[0].key,tops:P.slice(0,3).map(p=>p.key),low:lowConf(P)}); }catch(e){} etcFlush(); } }')
 doc = R(doc, 'b.onclick=()=>{ st.fb=b.dataset.fb; save();', 'b.onclick=()=>{ if(st.fb!==b.dataset.fb) track({type:"feedback",fb:b.dataset.fb}); st.fb=b.dataset.fb; save();')
 doc = R(doc, 'fbCopy.onclick=()=>{', 'fbCopy.onclick=()=>{ track({type:"copy"});')
 doc = R(doc, 'render();\n</script>', """// 들어온 곳: 이전 사이트 주소의 도메인과 검색어만 (전체 주소는 보내지 않음)

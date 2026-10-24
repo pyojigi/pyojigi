@@ -5,6 +5,25 @@ import { json, ensure, kstDay as kst, keyRole, kstDay, whoHash, allow } from "..
 import { listAsks, listReviews, reviewCounts, purgeOld, setReview } from "../_lib/store.js";
 import { autoOK } from "./feedback.js";
 
+// '기타' 칸 기록을 사람 수에 가깝게 센다. 예전 화면은 확인 버튼을 누를 때마다 기록해서, 한 사람이 같은 칸을
+// 여러 번 누르거나 '무대' → '무대예술' → '무대예술전문인'처럼 고쳐 적은 것도 따로 셌다.
+// 같은 질문에서 60분 안에 같은 말이거나 앞부분이 겹치는 말은 한 사람으로 보고, 가장 길게 적은 이름으로 센다.
+export function etcPeople(rows) {
+  const norm = t => String(t || "").replace(/\s+/g, "").toLowerCase();
+  const mins = at => { const m = /^(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d)/.exec(at || ""); return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]) / 6e4 : 0; };
+  const open = [], done = [];
+  for (const r of rows) {
+    const t = mins(r.at), n = norm(r.kw);
+    for (let i = open.length - 1; i >= 0; i--) if (t - open[i].last > 60) done.push(...open.splice(i, 1));
+    const c = open.find(c => c.qid === r.qid && c.names.some(x => x.startsWith(n) || n.startsWith(x)));
+    if (c) { c.last = t; c.names.push(n); if (n.length > norm(c.kw).length) c.kw = r.kw; }
+    else open.push({ qid: r.qid, kw: r.kw, names: [n], last: t });
+  }
+  const out = {};
+  for (const c of done.concat(open)) { const k = c.qid + ":" + c.kw; out[k] = (out[k] || 0) + 1; }
+  return top(out);
+}
+
 const top = (obj, n = 200) => Object.fromEntries(Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n));
 
 async function fromDB(db, n) {
@@ -40,8 +59,7 @@ async function fromDB(db, n) {
   const refs = {}, kws = {};
   for (const r of await q(`SELECT ref AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='visit' AND ref IS NOT NULL GROUP BY ref ORDER BY c DESC LIMIT 200`, from)) refs[r.k] = r.c;
   for (const r of await q(`SELECT kw AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='visit' AND kw IS NOT NULL GROUP BY kw ORDER BY c DESC LIMIT 200`, from)) kws[r.k] = r.c;
-  const etc = {};
-  for (const r of await q(`SELECT qid || ':' || kw AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='etc' AND kw IS NOT NULL GROUP BY k ORDER BY c DESC LIMIT 200`, from)) etc[r.k] = r.c;
+  const etc = etcPeople(await q(`SELECT qid, kw, at FROM events WHERE day >= ? AND type='etc' AND kw IS NOT NULL ORDER BY at LIMIT 5000`, from));
   return { days, refs, kws, etc, runs: runs.map(r => ({ at: r.at, sit: r.sit, ag: r.ag, age: r.age, tops: [r.top1, r.top2, r.top3].filter(Boolean) })), total, since, store: "d1" };
 }
 
