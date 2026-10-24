@@ -1262,13 +1262,14 @@ function etcFind(q,txt){
     if((hit||alt)&&l.length<bl){ best=k; bl=l.length; } });
   return best;
 }
-// '기타'에 적은 이름은 결과를 볼 때 한 번만 보낸다 (확인을 여러 번 누르거나 고쳐 적어도 마지막 것 1건). 같은 기기에서 같은 이름은 다시 보내지 않는다
+// '기타'에 적은 이름은 검사 1번에 질문마다 딱 1건만 보낸다: 결과를 볼 때, 또는 중간에 나갈 때 그때 적혀 있던 마지막 이름.
+// 확인을 여러 번 누르거나 고쳐 적어도 1건. 서버는 once 표시가 있는 것만 '사람 수'로 센다
 function etcFlush(){ try{
-  let sent=[]; try{ sent=JSON.parse(localStorage.getItem("pj_etc_sent")||"[]"); }catch(e){}
-  for(const [qid,t] of Object.entries(st.etc||{})){ if(!t) continue; const q=Q.find(x=>x.id===qid); if(!q) continue;
+  st.etcSent=st.etcSent||{}; const L=list();
+  for(const [qid,t] of Object.entries(st.etc||{})){ if(!t||st.etcSent[qid]) continue; const q=L.find(x=>x.id===qid); if(!q) continue;
     const ki=q.o.findIndex(o=>/^기타/.test(o[0])); if(!q.multi && ki>=0 && st.ans[qid]!==ki) continue; // 기타 대신 목록에서 골랐으면 안 보냄
-    const key=qid+":"+ETCN(t); if(sent.includes(key)) continue; sent.push(key); track({type:"etc",q:qid,t}); }
-  try{ localStorage.setItem("pj_etc_sent",JSON.stringify(sent.slice(-50))); }catch(e){}
+    st.etcSent[qid]=1; track({type:"etc",q:qid,t,once:true}); }
+  save();
 }catch(e){} }
 function etcBox(q){
   const prev=(st.etc||{})[q.id]||"";
@@ -2451,7 +2452,7 @@ document.getElementById("resetBtn").onclick=reset;
 const MAIL=["songminhyeok1005","naver.com"].join("@");
 function fillMail(){ const a=document.getElementById("mail"); if(a){ a.href="mailto:"+MAIL; a.textContent=MAIL; }
   if(app.querySelectorAll) app.querySelectorAll("a.mailto").forEach(x=>{ x.href="mailto:"+MAIL; x.textContent=MAIL; }); }
-try{ if(window.addEventListener) window.addEventListener("pagehide",()=>{ if(st.phase==="q" && !st.done){ const q=list()[st.i]; if(q) track({type:"leave",at:q.id}); } else track({type:"leave",at:st.phase}); }); }catch(e){}
+try{ if(window.addEventListener) window.addEventListener("pagehide",()=>{ etcFlush(); if(st.phase==="q" && !st.done){ const q=list()[st.i]; if(q) track({type:"leave",at:q.id}); } else track({type:"leave",at:st.phase}); }); }catch(e){}
 // ===== 결과 이미지 저장 + 나에게 딱 맞는 준비계획 (2026-10-23 운영자 요청) =====
 // 이미지는 이 기기 안에서 canvas로 그린다. 시각·답은 서버로 보내지 않고 이 기기에만 저장한다.
 function tLabel(m){ m=((m%1440)+1440)%1440; const h=Math.floor(m/60), mm=String(m%60).padStart(2,"0");

@@ -76,4 +76,4 @@ function runFlow(rnd, opts = {}) {
   if (miss > 0 && skipped === 0) throw new Error('빈 질문 남음 ' + miss);
   return { steps, skipped, miss };
 }
-module.exports = { runFlow };
+module.exports = { runFlow, makeEnv, script };

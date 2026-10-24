@@ -47,6 +47,7 @@ export function clean(e) {
     const t = e.t.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF<>"'`]/g, " ").replace(/\s+/g, " ").trim();
     if (!t || t.length > 30 || /\d{5,}|@|https?:|www\.|\d+-\d+-\d+/i.test(t)) return null;
     r.qid = e.q; r.kw = t;
+    r.why = e.once === true ? 1 : null; // 1 = 검사 1번에 1건 (사람 수). 없으면 예전 방식(확인 누른 횟수)
   }
   return r;
 }
@@ -85,7 +86,7 @@ export async function onRequestPost({ request, env }) {
   else if (r.type === "copy") inc(st, "fbCopy");
   else if (r.type === "miss") { st.miss = st.miss || {}; inc(st.miss, r.top1 + ":" + r.why); }
   else if (r.type === "leave") incCap(st, "leave", r.qid);
-  else if (r.type === "etc") incCap(st, "etc", r.qid + ":" + r.kw, 100);
+  else if (r.type === "etc") incCap(st, r.why ? "etc" : "etcOld", r.qid + ":" + r.kw, 100);
   await env.PYOJIGI_KV.put(key, JSON.stringify(st), { expirationTtl: ST_TTL });
   return json({ ok: true });
 }
