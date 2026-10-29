@@ -65,6 +65,7 @@ button:disabled{opacity:.5;cursor:default}
 .funnel span{font-weight:700}
 .funnel i{display:block;height:22px;border-radius:6px;background:var(--pine)}
 .funnel em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.card h3{font-size:14px;margin:14px 0 6px;color:var(--muted,#666)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
 .trend{display:flex;align-items:flex-end;gap:3px;height:110px;padding-bottom:18px;position:relative}
 .trend div{flex:1 1 0;height:100%;position:relative;min-width:6px}
@@ -131,9 +132,14 @@ async function load(quiet){
   const shareN=sumObj(days,"src").share||0;
   const W=v=>visit?Math.max(2,Math.round(v/visit*100)):2;
   const dmax=Math.max(1,...days.map(d=>d.visit||0));
+  // 나이대별: 완주 기록(runs)을 나이대로 나눠 상황·추천 길을 따로 센다 (ag 없으면 예전 age를 묶어서)
+  const agOf=x=>x.ag!=null?+x.ag:(x.age!=null?[0,1,1,1,2,2,3][+x.age]:null);
+  const byAg={}; for(const x of runs){ const a=agOf(x); if(a==null) continue; (byAg[a]=byAg[a]||[]).push(x); }
+  const cnt=(L,f,n=99)=>{ const o={}; for(const x of L) for(const k of [].concat(f(x)).filter(Boolean)) o[k]=(o[k]||0)+1; return Object.fromEntries(Object.entries(o).sort((p,q)=>q[1]-p[1]).slice(0,n)); };
+  const agCard=a=>{ const L=byAg[a]||[]; return `<section class="card"><h2>${AG[a]} · 완주 ${L.length}명</h2>${L.length?`<h3>상황</h3>${bars(cnt(L,x=>x.sit),k=>SIT[k]||k)}<h3>1순위로 추천된 길</h3>${bars(cnt(L,x=>(x.tops||[])[0]),k=>PATH[k]||k)}<h3>3위 안에 나온 길</h3>${bars(cnt(L,x=>(x.tops||[]).slice(0,3)),k=>PATH[k]||k)}`:`<p class="muted">이 기간 완주 기록이 없어요.</p>`}</section>`; };
   const dd=days.slice().sort((a,b)=>a.day<b.day?-1:1).slice(-30);
   $("out").innerHTML=`
-  <nav class="tabs"><a href="#g-sum">요약</a><a href="#g-todo">할 일${openN?` <b>${openN}</b>`:""}</a><a href="#g-in">유입</a><a href="#g-res">검사 결과</a><a href="#g-out">이탈</a><a href="#g-fb">반응</a><a href="#g-day">날짜별</a><a href="#g-rec">기록</a></nav>
+  <nav class="tabs"><a href="#g-sum">요약</a><a href="#g-todo">할 일${openN?` <b>${openN}</b>`:""}</a><a href="#g-in">유입</a><a href="#g-res">검사 결과</a><a href="#g-age">나이대별</a><a href="#g-out">이탈</a><a href="#g-fb">반응</a><a href="#g-day">날짜별</a><a href="#g-rec">기록</a></nav>
   <section class="card" id="g-sum">
     <p class="lead">${$("d").selectedOptions[0].textContent}: 방문 <b>${visit}</b>명 중 <b>${start}</b>명이 검사를 시작했고(${pct(start,visit)}), <b>${fin}</b>명이 끝까지 했어요(시작한 사람의 ${pct(fin,start)}).</p>
     <div class="funnel">
@@ -173,6 +179,9 @@ async function load(quiet){
   <section class="card"><h2>3위 안에 나온 길 (1·2·3순위 모두)</h2>${bars(sumObj(days,"top3"),k=>PATH[k]||k)}<p class="muted">한 사람이 3개씩 받으니 합계는 완주의 약 3배예요.</p></section>
   </div>
   <section class="card"><h2>기타 칸에 적은 것</h2>${bars(etc,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">목록에 없던 직업·자격이에요. 숫자는 사람 수예요 (검사 1번에 질문마다 1건). 매일 새벽 작업이 확인해서 목록에 넣어요.</p></section>
+  <h2 class="grp" id="g-age">나이대별</h2>
+  <p class="muted">완주한 사람만 나이대로 나눴어요 (완주 기록 ${runs.length}건 기준). 기타 칸·그만둔 질문은 나이대를 기록하지 않아 나눌 수 없어요.</p>
+  <div class="grid">${[0,1,2,3].filter(a=>byAg[a]||a<3).map(agCard).join("")}</div>
   <h2 class="grp" id="g-out">이탈</h2>
   <section class="card"><h2>결과 전에 그만둔 질문</h2>${bars(sumObj(days,"leave"),k=>QN[k]||k)}<p class="muted">한 질문에 몰려 있으면 그 질문이 어렵거나 너무 길다는 신호예요.</p></section>
   <h2 class="grp" id="g-fb">반응</h2>
