@@ -20,3 +20,4 @@
 /ig/*
   X-Robots-Tag: noindex
   Cache-Control: no-store
+  Access-Control-Allow-Origin: https://www.instagram.com
