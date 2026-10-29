@@ -30,7 +30,7 @@ function runFlow(rnd, opts = {}) {
   const ctx = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', script + '\nreturn {get st(){return st}, render, list, missing};');
   const api = ctx(env.document, env.window, env.localStorage, setTimeout, class { constructor() { this.signal = {}; } abort() {} });
   const click = id => { const e = env.document.getElementById(id); if (!e || !e.onclick) throw new Error('버튼 없음: ' + id + ' / phase=' + api.st.phase); e.onclick(); while (timers.length) timers.shift()(); };
-  { if (!env.document.getElementById('toPrivacy')) throw new Error('개인정보 안내 없음'); click('start'); if (api.st.phase !== 'q') throw new Error('시작 안 됨'); }
+  { if (!env.document.getElementById('toPrivacy')) throw new Error('개인정보 안내 없음'); click('ag1'); if (api.st.phase !== 'q' || api.st.i !== 1 || api.st.ans.ag !== 1) throw new Error('나이 눌러 시작 안 됨'); }
   let steps = 0, skipped = 0;
   while (api.st.phase !== 'result') {
     if (++steps > 400) throw new Error('무한 루프: phase=' + api.st.phase + ' i=' + api.st.i);

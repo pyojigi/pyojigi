@@ -71,8 +71,10 @@ doc = R(doc, 'out.textContent="읽는 중이에요...";', 'out.textContent="읽�
 doc = R(doc, 'function track(ev){} // 웹 빌드에서 익명 통계 전송으로 바뀜', '''// 익명 통계 (답 내용·적은 문장은 보내지 않음)
 function track(ev){ if(ev.type!=="visit" && !agreed()) return; try{ fetch("/api/event",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(ev),keepalive:true}).catch(()=>{}); }catch(e){} }''')
 doc = R(doc, 'const FB_API=null; // 웹 빌드에서 "/api/feedback"으로 바뀜', 'const FB_API="/api/feedback";')
-doc = R(doc, 'document.getElementById("start").onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();render()};',
-             'document.getElementById("start").onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();track({type:"start"});render()};')
+doc = R(doc, 'if(sb) sb.onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();render()};',
+             'if(sb) sb.onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();track({type:"start"});render()};')
+doc = R(doc, 'st={ans:{ag:k,age:AGEMAP[k]},i:1,phase:"q",mid:-1,review:0}; save(); render();',
+             'st={ans:{ag:k,age:AGEMAP[k]},i:1,phase:"q",mid:-1,review:0}; save(); track({type:"start"}); render();')
 doc = R(doc, 'function finish(){ st.phase="result"; st.done=1; save(); render(); }',
              'function finish(){ const first=!st.done; st.phase="result"; st.done=1; save(); render(); if(first){ try{ const P=score(); track({type:"finish",sit:sitKey(),age:st.ans.age,ag:st.ans.ag,top:P[0].key,tops:P.slice(0,3).map(p=>p.key),low:lowConf(P)}); }catch(e){} etcFlush(); } }')
 doc = R(doc, 'b.onclick=()=>{ st.fb=b.dataset.fb; save();', 'b.onclick=()=>{ if(st.fb!==b.dataset.fb) track({type:"feedback",fb:b.dataset.fb}); st.fb=b.dataset.fb; save();')

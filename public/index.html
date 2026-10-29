@@ -369,6 +369,9 @@ textarea,.etcrow input{border-radius:14px;border:1.5px solid var(--line);backgro
 .chip{border-radius:999px;background:var(--soft);font-weight:500}
 .chip.k{background:var(--tint);color:var(--pine);font-weight:700}
 .first{background:var(--tint);color:var(--ink);border-radius:14px;padding:14px 16px}
+.oneline{background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.oneline p{font-weight:800;font-size:18px;line-height:1.45;color:var(--ink);margin:0}
+.agepick{display:flex;flex-direction:column;gap:10px}
 .first a,a.first{color:var(--pine)}
 .check{border-left:0;background:var(--soft);border-radius:14px;padding:14px 16px}
 .warn{border-left:0;border-radius:14px;background:var(--blaze);color:var(--blaze-ink);padding:12px 14px}
@@ -1202,9 +1205,10 @@ function intro(){
       <h1>뭐 할지 몰라도 돼요.<br>10분이면 내 길 3개가 나와요</h1>
       <p class="lede">성격 유형 말고 <strong>지금 내 상황</strong>으로 골라 줘요. 되는 법, 신입 연봉, <strong>받을 수 있는 지원</strong>까지.</p>
     </div>
+    ${has?"":`<div class="agepick"><p class="pk-h">나이대를 누르면 <b>바로 시작</b>돼요</p><div class="opts tiles" role="radiogroup">${["10대","20대","30대","40대 이상"].map((t,k)=>`<button type="button" class="opt" id="ag${k}" data-k="${k}">${t}</button>`).join("")}</div></div>`}
     ${perksHTML()}
     <div class="cta">
-      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">내 길 3개 찾기 · 무료 10분</button>`}
+      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<p class="src">무료 · 가입 없음 · 약 10분이면 내 길 3개가 나와요</p>`}
     </div>
     <p class="src">시작하면 서비스 개선용 익명 이용 기록(시각, 상황 종류, 나이대, 추천 결과)에 동의하는 걸로 봐요. 답 내용과 이름·연락처는 저장하지 않아요. <a href="#" id="toPrivacy">개인정보 처리방침</a></p>
     <p class="src">개인이 만든 무료 사이트예요. 결과의 강의·교재 링크 일부는 제휴라 구매하면 운영자가 수수료를 받고, 그 자리에 표시해 둬요. 답은 이 폰에만 저장돼요.</p>
@@ -1237,8 +1241,9 @@ function intro(){
   const needAgree=()=>{ if(agBox && !agBox.checked){ const n=document.getElementById("agreeNote"); if(n) n.textContent="시작하려면 위 동의에 체크해 주세요."; return true; } setAgree(); return false; };
   const tp=document.getElementById("toPrivacy"); if(tp) tp.onclick=e=>{ if(e&&e.preventDefault) e.preventDefault(); st.phase="privacy"; render(); };
   const sb=document.getElementById("start"), sbGo=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();render()};
-  document.getElementById("start").onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();track({type:"start"});render()};
-  const goStart=sb.onclick; sb.onclick=()=>{ if(needAgree()) return; goStart(); };
+  if(sb) sb.onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();track({type:"start"});render()};
+  if(sb){ const goStart=sb.onclick; sb.onclick=()=>{ if(needAgree()) return; goStart(); }; }
+  for(let k=0;k<4;k++){ const a=document.getElementById("ag"+k); if(a) a.onclick=()=>{ setAgree(); st={ans:{ag:k,age:AGEMAP[k]},i:1,phase:"q",mid:-1,review:0}; save(); track({type:"start"}); render(); }; }
   const c=document.getElementById("cont"); if(c) c.onclick=()=>{ if(needAgree()) return; st.phase=st.done?"result":"q"; save(); render()};
   loadReviews();
 }
@@ -1558,6 +1563,11 @@ function calcDraw(){
     <details class="more"><summary>달마다 흐름 보기</summary><div class="months">${rows}</div></details>`;
 }
 let P_CUR=[];
+// 결과 맨 위 공유용 한 줄: 실제로 고른 답(상위 특성 2개)과 지금 상황으로만 만든다
+const SITLINE={job:"아직 원서 낼 곳을 못 정한 취준생",move:"옮길까 말까 고민 중인 사람",gap:"잠깐 쉬어 가는 중인 사람",slump:"잠깐 멈춰 있는 사람",switch:"분야를 바꾸려는 사람",mil:"전역하고 다음을 찾는 사람",hs:"진로를 정해야 하는 고등학생",col:"전공과 진로 사이에 있는 대학생",ms:"뭐가 될지 궁금한 중학생",drop:"학교 밖에서 길을 찾는 중",retake:"재수하면서 다음도 생각하는 사람"};
+function oneLine(tops){ const a=TRAIT[tops[0]], b=TRAIT[tops[1]]; if(!a) return "";
+  const line=`나는 '${a}'${b?`·'${b}'`:""} 쪽인데, 지금은 ${SITLINE[sitKey()||"job"]}`;
+  return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">친구한테 보내기</button></div>`; }
 function result(){
   AFF_SHOWN=0;
   const {t,f}=tally(); const ALL=score(); const P=ALL.slice(0,3); const tops=topTraits(t,5); P_CUR=P;
@@ -1582,6 +1592,8 @@ function result(){
       <h1>당신이 갈 수 있는 길 3개</h1>
       <ol class="top3">${P.map((p,i)=>`<li><em>${i+1}</em><b>${p.n}</b></li>`).join("")}</ol>
       <div class="chips">${tops.map(x=>`<span class="chip k">${TRAIT[x]}</span>`).join("")}</div>
+      ${free&&CRISIS_RE.test(free)?"":oneLine(tops)}
+      ${free&&CRISIS_RE.test(free)?"":firstBox(P[0].key,P[0].first,P[0].firstLink).replace("<b>내일 할 일 하나</b>",`<b>지금 5분만 · 1순위 '${P[0].n}'</b>`)}
       ${(f.flat||f.longslump)&&!(free&&CRISIS_RE.test(free))?`<div class="care"><b>요즘 많이 지쳤다면</b><p>진로보다 내 몸과 마음이 먼저예요. 혼자 견디지 말고 이야기해 보세요. 청소년·청년(만 24세까지) <a href="tel:1388">1388</a>, 마음이 힘들 때 <a href="tel:109">109</a>(24시간), 위급하면 112·119.</p></div>`:""}
       <nav class="jump" aria-label="결과 바로가기">${isMS()?`<button type="button" data-go="run">한 달 알아보기 계획</button>`:free && CRISIS_RE.test(free) ? "" : `<button type="button" data-go="run">첫 월급까지</button>`}<button type="button" data-go="paths">추천 길 3개</button><button type="button" data-go="keep">저장·준비계획</button><button type="button" data-go="money">돈 지원 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button>${corp.length?`<button type="button" data-go="corp">기업 프로그램 ${corp.length}개</button>`:""}${gp?`<button type="button" data-go="goal">하고 싶은 일 준비</button>`:""}</nav>
     </div>
@@ -1680,6 +1692,9 @@ function result(){
   document.getElementById("again").onclick=reset;
   document.getElementById("rtGo").onclick=()=>{ st.phase="plan"; st.rtEdit=0; save(); render(); };
   document.getElementById("imgRes").onclick=()=>makeImage("result");
+  const shl=document.getElementById("shareLine"); if(shl) shl.onclick=()=>{ const text=shl.dataset.t+"\n너는 뭐 나와? 10분 무료 진로 검사", url="https://pyojigi.pages.dev/?src=share";
+    try{ if(navigator.share){ navigator.share({text,url}).catch(()=>{}); return; } }catch(e){}
+    try{ navigator.clipboard.writeText(text+" "+url).then(()=>toast("복사했어요. 친구한테 붙여 넣어 보내 주세요."),()=>toast(text+" "+url)); }catch(e){ toast(text+" "+url); } };
 }
 
 const FB_API="/api/feedback";
