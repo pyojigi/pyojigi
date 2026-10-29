@@ -9,7 +9,7 @@ const prepTxt = js.match(/function prepTxt[^\n]*/)[0];
 const M = new Function(core + rea + sup + prepTxt + '\nreturn {LIC,JOBD:typeof JOBD!=="undefined"?JOBD:null,ROAD:typeof ROAD!=="undefined"?ROAD:null,AIX:typeof AIX!=="undefined"?AIX:null,AIXT:typeof AIXT!=="undefined"?AIXT:null,SITVIS,AGEMAP,ENG_MJ,MAJLINK,MAJORS,Q,PATHS,PRO,YTQ,TRAIT,GUIDE,JOBS,CAL,WAITING,setAns:a=>{st={ans:a}},list,tally,score,lowConf,reality,supports,corpSupports,sitKey,employed,freeAnswer,freeGoal,goalKey,guideKey,runCalc};')();
 
 const SITQ = M.Q.find(q => q.id === 'sit'); const SITS = SITQ.o.map(o => o[2].sit);
-const SENT = ['경비 일은 안정적인데 이대로 10년 갈 수 있을지 모르겠다','소방관이 되고 싶은데 나이가 걱정돼요','공무원은 싫고 돈을 많이 벌고 싶다','개발자로 전향하고 싶어요','뭘 해야 할지 모르겠어요','면접에서 계속 떨어져요','부모님 눈치가 보여요','생활비가 한 달밖에 안 남았어요','환경미화원 준비 중이에요','요양보호사 따서 일하고 싶어요','무기력해서 아무것도 하기 싫어요','교대 근무라 공부할 시간이 없어요','죽고 싶을 만큼 힘들어요','스펙이 하나도 없어요','대학원 진학할지 취업할지 고민','반도체 공장 들어가고 싶어요','영업은 말고 사무직 원해요','ㅁㄴㅇㄹ','<script>alert(1)</script>','30대인데 너무 늦은 것 같아요','AI 쪽으로 가고 싶은 꿈이 있어요','태권도 사범으로 가고 싶다','퇴사하고 싶은데 무서워요','그냥 다 귀찮다'];
+const SENT = ['경비 일은 안정적인데 이대로 10년 갈 수 있을지 모르겠다','소방관이 되고 싶은데 나이가 걱정돼요','공무원은 싫고 돈을 많이 벌고 싶다','개발자로 전향하고 싶어요','뭘 해야 할지 모르겠어요','면접에서 계속 떨어져요','부모님 눈치가 보여요','생활비가 한 달밖에 안 남았어요','환경미화원 준비 중이에요','요양보호사 따서 일하고 싶어요','무기력해서 아무것도 하기 싫어요','교대 근무라 공부할 시간이 없어요','죽고 싶을 만큼 힘들어요','스펙이 하나도 없어요','대학원 진학할지 취업할지 고민','반도체 공장 들어가고 싶어요','영업은 말고 사무직 원해요','ㅁㄴㅇㄹ','<script>alert(1)</script>','30대인데 너무 늦은 것 같아요','AI 쪽으로 가고 싶은 꿈이 있어요','태권도 사범으로 가고 싶다','퇴사하고 싶은데 무서워요','그냥 다 귀찮다','교대 그만하고 싶은데 공장 말고 갈 데 있나','공장 관두고 싶은데 월급 줄면 안됨'];
 for (const p of M.PATHS) { if (!M.GUIDE[p.key]) throw new Error('준비 안내 없음 ' + p.key); if (!M.JOBS[p.key]) throw new Error('세부 직업 없음 ' + p.key); if (!M.YTQ[p.key]) throw new Error('영상 검색어 없음 ' + p.key); }
 function randomPersona(rnd, forceSit) {
   const a = {};
@@ -86,7 +86,7 @@ function check(a) {
   const gk = M.guideKey(f); if (gk && !M.GUIDE[gk]) errs.push('준비 안내 없음');
   if (a.free) { const fa = M.freeAnswer(a.free); if (!fa.length || fa.length > 3) errs.push('막막함 답 개수 이상');
     if (/죽고/.test(a.free) && !fa[0].includes('109')) errs.push('위기 문장에 상담 안내가 맨 앞에 없음');
-    if (/싫|말고/.test(a.free) && M.freeGoal(a.free)) errs.push('싫다는 분야를 하고 싶은 일로 오인'); }
+    if (/싫|말고|그만 ?하|관두/.test(a.free) && M.freeGoal(a.free)) errs.push('싫다는 분야를 하고 싶은 일로 오인'); }
   if (k === 'hs' && sp.some(x => x.corp)) errs.push('고등학생에게 기업 프로그램');
   if (sp.some(x => /^SSAFY/.test(x.n)) && (a.age > 3 || M.employed(f))) errs.push('SSAFY 조건 밖 추천');
   if (sp.some(x => /^SK 아이젠/.test(x.n)) && (a.age < 1 || a.age > 4)) errs.push('아이젠 나이 조건 밖 추천');
