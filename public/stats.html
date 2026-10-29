@@ -172,7 +172,7 @@ async function load(quiet){
   <section class="card"><h2>1순위로 추천된 길</h2>${bars(sumObj(days,"top"),k=>PATH[k]||k)}</section>
   <section class="card"><h2>3위 안에 나온 길 (1·2·3순위 모두)</h2>${bars(sumObj(days,"top3"),k=>PATH[k]||k)}<p class="muted">한 사람이 3개씩 받으니 합계는 완주의 약 3배예요.</p></section>
   </div>
-  <section class="card"><h2>기타 칸에 적은 것</h2>${bars(etc,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">목록에 없던 직업·자격이에요. 숫자는 사람 수예요 (검사 1번에 질문마다 1건). 매일 새벽 작업이 확인해서 목록에 넣어요.</p>${Object.keys(etcOld).length?`<h3>예전 기록 (10월 24일 오후 이전)</h3>${bars(etcOld,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">예전 화면은 확인 버튼을 누를 때마다 1건씩 셌어요. 그래서 이 숫자는 사람 수가 아니라 누른 횟수예요. 누가 누른 건지 기록이 없어서 사람 수로 바꿀 수 없어요.</p>`:""}</section>
+  <section class="card"><h2>기타 칸에 적은 것</h2>${bars(etc,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">목록에 없던 직업·자격이에요. 숫자는 사람 수예요 (검사 1번에 질문마다 1건). 매일 새벽 작업이 확인해서 목록에 넣어요.</p></section>
   <h2 class="grp" id="g-out">이탈</h2>
   <section class="card"><h2>결과 전에 그만둔 질문</h2>${bars(sumObj(days,"leave"),k=>QN[k]||k)}<p class="muted">한 질문에 몰려 있으면 그 질문이 어렵거나 너무 길다는 신호예요.</p></section>
   <h2 class="grp" id="g-fb">반응</h2>
