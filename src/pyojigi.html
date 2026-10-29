@@ -1166,16 +1166,15 @@ function intro(){
   const has = Object.keys(st.ans).length>0;
   el(`<section style="display:flex;flex-direction:column;gap:24px">
     <div style="display:flex;flex-direction:column;gap:12px">
-      <span class="eyebrow">먼저 간 사람이 보낸 편지 · 무료 진로 검사 10분</span>
-      <h1>어디로 가야 할지 모를 때,<br>10분이면 지도가 생깁니다</h1>
-      <p class="lede">아직 뭘 하고 싶은지 몰라도 괜찮아요. 성격 유형 검사가 아니라, 지금 상황과 좋아하는 것, 못 견디는 일까지 묻고 <strong>실제로 갈 수 있는 길 3개</strong>와 되는 법, 연봉, <strong>받을 수 있는 지원</strong>을 정리해 줘요.</p>
+      <span class="eyebrow">무료 · 가입 없음 · 10분</span>
+      <h1>뭐 할지 몰라도 돼요.<br>10분이면 내 길 3개가 나와요</h1>
+      <p class="lede">성격 유형 말고 <strong>지금 내 상황</strong>으로 골라 줘요. 되는 법, 신입 연봉, <strong>받을 수 있는 지원</strong>까지.</p>
     </div>
     ${perksHTML()}
-    <label class="agree"><input type="checkbox" id="agree" ${agreed()?"checked":""}><span><b>(필수)</b> 서비스 개선을 위한 익명 이용 기록(시각, 상황 종류, 나이대, 추천 결과)에 동의해요. 답 내용과 이름·연락처는 저장하지 않아요. <a href="#" id="toPrivacy">개인정보 처리방침</a></span></label>
-    <p class="hint" id="agreeNote" role="alert"></p>
     <div class="cta">
-      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">시작하기 · 질문 25~36개 (상황마다 달라요)</button>`}
+      ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<button class="btn" id="start" type="button">내 길 3개 찾기 · 무료 10분</button>`}
     </div>
+    <p class="src">시작하면 서비스 개선용 익명 이용 기록(시각, 상황 종류, 나이대, 추천 결과)에 동의하는 걸로 봐요. 답 내용과 이름·연락처는 저장하지 않아요. <a href="#" id="toPrivacy">개인정보 처리방침</a></p>
     <p class="src">개인이 만든 무료 사이트예요. 결과의 강의·교재 링크 일부는 제휴라 구매하면 운영자가 수수료를 받고, 그 자리에 표시해 둬요. 답은 이 폰에만 저장돼요.</p>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="hero3" role="img" aria-label="방황에서 방향으로, 방향에서 계획으로">

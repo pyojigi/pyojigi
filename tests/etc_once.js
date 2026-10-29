@@ -9,7 +9,7 @@ function run(mode) {
   const api = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', '__T', s + '\nreturn {get st(){return st}, list};')(env.document, env.window, env.localStorage, f => timers.push(f), class { constructor() { this.signal = {}; } abort() {} }, T);
   const flush = () => { while (timers.length) timers.shift()(); };
   const click = id => { env.document.getElementById(id).onclick(); flush(); };
-  click('start'); env.document.getElementById('agree').checked = true; click('start');
+  click('start');
   let typed = false, n = 0;
   while (api.st.phase !== 'result' && ++n < 300) {
     if (api.st.phase === 'mid') { click('go'); continue; }
