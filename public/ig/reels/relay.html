@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>relay</title><meta name="robots" content="noindex">
+<p id="m">불러오는 중…</p>
+<script>
+(async()=>{try{const b=await (await fetch('2026-10-29-sukmo.mp4')).blob();
+ if(!window.opener){document.getElementById('m').textContent='opener 없음';return}
+ window.opener.postMessage({pyojigiReel:b},'https://www.instagram.com');
+ document.getElementById('m').textContent='보냄 '+b.size;}catch(e){document.getElementById('m').textContent='오류 '+e}})();
+</script>
