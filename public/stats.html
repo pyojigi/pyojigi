@@ -24,7 +24,7 @@ input{flex:1 1 180px;min-width:0}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
 .kpi span{font-size:13px;color:var(--muted)}
-.bar{display:grid;grid-template-columns:minmax(0,170px) 1fr 54px;gap:8px;align-items:center;font-size:14px;margin:4px 0}
+.bar{display:grid;grid-template-columns:minmax(0,170px) 1fr 84px;gap:8px;align-items:center;font-size:14px;margin:4px 0}
 .bar i{display:block;height:10px;border-radius:3px;background:var(--pine)}
 .bar em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 .tbl{overflow-x:auto}
@@ -53,7 +53,31 @@ button:disabled{opacity:.5;cursor:default}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.bad{background:var(--red);color:#fff}
-@media (max-width:480px){.bar{grid-template-columns:minmax(0,120px) 1fr 64px}h1{font-size:21px}}
+.wrap{max-width:1100px}
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0;background:var(--bg);scrollbar-width:none}
+.tabs a{flex:0 0 auto;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600}
+.tabs a b{color:#fff;background:var(--red);border-radius:999px;padding:0 7px;font-size:12px}
+.grp{font-size:20px;margin:18px 0 0;scroll-margin-top:60px}
+#g-sum{scroll-margin-top:60px;display:flex;flex-direction:column;gap:14px}
+.lead{font-size:17px;margin:0;line-height:1.55}
+.funnel{display:flex;flex-direction:column;gap:8px}
+.funnel div{display:grid;grid-template-columns:44px 1fr 110px;gap:10px;align-items:center}
+.funnel span{font-weight:700}
+.funnel i{display:block;height:22px;border-radius:6px;background:var(--pine)}
+.funnel em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.trend{display:flex;align-items:flex-end;gap:3px;height:110px;padding-bottom:18px;position:relative}
+.trend div{flex:1 1 0;height:100%;position:relative;min-width:6px}
+.trend i,.trend b{position:absolute;left:0;right:0;bottom:0;border-radius:3px 3px 0 0}
+.trend i{background:var(--soft);border:1px solid var(--line)}
+.trend b{background:var(--pine)}
+.trend small{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+details.fold>summary{cursor:pointer;list-style:none}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary h2{display:inline}
+details.fold>summary:after{content:"펼치기 ▾";float:right;font-size:13px;color:var(--muted)}
+details.fold[open]>summary:after{content:"접기 ▴"}
+@media (max-width:480px){.bar{grid-template-columns:minmax(0,110px) 1fr 76px}.funnel div{grid-template-columns:40px 1fr 92px}.kpi b{font-size:22px}h1{font-size:21px}}
 </style>
 </head>
 <body>
@@ -103,45 +127,71 @@ async function load(quiet){
   const visit=tot("visit"), start=tot("start"), fin=tot("finish"), low=tot("low"), copy=tot("fbCopy");
   const fb=sumObj(days,"fb"); const fbN=Object.values(fb).reduce((a,b)=>a+b,0); const good=(fb["많이 됐어요"]||0)+(fb["조금 됐어요"]||0);
   const pct=(a,b)=>b?Math.round(a/b*100)+"%":"-";
+  const SRC={share:"친구 공유 링크",ig:"인스타 릴스",ig_bio:"인스타 프로필 링크",ig_story:"인스타 스토리",kakao:"카카오톡"};
+  const shareN=sumObj(days,"src").share||0;
+  const W=v=>visit?Math.max(2,Math.round(v/visit*100)):2;
+  const dmax=Math.max(1,...days.map(d=>d.visit||0));
+  const dd=days.slice().sort((a,b)=>a.day<b.day?-1:1).slice(-30);
   $("out").innerHTML=`
-  <div class="kpis">
-    <div class="kpi"><b>${visit}</b><span>방문</span></div>
-    <div class="kpi"><b>${start}</b><span>검사 시작</span></div>
-    <div class="kpi"><b>${fin}</b><span>완주 (${pct(fin,start)})</span></div>
-    <div class="kpi"><b>${pct(good,fbN)}</b><span>도움 됐다 (${fbN}명 응답)</span></div>
-    <div class="kpi"><b>${pct(low,fin)}</b><span>확신 낮음 비율</span></div>
-    <div class="kpi"><b>${openN}</b><span>답변 기다리는 문의</span></div>
-    ${store==="d1"?`<div class="kpi"><b>${total.finish||0}</b><span>누적 완주 (${since||"-"}부터)</span></div><div class="kpi"><b>${total.visit||0}</b><span>누적 방문</span></div>`:""}
-  </div>
+  <nav class="tabs"><a href="#g-sum">요약</a><a href="#g-todo">할 일${openN?` <b>${openN}</b>`:""}</a><a href="#g-in">유입</a><a href="#g-res">검사 결과</a><a href="#g-out">이탈</a><a href="#g-fb">반응</a><a href="#g-day">날짜별</a><a href="#g-rec">기록</a></nav>
+  <section class="card" id="g-sum">
+    <p class="lead">${$("d").selectedOptions[0].textContent}: 방문 <b>${visit}</b>명 중 <b>${start}</b>명이 검사를 시작했고(${pct(start,visit)}), <b>${fin}</b>명이 끝까지 했어요(시작한 사람의 ${pct(fin,start)}).</p>
+    <div class="funnel">
+      <div><span>방문</span><i style="width:100%"></i><em>${visit}</em></div>
+      <div><span>시작</span><i style="width:${W(start)}%"></i><em>${start} · ${pct(start,visit)}</em></div>
+      <div><span>완주</span><i style="width:${W(fin)}%"></i><em>${fin} · ${pct(fin,visit)}</em></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><b>${shareN}</b><span>친구 공유로 들어옴</span></div>
+      <div class="kpi"><b>${pct(good,fbN)}</b><span>도움 됐다 (${fbN}명 응답)</span></div>
+      <div class="kpi"><b>${pct(low,fin)}</b><span>확신 낮음 비율</span></div>
+      <div class="kpi"><b>${openN}</b><span>답변 기다리는 문의</span></div>
+      ${store==="d1"?`<div class="kpi"><b>${total.finish||0}</b><span>누적 완주 (${since||"-"}부터)</span></div><div class="kpi"><b>${total.visit||0}</b><span>누적 방문</span></div>`:""}
+    </div>
+    ${dd.length>1?`<div><p class="muted" style="margin:0 0 6px">날짜별 흐름 (연한 막대 방문 · 진한 막대 완주)</p><div class="trend">${dd.map(d=>`<div title="${d.day} 방문 ${d.visit||0} · 시작 ${d.start||0} · 완주 ${d.finish||0}"><i style="height:${Math.round((d.visit||0)/dmax*100)}%"></i><b style="height:${Math.round((d.finish||0)/dmax*100)}%"></b><small>${d.day.slice(8)}</small></div>`).join("")}</div></div>`:""}
+  </section>
+  <h2 class="grp" id="g-todo">할 일</h2>
   ${RO?`<p class="note">지금은 <b>읽기 전용 키</b>로 열었어요. 후기 승인·문의 답변 버튼은 <b>관리자 키(ADMIN_KEY)</b>로 다시 들어와야 보여요. 위쪽 키 칸에 관리자 키를 넣어 주세요.</p>`:""}
   ${(rc.pending||0)>0?`<p class="note" style="border-color:#0B8F5A"><a href="#reviews"><b>승인 기다리는 후기 ${rc.pending}개</b> 바로가기 ↓</a></p>`:""}
   <section class="card"><h2>문의 (최근 ${asks.length}건 · 답변 대기 ${openN}건)</h2>
     <p class="muted">사용자는 받은 확인 코드로 답변을 봐요. 답변했거나 완료한 문의는 1년 뒤 지워져요.</p>
     ${asks.length?asks.map(askItem).join(""):`<p class="muted">아직 받은 문의가 없어요.</p>`}</section>
-  <section class="card" id="reviews"><h2>후기 승인</h2>
+  <details class="card fold" id="reviews"><summary><h2>후기 (공개 ${rc.approved||0} · 거절 ${rc.rejected||0})</h2></summary>
     <p class="muted">공개에 동의한 한마디 중 연락처·학교 이름·욕설·위기 신호·너무 짧은 글이 <b>없으면 자동으로 공개</b>돼요. 걸린 것은 자동으로 '거절'돼요(90일 보관, 관리자 키로 열면 승인으로 바꿀 수 있어요). 공개된 후기도 여기서 지울 수 있어요. 공개 중 <b>${rc.approved||0}</b>개 · 거절 ${rc.rejected||0}개</p>
-    ${reviews.length?reviews.map(rvItem).join(""):`<p class="muted">아직 공개 동의한 한마디가 없어요.</p>`}</section>
+    ${reviews.length?reviews.map(rvItem).join(""):`<p class="muted">아직 공개 동의한 한마디가 없어요.</p>`}</details>
+  <h2 class="grp" id="g-in">유입</h2>
+  <div class="grid">
+  <section class="card"><h2>유입 경로 (?src=)</h2>${bars(sumObj(days,"src"),k=>SRC[k]||k)}</section>
   <section class="card"><h2>들어온 곳 (이전 사이트)</h2>${bars(refs,k=>k)}<p class="muted">바로 앞에 보던 사이트 주소예요. 주소창에 직접 치거나 앱에서 열면 기록되지 않아요.</p></section>
   <section class="card"><h2>검색어</h2>${bars(kws,k=>k)}<p class="muted">검색 사이트가 알려 준 경우에만 남아요.</p></section>
-  <section class="card"><h2>기타 칸에 적은 것</h2>${bars(etc,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">목록에 없던 직업·자격이에요. 숫자는 사람 수예요 (검사 1번에 질문마다 1건). 매일 새벽 작업이 확인해서 목록에 넣어요.</p>${Object.keys(etcOld).length?`<h3>예전 기록 (10월 24일 오후 이전)</h3>${bars(etcOld,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">예전 화면은 확인 버튼을 누를 때마다 1건씩 셌어요. 그래서 이 숫자는 사람 수가 아니라 누른 횟수예요. 누가 누른 건지 기록이 없어서 사람 수로 바꿀 수 없어요.</p>`:""}</section>
-  <section class="card"><h2>유입 경로 (?src=)</h2>${bars(sumObj(days,"src"),k=>k)}</section>
+  </div>
+  <h2 class="grp" id="g-res">검사 결과</h2>
+  <div class="grid">
   <section class="card"><h2>상황별 완주</h2>${bars(sumObj(days,"sit"),k=>SIT[k]||k)}</section>
   <section class="card"><h2>나이대</h2>${Object.keys(sumObj(days,"ag")).length?bars(sumObj(days,"ag"),k=>AG[+k]||k):bars(sumObj(days,"age"),k=>AGE[+k]||k)}</section>
   <section class="card"><h2>1순위로 추천된 길</h2>${bars(sumObj(days,"top"),k=>PATH[k]||k)}</section>
   <section class="card"><h2>3위 안에 나온 길 (1·2·3순위 모두)</h2>${bars(sumObj(days,"top3"),k=>PATH[k]||k)}<p class="muted">한 사람이 3개씩 받으니 합계는 완주의 약 3배예요.</p></section>
-  <section class="card"><h2>완주 기록 (익명, 최근 ${Math.min(runs.length,100)}건 표시 · 전체 ${runs.length}건)</h2>
+  </div>
+  <section class="card"><h2>기타 칸에 적은 것</h2>${bars(etc,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">목록에 없던 직업·자격이에요. 숫자는 사람 수예요 (검사 1번에 질문마다 1건). 매일 새벽 작업이 확인해서 목록에 넣어요.</p>${Object.keys(etcOld).length?`<h3>예전 기록 (10월 24일 오후 이전)</h3>${bars(etcOld,k=>({goal:"하고 싶은 일",cert:"가진 자격",plan:"딸 자격",cur:"지금 하는 일"}[k.split(":")[0]]||"")+" · "+k.slice(k.indexOf(":")+1))}<p class="muted">예전 화면은 확인 버튼을 누를 때마다 1건씩 셌어요. 그래서 이 숫자는 사람 수가 아니라 누른 횟수예요. 누가 누른 건지 기록이 없어서 사람 수로 바꿀 수 없어요.</p>`:""}</section>
+  <h2 class="grp" id="g-out">이탈</h2>
+  <section class="card"><h2>결과 전에 그만둔 질문</h2>${bars(sumObj(days,"leave"),k=>QN[k]||k)}<p class="muted">한 질문에 몰려 있으면 그 질문이 어렵거나 너무 길다는 신호예요.</p></section>
+  <h2 class="grp" id="g-fb">반응</h2>
+  <div class="grid">
+  <section class="card"><h2>만족도</h2>${bars(fb,k=>k)}<p class="muted">피드백 보내기 버튼 ${copy}회</p></section>
+  <section class="card"><h2>'이건 아니에요'가 많은 추천</h2>${bars(sumObj(days,"miss"),k=>{const [a,b]=k.split(":");return (PATH[a]||a)+" · "+(MISSWHY[+b]||b);})}</section>
+  </div>
+  <details class="card fold"><summary><h2>받은 한마디 (최근 ${feedback.length}개, 90일 보관)</h2></summary>${feedback.length?feedback.map(x=>`<div style="border-top:1px solid var(--line);padding:10px 0"><p class="muted">${esc((x.at||"").slice(0,16).replace("T"," "))} · ${esc(x.fb||"만족도 없음")} · ${esc(SIT[x.sit]||"-")} · 추천 ${esc((x.top||[]).map(k=>PATH[k]||k).join(", "))}</p>${x.text?`<p style="margin:4px 0 0">${esc(x.text)}</p>`:""}${Object.keys(x.miss||{}).length?`<p class="muted">이건 아니에요: ${Object.entries(x.miss).map(([k,v])=>esc((PATH[k]||k)+" - "+(MISSWHY[v]||v))).join(" / ")}</p>`:""}</div>`).join(""):`<p class="muted">아직 받은 한마디가 없어요.</p>`}</details>
+  <h2 class="grp" id="g-day">날짜별</h2>
+  <section class="card"><div class="tbl"><table><thead><tr><th>날짜</th><th>방문</th><th>시작</th><th>시작률</th><th>완주</th><th>완주율</th><th>만족 응답</th></tr></thead><tbody>
+  ${days.map(d=>`<tr><td>${d.day}</td><td>${d.visit||0}</td><td>${d.start||0}</td><td>${pct(d.start||0,d.visit||0)}</td><td>${d.finish||0}</td><td>${pct(d.finish||0,d.start||0)}</td><td>${Object.values(d.fb||{}).reduce((a,b)=>a+b,0)}</td></tr>`).join("")}
+  </tbody></table></div></section>
+  <h2 class="grp" id="g-rec">완주 기록</h2>
+  <details class="card fold"><summary><h2>완주 기록 (익명, 최근 ${Math.min(runs.length,100)}건 표시 · 전체 ${runs.length}건)</h2></summary>
     <p class="muted">언제, 어떤 상황·나이대의 사람에게 어떤 길 3개가 나왔는지예요. 답 내용과 이름은 기록하지 않아요.</p>
     <div class="row"><button type="button" id="csv">기록 전체를 엑셀(CSV)로 저장</button></div>
     <div class="tbl"><table><thead><tr><th>시각</th><th>상황</th><th>나이대</th><th>1순위</th><th>2순위</th><th>3순위</th></tr></thead><tbody>
     ${runs.slice(0,100).map(x=>`<tr><td>${esc(x.at||"")}</td><td>${esc(SIT[x.sit]||x.sit||"")}</td><td>${x.ag!=null?AG[x.ag]:(x.age!=null?AGE[x.age]:"")}</td>${[0,1,2].map(i=>`<td style="text-align:left">${esc(PATH[(x.tops||[])[i]]||(x.tops||[])[i]||"")}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="6" class="muted">아직 기록이 없어요.</td></tr>`}
-    </tbody></table></div></section>
-  <section class="card"><h2>만족도</h2>${bars(fb,k=>k)}<p class="muted">피드백 보내기 버튼 ${copy}회</p></section>
-  <section class="card"><h2>받은 한마디 (최근 ${feedback.length}개, 90일 보관)</h2>${feedback.length?feedback.map(x=>`<div style="border-top:1px solid var(--line);padding:10px 0"><p class="muted">${esc((x.at||"").slice(0,16).replace("T"," "))} · ${esc(x.fb||"만족도 없음")} · ${esc(SIT[x.sit]||"-")} · 추천 ${esc((x.top||[]).map(k=>PATH[k]||k).join(", "))}</p>${x.text?`<p style="margin:4px 0 0">${esc(x.text)}</p>`:""}${Object.keys(x.miss||{}).length?`<p class="muted">이건 아니에요: ${Object.entries(x.miss).map(([k,v])=>esc((PATH[k]||k)+" - "+(MISSWHY[v]||v))).join(" / ")}</p>`:""}</div>`).join(""):`<p class="muted">아직 받은 한마디가 없어요.</p>`}</section>
-  <section class="card"><h2>'이건 아니에요'가 많은 추천</h2>${bars(sumObj(days,"miss"),k=>{const [a,b]=k.split(":");return (PATH[a]||a)+" · "+(MISSWHY[+b]||b);})}</section>
-  <section class="card"><h2>결과 전에 그만둔 질문</h2>${bars(sumObj(days,"leave"),k=>QN[k]||k)}<p class="muted">한 질문에 몰려 있으면 그 질문이 어렵거나 너무 길다는 신호예요.</p></section>
-  <section class="card"><h2>날짜별</h2><div class="tbl"><table><thead><tr><th>날짜</th><th>방문</th><th>시작</th><th>완주</th><th>만족 응답</th></tr></thead><tbody>
-  ${days.map(d=>`<tr><td>${d.day}</td><td>${d.visit||0}</td><td>${d.start||0}</td><td>${d.finish||0}</td><td>${Object.values(d.fb||{}).reduce((a,b)=>a+b,0)}</td></tr>`).join("")}
-  </tbody></table></div></section>`;
+    </tbody></table></div></details>`;
   $("out").hidden=false;
   const cb=$("csv"); if(cb) cb.onclick=()=>{
     const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
