@@ -55,7 +55,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand i{display:inline-block;width:14px;height:22px;background:var(--blaze);border-radius:2px}
 .ghost{background:none;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
 .ghost:hover{color:var(--ink);border-color:var(--muted)}
-button:focus-visible,textarea:focus-visible,.opt:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+button:focus-visible,textarea:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.unit:focus-within{outline:3px solid var(--sky);outline-offset:2px}
 
 .trail{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .mark{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -327,8 +328,8 @@ html,body{overflow-x:clip}
 
 /* ===== 앱 테마 (2026-10-22): 흰 카드, 큰 글씨, 둥근 모서리, 포인트 색 하나 ===== */
 :root{
-  --bg:#F2F4F6; --surface:#FFFFFF; --ink:#191F28; --muted:#6B7684; --line:#E5E8EB;
-  --pine:#0B8F5A; --soft:#F2F4F6; --tint:#E8F6EF; --sky:#3182F6; --blaze:#FFF4E5; --blaze-ink:#8A4B00; --wood:#8B6F57;
+  --bg:#F2F4F6; --surface:#FFFFFF; --ink:#191F28; --muted:#4E5968; --line:#E5E8EB;
+  --pine:#087A4D; --soft:#F2F4F6; --tint:#E8F6EF; --sky:#1B64DA; --blaze:#FFF4E5; --blaze-ink:#8A4B00; --wood:#8B6F57;
   --display:"Pretendard Variable","Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --body:var(--display);
 }
@@ -484,6 +485,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
         <button type="button" data-nav="ask">문의하기</button>
         <button type="button" data-nav="privacy">개인정보 안내</button>
         <button type="button" data-nav="reset">처음부터 다시</button>
+        <button type="button" data-nav="wipe">이 기기에서 내 기록 지우기</button>
       </div>
     </div>
   </header>
@@ -1653,7 +1655,7 @@ function result(){
     <section class="card" id="fbCard"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">피드백</span><h3>이 결과가 도움이 됐나요?</h3><p class="hint">${FB_API?"보내기를 누르면 운영자 이메일로 바로 전달돼 다음 버전에 반영돼요. 이름·연락처는 적지 마세요.":"누르면 내용이 채워진 메일 쓰기 화면이 열려요. 보내기만 누르면 운영자에게 바로 전달돼요."}</p></div>
       <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${["많이 됐어요","조금 됐어요","별로예요"].map(x=>`<button type="button" class="opt fbopt ${st.fb===x?"sel":""}" data-fb="${x}" style="flex:1;min-width:0;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap;font-size:15px"><span>${x}</span></button>`).join("")}</div>
       <textarea id="fbText" maxlength="300" placeholder="한마디 (선택) 예) 2주 실험이 좋았어요, 연봉이 실제와 달라요" style="min-height:70px">${(st.fbt||"").replace(/</g,"&lt;")}</textarea>
-      ${FB_API?`<label class="agree small"><input type="checkbox" id="fbPub"><span>이 한마디를 이름 없이 사이트 후기로 공개해도 좋아요 (운영자 확인 후 게시)</span></label>`:""}
+      ${FB_API?`<label class="agree small"><input type="checkbox" id="fbPub"><span>이 한마디를 이름 없이 사이트 후기로 공개해도 좋아요 (연락처·욕설 같은 게 없으면 바로 공개돼요)</span></label>`:""}
       <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${FB_API?`<button class="btn" id="fbCopy" type="button" ${st.fbSent?"disabled":""}>${st.fbSent?"보냈어요":"피드백 보내기"}</button>`:""}<a class="btn ${FB_API?"alt":""}" id="fbMail" href="#" target="_blank" rel="noopener" style="text-decoration:none" ${FB_API?"hidden":""}>이메일로 바로 보내기</a><span class="hint" id="fbNote"></span></div>
     </section>
     <p class="src">AI 영향은 <a href="https://view.asiae.co.kr/article/2026081814283987947" target="_blank" rel="noopener">한국은행 BOK 이슈노트(2026.8)</a>와 <a href="https://www.khan.co.kr/article/202608311056001/" target="_blank" rel="noopener">한국고용정보원 AI 노출도 분석(2026.8)</a>의 기준을 따라 표지기가 분류한 거예요. 앞으로 몇 년은 누구도 정확히 알 수 없어서, 길 하나에 모든 걸 걸기보다 자격·현장 경력처럼 어디서든 통하는 것부터 쌓는 걸 권해요.</p>
@@ -2451,7 +2453,8 @@ function privacy(){
       <h3>한마디 피드백</h3>
       <p class="hint" style="color:var(--ink)">결과 화면에서 '피드백 보내기'를 누를 때만 그 한마디(300자 이내)와 만족도, 상황 종류, 추천 결과가 서버에 저장돼 운영자가 읽어요. 90일 뒤 자동으로 지워지니 이름·연락처는 적지 마세요. 같은 사람이 하루 5번까지 보낼 수 있고, 이를 세려고 IP 주소를 알아볼 수 없게 바꾼 값만 이틀 보관해요.</p>
       <h3>지우는 방법</h3>
-      <p class="hint" style="color:var(--ink)">메뉴의 '처음부터 다시'를 누르면 저장된 답이 모두 지워져요. 브라우저의 사이트 데이터를 삭제해도 지워집니다.</p>
+      <p class="hint" style="color:var(--ink)">아래 버튼(또는 메뉴의 '이 기기에서 내 기록 지우기')을 누르면 이 기기에 저장된 답, 결과, 한 줄 고민, 문의 코드가 한 번에 지워져요. 학교·PC방처럼 여럿이 쓰는 기기라면 끝난 뒤 꼭 눌러 주세요. 브라우저의 사이트 데이터를 삭제해도 지워져요.</p>
+      <button class="btn alt" id="wipeBtn" type="button">이 기기에서 내 기록 지우기</button>
       <h3>AI 기능을 쓸 때만</h3>
       <p class="hint" style="color:var(--ink)">결과 화면에서 '내 이야기 읽어 주기'를 누르면, 그때 답 내용이 Anthropic의 AI(Claude)로 보내져 답변을 만들어요. 표지기 서버는 답변 내용을 저장하지 않아요. 하루 이용 횟수를 세기 위해 IP 주소를 알아볼 수 없게 바꾼 값만 이틀 동안 보관한 뒤 자동으로 지워요. 누르지 않으면 아무것도 보내지 않아요.</p>
       <h3>바깥 링크</h3>
@@ -2460,6 +2463,7 @@ function privacy(){
       <p class="hint" style="color:var(--ink)">개인정보나 서비스에 대한 문의는 운영자 이메일 <a class="mailto" href="#">이메일</a>로 보내 주세요.</p>
     </section>
   </section>`);
+  const w=document.getElementById("wipeBtn"); if(w) w.onclick=wipeAll;
 }
 // 메뉴
 (function(){
@@ -2472,13 +2476,23 @@ function privacy(){
   (panel.querySelectorAll?panel.querySelectorAll("button[data-nav]"):[]).forEach(b=>b.onclick=()=>{
     const to=b.dataset.nav; close();
     if(to==="reset"){ reset(); return; }
+    if(to==="wipe"){ wipeAll(); return; }
     if(to==="result"){ if(st.done){ st.phase="result"; render(); } return; }
     if(to==="cal"){ calMonth=null; calSel=null; calF="all"; }
     st.phase=to; render();
   });
 })();
 
-function reset(){ st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null}; save(); render(); }
+function ask(m){ try{ return typeof confirm!=="function" || confirm(m); }catch(e){ return true; } }
+// 이 기기에 남은 표지기 기록(답·결과·문의 코드·동의 표시)을 한 번에 지우기 — 공용 PC·개인정보 삭제 요청용
+function wipeAll(){
+  if(!ask("이 기기에 저장된 표지기 기록을 모두 지울까요?\n고른 답, 결과, 한 줄 고민, 문의 코드가 지워지고 되돌릴 수 없어요.")) return;
+  try{ const ks=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && (k===S.k || /^pyojigi_/.test(k))) ks.push(k); } ks.forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null};
+  try{ localStorage.removeItem(S.k); }catch(e){}
+  render(); try{ alert("이 기기에서 표지기 기록을 모두 지웠어요."); }catch(e){}
+}
+function reset(){ if(Object.keys(st.ans||{}).length && !ask("지금까지 고른 답이 지워지고 처음부터 다시 시작해요. 계속할까요?")) return; st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null}; save(); render(); }
 document.getElementById("resetBtn").onclick=reset;
 
 // 문의 이메일 (스팸 수집기를 피하려고 화면에서 조립)
@@ -2618,7 +2632,7 @@ function rtForm(P,gk,back,err){
 
 // ----- 이미지 그리기 -----
 const IMG_F='"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif';
-const IC={bg:"#F2F4F6",card:"#FFFFFF",ink:"#191F28",muted:"#6B7684",line:"#E5E8EB",pine:"#0B8F5A",tint:"#E8F6EF",soft:"#F2F4F6",warm:"#FFF4E5",warmInk:"#8A4B00"};
+const IC={bg:"#F2F4F6",card:"#FFFFFF",ink:"#191F28",muted:"#4E5968",line:"#E5E8EB",pine:"#087A4D",tint:"#E8F6EF",soft:"#F2F4F6",warm:"#FFF4E5",warmInk:"#8A4B00"};
 function imgPainter(ctx,W){
   const g={ctx,y:0,x:64,w:W-128,dry:true,texts:[]};
   g.font=(s,wt)=>{ ctx.font=`${wt||400} ${s}px ${IMG_F}`; };
