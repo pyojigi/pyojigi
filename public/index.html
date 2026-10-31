@@ -964,7 +964,7 @@ function guideKey(f){ return goalKey(f) || (f&&f.want&&{pub:"pub",it:"it",tec:"t
 const INJ_RE=/부상|무릎|어깨|허리|디스크|수술/;
 const CRISIS_RE=/죽고 ?싶|자살|살기 ?싫|사라지고 ?싶|극단/;
 // 막막함 한 줄에 대한 짧은 답 (AI 없이도 바로)
-function freeAnswer(t){
+function freeAnswer(t,moneyN){
   const out=[]; if(!t) return out;
   const add=x=>{ if(out.length<3 && !out.includes(x)) out.push(x); };
   if(CRISIS_RE.test(t)) add('지금 많이 힘드시면 혼자 버티지 마세요. 자살예방 상담전화 <a href="tel:109">109</a>는 24시간 연결돼요. 진로는 그다음에 같이 정리해도 늦지 않아요.');
@@ -997,7 +997,12 @@ function freeAnswer(t){
   if(/전공/.test(t) && /안 ?맞|싫|후회|잘못/.test(t)) add("전공이 안 맞는 건 흔한 일이에요. 사무·영업·IT·공공기관처럼 전공을 크게 안 보는 채용이 많고, 졸업 전 인턴이나 현장실습 한 번이 전공보다 서류에서 더 강해요.");
   if(!MSq && /해봤자|소용 ?없|똑같은 ?소리|뻔한|다 거짓|믿을 ?수 ?없/.test(t)) add("뻔한 말로 들렸다면 숫자 하나만 확인해 보세요. 아래 '첫 월급까지'에서 이 길로 첫 월급까지 몇 달 걸리는지, 그동안 받을 수 있는 지원이 바로 나와요. 할지 말지는 그 숫자를 보고 정해도 늦지 않아요.");
   if(/귀찮/.test(t)) add("다 귀찮을 땐 큰 결정을 미뤄도 괜찮아요. 오늘은 아래 추천 중 현직자 영상 하나만 보는 걸로 충분해요.");
-  if(!Y && /돈|월급|연봉|생활비|빚|대출|월세|수입/.test(t) && !((BANSU||HYU) && !/급|생활비|빚|대출|월세/.test(t))) add("돈이 급하면 '맞는 일'보다 '들어오는 수입'이 먼저예요. 준비 기간이 가장 짧은 길로 수입부터 만들고, 원하는 길은 병행하세요. 받을 수 있는 돈은 아래 '내가 받을 수 있는 돈'에 모았어요.");
+  // 입대 앞둔 경우 (군대 얘기를 무시하고 기본 답만 주던 문제, 페르소나 서진)
+  if(!MSq && /군대|입대|입영|미필|영장|군 ?가기|군에 ?가/.test(t) && sitKey()!=="mil") add("입대를 앞두고 있다면 평생 진로를 지금 다 정하지 않아도 돼요. 입대 전에는 짧게 딸 수 있는 자격·면허 하나가 가장 오래 남는 준비예요. 육군 기술행정병 같은 모집병은 지원 분야와 관련된 자격·면허·전공이 선발 점수에 들어가니, 분야와 일정은 <a href=\"https://www.mma.go.kr\" target=\"_blank\" rel=\"noopener\">병무청 누리집</a> 모집 공고에서 확인하세요.");
+  // 수입이 '줄어들까' 걱정 (‘돈이 급하면’ 답이 엉뚱하던 문제, 페르소나 서진)
+  const PAYCUT=/깎|줄어|줄면|낮아지|덜 ?벌|떨어지/.test(t) && /돈|월급|연봉|수입|벌/.test(t) && !/급하|급해|급한|급함|당장|생활비|빚|대출|월세/.test(t);
+  if(!Y && PAYCUT) add("지금보다 수입이 줄까 걱정이면 추천 카드의 '신입' 연봉을 지금 월수입×12와 비교해 보세요. 처음엔 줄더라도 자격·경력이 붙으면 오르는 길인지 카드의 '현실 점검'을 같이 보고, 옮길 곳에 합격한 뒤에 지금 일을 줄이면 수입 공백이 없어요.");
+  if(!Y && !PAYCUT && /돈|월급|연봉|생활비|빚|대출|월세|수입/.test(t) && !((BANSU||HYU) && !/급|생활비|빚|대출|월세/.test(t))) add("돈이 급하면 '맞는 일'보다 '들어오는 수입'이 먼저예요. 준비 기간이 가장 짧은 길로 수입부터 만들고, 원하는 길은 병행하세요."+(moneyN===0?" 지금 답 기준으로 바로 신청할 수 있는 돈 지원은 아직 없어요. 새 모집이 열리면 아래 '내가 받을 수 있는 돈'에 나타나요.":" 받을 수 있는 돈은 아래 '내가 받을 수 있는 돈'에 모았어요."));
   if(!MSq && /선수|운동|실업팀|프로|드래프트|국가대표|방출|팀이|입단/.test(t) && /못 ?가|안 ?되|안 ?뽑|끝|그만|은퇴|부상|방출|없어|재계약|도전|사범이라도/.test(t)) add("선수를 그만둬도 체력, 단증, 지도 경험은 그대로 무기예요. 생활·전문스포츠지도사, 체육 진학, 소방·경찰·경호처럼 체력을 쓰는 길로 이어 갈 수 있어요. 다시 도전할지 고민이라면 '다음 입단 테스트까지'처럼 기한과 기록 목표를 정하고, 그동안 지도자 자격을 함께 준비하세요.");
   if(/부상|무릎|어깨|허리|남아나|몸이 ?(망가|아파|안 ?좋)/.test(t)) add("몸이 먼저예요. 부상이 있다면 오래 서 있거나 무거운 걸 드는 일은 피하고, 지도·심판·스포츠 행정·영업처럼 경험을 쓰는 일도 함께 보세요. 지금 일정이 과하다면 하나를 줄이고, 줄인 수입으로 얼마나 이어 갈 수 있는지는 아래 '첫 월급까지'에서 숫자로 확인해 볼 수 있어요.");
   if(/육아|애 ?키우|아이 ?키우|아기|애 ?보면서/.test(t)) add("아이를 키우면서라면 시간을 고를 수 있는 일이 먼저예요. 방과후 스포츠 강사나 유소년 클럽 코치처럼 낮 수업이 있는 자리를 찾아보고, 새일센터에서 경력이 끊긴 여성을 위한 훈련·인턴도 연결받을 수 있어요.");
@@ -1608,7 +1613,7 @@ function result(){
       ${(f.flat||f.longslump)&&!(free&&CRISIS_RE.test(free))?`<div class="care"><b>요즘 많이 지쳤다면</b><p>진로보다 내 몸과 마음이 먼저예요. 혼자 견디지 말고 이야기해 보세요. 청소년·청년(만 24세까지) <a href="tel:1388">1388</a>, 마음이 힘들 때 <a href="tel:109">109</a>(24시간), 위급하면 112·119.</p></div>`:""}
       <nav class="jump" aria-label="결과 바로가기">${isMS()?`<button type="button" data-go="run">한 달 알아보기 계획</button>`:free && CRISIS_RE.test(free) ? "" : `<button type="button" data-go="run">첫 월급까지</button>`}<button type="button" data-go="paths">추천 길 3개</button><button type="button" data-go="keep">저장·준비계획</button><button type="button" data-go="money">돈 지원 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button>${corp.length?`<button type="button" data-go="corp">기업 프로그램 ${corp.length}개</button>`:""}${gp?`<button type="button" data-go="goal">하고 싶은 일 준비</button>`:""}</nav>
     </div>
-    ${free?`<section class="card"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">막막함에 대한 짧은 답</span><p class="hint">“${free.replace(/</g,"&lt;")}”</p></div><div class="ans">${freeAnswer(free).map(x=>`<p>${x}</p>`).join("")}</div></section>`:""}
+    ${free?`<section class="card"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">막막함에 대한 짧은 답</span><p class="hint">“${free.replace(/</g,"&lt;")}”</p></div><div class="ans">${freeAnswer(free,money.length).map(x=>`<p>${x}</p>`).join("")}</div></section>`:""}
     ${isMS()?msCard(P,f):(free && CRISIS_RE.test(free) ? "" : calcCard(P,f))}
     ${goalCard}${planCard}
     <section class="ai" id="aiCard" hidden>
