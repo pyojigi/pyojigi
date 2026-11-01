@@ -179,6 +179,11 @@ a.first:hover{filter:brightness(.97)}
 .more{border-top:1px solid var(--line);padding-top:10px}
 .more summary{cursor:pointer;font-size:14px;color:var(--muted);font-weight:600}
 .more[open] summary{margin-bottom:10px}
+.helpbox{border-top:0;padding-top:0}
+.helpbox summary{display:inline-flex;align-items:center;gap:6px;list-style:none;background:var(--pine);color:#fff;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:700}
+.helpbox summary::-webkit-details-marker{display:none}
+.helpbox summary::before{content:"＋"}
+.helpbox[open] summary::before{content:"－"}
 .cgridin{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:10px}
 .cgridin label,.checks label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .cgridin input,.cgridin select,.checks select,.checks input:not([type=checkbox]){font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%}
@@ -1649,6 +1654,7 @@ function result(){
       ${p.sal?salBar(p.sal):p.salNote?`<p class="hint"><b style="color:var(--ink)">연봉</b> · ${p.salNote}</p>`:`<p class="hint">진학 경로라 연봉 대신 학과별 졸업 후 진로를 비교해 보세요. <a href="https://www.career.go.kr" target="_blank" rel="noopener">커리어넷 학과정보</a></p>`}
       ${p.v&&p.v.length?`<p class="hint" style="color:var(--blaze-ink);background:var(--blaze);border-radius:6px;padding:6px 10px">맞지 않는 점: ${p.v.join(", ")}</p>`:""}
       ${firstBox(p.key,p.first,p.firstLink)}
+      ${helpBox(p.key)}
       <details class="more pmore"><summary>자세히 보기 · 준비 기간, 필요한 것, 장점, 계획, 영상</summary>
       ${AIX[p.key]?`<p class="aix aix-${AIX[p.key]}"><b>AI 영향 ${AIXT[AIX[p.key]][0]}</b> · ${AIXT[AIX[p.key]][1]}</p>`:""}
       <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(p.prep)+(p.prepAdd||"")}</dd><dt>필요한 것</dt><dd>${p.need}</dd></dl>
@@ -1720,6 +1726,7 @@ function result(){
   });
   app.querySelectorAll(".jump button").forEach(b=>b.onclick=()=>{ const el2=document.getElementById(b.dataset.go); if(el2&&el2.scrollIntoView) el2.scrollIntoView({behavior:"smooth",block:"start"}); });
   app.querySelectorAll(".missbox").forEach(bindMiss);
+  app.querySelectorAll("[data-talk]").forEach(b=>b.onclick=()=>{ askKind="고민상담"; st.phase="ask"; save(); render(); if(window.scrollTo) window.scrollTo(0,0); });
   const tg=document.getElementById("talkGo"); if(tg) tg.onclick=()=>{ askKind="고민상담"; st.phase="ask"; save(); render(); if(window.scrollTo) window.scrollTo(0,0); };
   bindDid(P);
   document.getElementById("edit").onclick=()=>{st.phase="q"; st.i=0; st.review=0; save(); render()};
@@ -1753,6 +1760,23 @@ function missNext(k,w,ALL,P){
   return head+`<p class="hint" style="color:var(--ink)"><b>해 본 경험을 살리는 다음 단계</b> · ${g&&g.how?g.how:"경력을 살려 한 단계 위 자격이나 관리직으로 가는 길을 찾아보세요."}</p>${c.length?`<p class="hint">다음 자격: ${c.map(x=>x[2]?`<a href="${x[2]}" target="_blank" rel="noopener">${x[0]}</a>`:x[0]).join(", ")}</p>`:""}`;
 }
 function bindMiss(){}
+// 도움받기: 이 길을 지금 바로 시작하는 법 (HELP: 공식 페이지로 확인한 첫 행동, 없으면 GUIDE의 순서·자격·링크만)
+const HELP={};
+function helpBox(k){
+  if(isMS()) return "";
+  const h=HELP[k], g=GUIDE[k]||{};
+  const steps=(g.how||"").split("→").map(x=>x.trim()).filter(Boolean);
+  const certs=(g.cert||[]).filter(c=>!/없음/.test(c[0])).slice(0,3);
+  const links=(g.links||[]).slice(0,2);
+  if(!h && !steps.length && !certs.length) return "";
+  return `<details class="more helpbox"><summary>도움받기 · 지금 바로 시작하는 법</summary>
+    ${h?`<p style="margin:8px 0">${h.act}</p><a class="btn" href="${h.url}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex">${h.label} ↗</a>`:""}
+    ${steps.length>1?`<p class="hint" style="margin-top:10px"><b style="color:var(--ink)">이 순서로 가요</b></p><ol class="hint" style="margin:4px 0 0 18px;padding:0">${steps.map(x=>`<li>${x}</li>`).join("")}</ol>`:""}
+    ${certs.length?`<p class="hint" style="margin-top:10px"><b style="color:var(--ink)">필요한 자격·교육</b></p><ul class="hint" style="margin:4px 0 0 18px;padding:0">${certs.map(c=>`<li>${c[2]?`<a href="${c[2]}" target="_blank" rel="noopener">${c[0]}</a>`:c[0]} · ${c[1]}</li>`).join("")}</ul>`:""}
+    ${links.length?`<div class="links" style="margin-top:8px">${links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]}</a>`).join("")}</div>`:""}
+    <p class="hint" style="margin-top:10px">그래도 막막하면 <button type="button" class="linkbtn" data-talk="1">개발자에게 고민 상담하기 (24시간 안에 답장)</button></p>
+  </details>`;
+}
 // 하루 뒤 확인: 이메일·전화번호 없이, 같은 기기로 다시 들어오면 한 번만 묻는다
 const DIDWHY=["해 봤어요","아직이에요","안 할래요"], DIDWHAT={first:"내일 할 일(첫 걸음)",sup:"지원제도·국비 알아봄",cert:"자격·시험 접수",job:"공고·학원 알아봄",etc:"다른 거"};
 function didDue(){ return !!(st.done && st.doneAt && st.did==null && Date.now()-st.doneAt>=18*3600e3); }
