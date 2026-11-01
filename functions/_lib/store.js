@@ -2,7 +2,7 @@
 // KV 키: ask:<code>, rv:<id>  (KV 후기 id는 "k"로 시작해 D1 숫자 id와 겹치지 않는다)
 import { ensure, kstAt, kvKeys } from "./common.js";
 
-export const ASK_KINDS = ["문의", "오류 신고", "제안"];
+export const ASK_KINDS = ["고민상담", "문의", "오류 신고", "제안"]; // 고민상담: 24시간 안에 답장 약속 (2026-11-01 운영자 결정)
 export const CODE_ALPHA = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // 0 O 1 I L 없음 (31자)
 export const CODE_RE = /^[2-9A-HJKMNP-Z]{8}$/;
 const YEAR = 365 * 864e5;

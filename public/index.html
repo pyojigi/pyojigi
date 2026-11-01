@@ -1217,7 +1217,9 @@ function perksHTML(){
 }
 function intro(){
   const has = Object.keys(st.ans).length>0;
+  const didP = didDue() ? score().slice(0,3) : null;
   el(`<section style="display:flex;flex-direction:column;gap:24px">
+    ${didP?didAskCard(didP):""}
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="eyebrow">무료 · 가입 없음 · 10분</span>
       <h1>뭐 할지 몰라도 돼요.<br>10분이면 내 길 3개가 나와요</h1>
@@ -1257,6 +1259,7 @@ function intro(){
   </section>`);
   const agBox=document.getElementById("agree");
   const needAgree=()=>{ if(agBox && !agBox.checked){ const n=document.getElementById("agreeNote"); if(n) n.textContent="시작하려면 위 동의에 체크해 주세요."; return true; } setAgree(); return false; };
+  if(didP) bindDid(didP);
   const tp=document.getElementById("toPrivacy"); if(tp) tp.onclick=e=>{ if(e&&e.preventDefault) e.preventDefault(); st.phase="privacy"; render(); };
   const sb=document.getElementById("start"), sbGo=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();render()};
   if(sb) sb.onclick=()=>{st={ans:{},i:0,phase:"q",mid:-1,review:0};save();track({type:"start"});render()};
@@ -1612,6 +1615,7 @@ function result(){
   const planCard = plans.length ? `<div class="check"><p class="hint">준비 중이라고 고른 자격·시험</p><p>${plans.map(x=>x[0]).join(", ")} · 시험 일정은 <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷 ↗</a>에서 확인하고, 내일배움카드로 교육비를 줄일 수 있어요.</p></div>` : "";
   const supItem=x=>`<details class="sup"><summary class="sup-h"><b>${x.n}</b><span class="chip">${/대출/.test(x.n)?"빌리는 돈 · 갚아야 해요":x.who}</span></summary><p class="hint" style="color:var(--ink)">${x.t}</p><div class="links">${x.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join("")}</div></details>`;
   el(`<section style="display:flex;flex-direction:column;gap:20px">
+    ${didAskCard(P)}
     <div style="display:flex;flex-direction:column;gap:10px">
       <span class="eyebrow">완주 · ${sitName}</span>
       <h1>당신이 갈 수 있는 길 3개</h1>
@@ -1652,8 +1656,16 @@ function result(){
       ${p.try?`<p class="hint"><b style="color:var(--ink)">2주 안에 해 볼 것</b> · ${isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":p.try}</p>`:""}${planBox(p.key)}${affBox(p.key)}
       <a class="ytb" href="${yt(p.key)}" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 현직자 영상 보기 (유튜브)</a>
       </details>
-      <div id="miss-${p.key}">${st.miss&&st.miss[p.key]!=null?`<p class="hint">알려 주셔서 고마워요 · ${MISSWHY[st.miss[p.key]]}</p>`:`<button type="button" class="linkbtn" data-miss="${p.key}">이 추천은 아니에요</button>`}</div>
+      <div id="miss-${p.key}">${st.miss&&st.miss[p.key]!=null?missNext(p.key,st.miss[p.key],ALL,P):`<button type="button" class="linkbtn" data-miss="${p.key}">이 추천은 아니에요</button>`}</div>
     </article>`).join("")}
+    <section class="card" id="fbCard"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">피드백</span><h3>이 결과가 도움이 됐나요?</h3><p class="hint">${FB_API?"버튼 하나만 눌러도 돼요. 한마디를 적어 보내면 운영자가 직접 읽고 다음 업데이트에 반영해요. 이름·연락처는 적지 마세요.":"누르면 내용이 채워진 메일 쓰기 화면이 열려요. 보내기만 누르면 운영자에게 바로 전달돼요."}</p></div>
+      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${["많이 됐어요","조금 됐어요","별로예요"].map(x=>`<button type="button" class="opt fbopt ${st.fb===x?"sel":""}" data-fb="${x}" style="flex:1;min-width:0;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap;font-size:15px"><span>${x}</span></button>`).join("")}</div>
+      <textarea id="fbText" maxlength="300" placeholder="한마디 (선택) 예) 2주 실험이 좋았어요, 연봉이 실제와 달라요" style="min-height:70px">${(st.fbt||"").replace(/</g,"&lt;")}</textarea>
+      ${FB_API?`<label class="agree small"><input type="checkbox" id="fbPub"><span>이 한마디를 이름 없이 사이트 후기로 공개해도 좋아요 (연락처·욕설 같은 게 없으면 바로 공개돼요)</span></label>`:""}
+      <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${FB_API?`<button class="btn" id="fbCopy" type="button" ${st.fbSent?"disabled":""}>${st.fbSent?"보냈어요":"피드백 보내기"}</button>`:""}<a class="btn ${FB_API?"alt":""}" id="fbMail" href="#" target="_blank" rel="noopener" style="text-decoration:none" ${FB_API?"hidden":""}>이메일로 바로 보내기</a><span class="hint" id="fbNote"></span></div>
+    </section>
+    ${didRemindCard(P)}
+    <section class="card" id="talkCard"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">고민 상담</span><h3>그래도 도저히 모르겠다면</h3><p class="hint">결과를 봐도 막막하면 표지기를 만든 사람에게 직접 털어놓으세요. 이름·연락처 없이 보내고, <b>24시간 안에</b> 답장해요. 답은 받은 확인 번호로 이 사이트에서 봐요.</p></div><button class="btn alt" id="talkGo" type="button">개발자에게 고민 상담하기</button></section>
     <section class="card money" id="money"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">돈 지원 · 장학금 · 수당 · 월세 · 적금</span><h3>내가 받을 수 있는 돈</h3></div>
       ${money.length?money.map(supItem).join(""):isMS()?`<p class="hint" style="color:var(--ink)">중학생이 받을 수 있는 돈 지원은 위 교육비 지원이 대표적이에요.</p>`:`<p class="hint" style="color:var(--ink)">지금 답 기준으로 바로 신청할 수 있는 돈 지원은 없어요. 모집 기간이 끝났거나(예: 청년미래적금 2차는 10/16 마감) 나이·소득 조건이 달라서예요. 새 모집이 열리면 여기에 나타납니다.</p>`}
     </section>
@@ -1665,12 +1677,6 @@ function result(){
     <section class="card keep" id="keep"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">저장하고 이어가기</span><h3>결과를 사진으로 갖고 가세요</h3><p class="hint">갤러리에 저장해 두면 다시 들어오지 않아도 바로 볼 수 있어요.</p></div>
       <button class="btn" id="rtGo" type="button">${st.rt?"내 준비계획 보기":"나에게 딱 맞는 준비계획"}</button>
       <button class="btn alt" id="imgRes" type="button">결과 이미지로 저장</button>
-    </section>
-    <section class="card" id="fbCard"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">피드백</span><h3>이 결과가 도움이 됐나요?</h3><p class="hint">${FB_API?"보내기를 누르면 운영자 이메일로 바로 전달돼 다음 버전에 반영돼요. 이름·연락처는 적지 마세요.":"누르면 내용이 채워진 메일 쓰기 화면이 열려요. 보내기만 누르면 운영자에게 바로 전달돼요."}</p></div>
-      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${["많이 됐어요","조금 됐어요","별로예요"].map(x=>`<button type="button" class="opt fbopt ${st.fb===x?"sel":""}" data-fb="${x}" style="flex:1;min-width:0;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap;font-size:15px"><span>${x}</span></button>`).join("")}</div>
-      <textarea id="fbText" maxlength="300" placeholder="한마디 (선택) 예) 2주 실험이 좋았어요, 연봉이 실제와 달라요" style="min-height:70px">${(st.fbt||"").replace(/</g,"&lt;")}</textarea>
-      ${FB_API?`<label class="agree small"><input type="checkbox" id="fbPub"><span>이 한마디를 이름 없이 사이트 후기로 공개해도 좋아요 (연락처·욕설 같은 게 없으면 바로 공개돼요)</span></label>`:""}
-      <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${FB_API?`<button class="btn" id="fbCopy" type="button" ${st.fbSent?"disabled":""}>${st.fbSent?"보냈어요":"피드백 보내기"}</button>`:""}<a class="btn ${FB_API?"alt":""}" id="fbMail" href="#" target="_blank" rel="noopener" style="text-decoration:none" ${FB_API?"hidden":""}>이메일로 바로 보내기</a><span class="hint" id="fbNote"></span></div>
     </section>
     <p class="src">AI 영향은 <a href="https://view.asiae.co.kr/article/2026081814283987947" target="_blank" rel="noopener">한국은행 BOK 이슈노트(2026.8)</a>와 <a href="https://www.khan.co.kr/article/202608311056001/" target="_blank" rel="noopener">한국고용정보원 AI 노출도 분석(2026.8)</a>의 기준을 따라 표지기가 분류한 거예요. 앞으로 몇 년은 누구도 정확히 알 수 없어서, 길 하나에 모든 걸 걸기보다 자격·현장 경력처럼 어디서든 통하는 것부터 쌓는 걸 권해요.</p>
     <p class="src">연봉은 공개 채용공고와 직업정보를 바탕으로 한 대략적인 참고 범위입니다. 지역·회사·수당에 따라 크게 다르니 아래에서 꼭 확인하세요.</p>
@@ -1710,9 +1716,12 @@ function result(){
   app.querySelectorAll("[data-miss]").forEach(b=>b.onclick=()=>{
     const k=b.dataset.miss, box=document.getElementById("miss-"+k); if(!box) return;
     box.innerHTML=`<p class="hint">어떤 점이 아니었나요?</p><div class="chips">${MISSWHY.map((w,i)=>`<button type="button" class="chip" data-w="${i}">${w}</button>`).join("")}</div>`;
-    box.querySelectorAll("button[data-w]").forEach(c=>c.onclick=()=>{ const w=+c.dataset.w; st.miss=st.miss||{}; st.miss[k]=w; save(); track({type:"miss",top:k,why:w}); box.innerHTML=`<p class="hint">알려 주셔서 고마워요 · ${MISSWHY[w]}</p>`; });
+    box.querySelectorAll("button[data-w]").forEach(c=>c.onclick=()=>{ const w=+c.dataset.w; st.miss=st.miss||{}; st.miss[k]=w; save(); track({type:"miss",top:k,why:w}); box.innerHTML=missNext(k,w,ALL,P); bindMiss(box); });
   });
   app.querySelectorAll(".jump button").forEach(b=>b.onclick=()=>{ const el2=document.getElementById(b.dataset.go); if(el2&&el2.scrollIntoView) el2.scrollIntoView({behavior:"smooth",block:"start"}); });
+  app.querySelectorAll(".missbox").forEach(bindMiss);
+  const tg=document.getElementById("talkGo"); if(tg) tg.onclick=()=>{ askKind="고민상담"; st.phase="ask"; save(); render(); if(window.scrollTo) window.scrollTo(0,0); };
+  bindDid(P);
   document.getElementById("edit").onclick=()=>{st.phase="q"; st.i=0; st.review=0; save(); render()};
   document.getElementById("again").onclick=reset;
   document.getElementById("rtGo").onclick=()=>{ st.phase="plan"; st.rtEdit=0; save(); render(); };
@@ -1726,6 +1735,62 @@ const FB_API="/api/feedback";
 // 익명 통계 (답 내용·적은 문장은 보내지 않음)
 function track(ev){ if(ev.type!=="visit" && !agreed()) return; try{ fetch("/api/event",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(ev),keepalive:true}).catch(()=>{}); }catch(e){} }
 const MISSWHY=["연봉이 실제와 달라요","나랑 안 맞아요","이미 해 봤어요","준비 기간이 비현실적이에요"];
+// '이 추천은 아니에요'를 고른 뒤: 이유에 맞는 다음 단계를 바로 보여 준다 (고맙다는 말로 끝내지 않기)
+function missAlt(k,ALL,P,shortFirst){
+  const shown=new Set(P.map(p=>p.key)); Object.keys(st.miss||{}).forEach(x=>shown.add(x));
+  let rest=ALL.slice(3).filter(p=>!shown.has(p.key));
+  if(shortFirst) rest=rest.slice(0,6).sort((a,b)=>(a.prep||99)-(b.prep||99));
+  return rest[0]||null;
+}
+function missNext(k,w,ALL,P){
+  const head=`<p class="hint">알려 주셔서 고마워요 · ${MISSWHY[w]}</p>`;
+  const alt=(p,lead)=>p?`<div class="missbox"><p class="hint" style="color:var(--ink)"><b>${lead}</b> ${p.n}${p.prep?` · 준비 ${prepTxt(p.prep)}`:""}</p>${firstBox(p.key,p.first,p.firstLink)}</div>`:"";
+  if(w===1) return head+alt(missAlt(k,ALL,P),"대신 다음으로 잘 맞는 길:");
+  if(w===3) return head+alt(missAlt(k,ALL,P,1),"더 빨리 시작할 수 있는 길:");
+  if(w===0){ const j=jobLink(k); return head+`<p class="hint" style="color:var(--ink)">연봉은 지역·회사마다 달라요. 실제 공고 연봉을 확인해 보고, 알려 주신 내용은 공식 통계와 다시 맞춰 고칠게요.</p><a class="first" href="${j[1]}" target="_blank" rel="noopener"><b>실제 연봉 확인하기</b>공고와 직업정보에서 신입 연봉을 직접 비교해 보세요.<span class="go">${j[0]} ↗</span></a>`; }
+  const g=GUIDE[k]; // 이미 해 봤어요: 경험을 살리는 다음 단계
+  const c=g&&g.cert?g.cert.filter(x=>!/없음/.test(x[0])).slice(1,3):[];
+  return head+`<p class="hint" style="color:var(--ink)"><b>해 본 경험을 살리는 다음 단계</b> · ${g&&g.how?g.how:"경력을 살려 한 단계 위 자격이나 관리직으로 가는 길을 찾아보세요."}</p>${c.length?`<p class="hint">다음 자격: ${c.map(x=>x[2]?`<a href="${x[2]}" target="_blank" rel="noopener">${x[0]}</a>`:x[0]).join(", ")}</p>`:""}`;
+}
+function bindMiss(){}
+// 하루 뒤 확인: 이메일·전화번호 없이, 같은 기기로 다시 들어오면 한 번만 묻는다
+const DIDWHY=["해 봤어요","아직이에요","안 할래요"], DIDWHAT={first:"내일 할 일(첫 걸음)",sup:"지원제도·국비 알아봄",cert:"자격·시험 접수",job:"공고·학원 알아봄",etc:"다른 거"};
+function didDue(){ return !!(st.done && st.doneAt && st.did==null && Date.now()-st.doneAt>=18*3600e3); }
+function didRemindCard(P){
+  if(!st.doneAt){ st.doneAt=Date.now(); save(); }
+  if(st.did!=null||didDue()) return "";
+  return `<section class="card" id="nextDay"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">하루 뒤 확인</span><h3>내일, 하나만 해 볼래요?</h3><p class="hint">위 '내일 할 일 하나'를 해 보세요. 내일 이 기기로 다시 들어오면 했는지 딱 한 번만 물어볼게요. 이메일·전화번호는 받지 않아요.</p></div><button class="btn alt" id="didRemind" type="button">내일 저녁 8시 알림 받기 (캘린더)</button></section>`;
+}
+function didAskCard(P){
+  if(!didDue()||!P||!P[0]) return "";
+  return `<section class="card" id="didAsk"><span class="eyebrow">어제 본 결과</span><h3>어제 본 '${P[0].n}', 하나라도 해 봤어요?</h3><div class="row" style="display:flex;gap:8px;flex-wrap:wrap">${DIDWHY.map((x,i)=>`<button type="button" class="opt" data-did="${i}" style="flex:1;min-width:0;justify-content:center;white-space:nowrap"><span>${x}</span></button>`).join("")}</div><div id="didMore"></div></section>`;
+}
+function remindLink(P){
+  const t=new Date(Date.now()+864e5), ds=ymd(t).replace(/-/g,""), name="표지기: 오늘 할 일 하나 ("+(P[0]?P[0].n:"내 길")+")";
+  const url="https://pyojigi.pages.dev/?src=did", det=(P[0]&&P[0].first?P[0].first+"\n":"")+"했는지 확인하기: "+url;
+  if(calMode()==="g") return {g:"https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(name)+"&dates="+ds+"T200000/"+ds+"T201000&ctz=Asia/Seoul&details="+encodeURIComponent(det)};
+  const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//pyojigi//ko","BEGIN:VEVENT","UID:did-"+Date.now().toString(36)+"@pyojigi","DTSTAMP:"+stamp,"DTSTART;TZID=Asia/Seoul:"+ds+"T200000","DTEND;TZID=Asia/Seoul:"+ds+"T201000","SUMMARY:"+icsEsc(name),"DESCRIPTION:"+icsEsc(det),"URL:"+url,"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(name),"TRIGGER:PT0M","END:VALARM","END:VEVENT","END:VCALENDAR"].map(icsFold).join("\r\n")+"\r\n";
+  return {ics};
+}
+function bindDid(P){
+  const rb=document.getElementById("didRemind");
+  if(rb) rb.onclick=()=>{ const r=remindLink(P), a=document.createElement("a");
+    if(r.g){ a.href=r.g; a.target="_blank"; a.rel="noopener"; toast("구글 캘린더가 열리면 '저장'을 눌러 주세요."); }
+    else { a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(r.ics); a.download="pyojigi-tomorrow.ics"; toast("캘린더 앱이 열리면 '추가'를 눌러 주세요."); }
+    document.body.appendChild(a); a.click(); a.remove(); };
+  const box=document.getElementById("didAsk"); if(!box) return;
+  box.querySelectorAll("[data-did]").forEach(b=>b.onclick=()=>{
+    const w=+b.dataset.did; st.did=w; save(); track({type:"did",why:w,top:P[0]&&P[0].key});
+    const more=document.getElementById("didMore"); box.querySelectorAll("[data-did]").forEach(x=>x.disabled=true);
+    if(!more) return;
+    if(w===0){ more.innerHTML=`<p class="hint" style="color:var(--ink)">멋져요! 뭘 해 봤어요?</p><div class="chips">${Object.entries(DIDWHAT).map(([k,v])=>`<button type="button" class="chip" data-dw="${k}">${v}</button>`).join("")}</div>`;
+      more.querySelectorAll("[data-dw]").forEach(c=>c.onclick=()=>{ track({type:"didw",what:c.dataset.dw}); more.innerHTML=`<p class="hint" style="color:var(--ink)">한 걸음 뗐어요. 다음 걸음은 결과 아래 '준비계획'에서 이어가요.</p>`; }); }
+    else if(w===1) more.innerHTML=`<p class="hint" style="color:var(--ink)">괜찮아요. 오늘 이것 하나만 해 봐요.</p>${firstBox(P[0].key,P[0].first,P[0].firstLink)}`;
+    else more.innerHTML=`<p class="hint" style="color:var(--ink)">알려 줘서 고마워요. 이 길이 아니면 답을 고쳐 다시 보거나, 개발자에게 고민을 털어놔도 돼요.</p><button class="btn alt" type="button" id="didTalk">개발자에게 고민 상담하기 (24시간 안에 답장)</button>`;
+    const dt=document.getElementById("didTalk"); if(dt) dt.onclick=()=>{ askKind="고민상담"; st.phase="ask"; save(); render(); };
+  });
+}
 // 자체 서버의 AI 상담 (/api/ai). 브라우저에는 API 키가 없다.
 async function SAMPLE(input, opts){
   opts=opts||{};
@@ -2153,10 +2218,10 @@ let askKind="문의";
 function ask(){
   const web=typeof FB_API==="string", mine=myAsks();
   el(`<section style="display:flex;flex-direction:column;gap:18px">
-    <div style="display:flex;flex-direction:column;gap:6px"><span class="eyebrow">문의 · 오류 신고 · 제안</span><h1>궁금한 점이나 고칠 점을 알려 주세요</h1><p class="lede">보내 주신 내용은 운영자가 직접 읽고, 정해진 업데이트 때 반영해요.</p></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="eyebrow">고민 상담 · 문의 · 오류 신고 · 제안</span><h1>${askKind==="고민상담"?"개발자에게 고민을 털어놓아 보세요":"궁금한 점이나 고칠 점을 알려 주세요"}</h1><p class="lede">${askKind==="고민상담"?"표지기를 만든 사람이 직접 읽고 <b>24시간 안에</b> 답장해요. 답은 보낸 뒤 나오는 확인 번호로 이 화면의 '내 문의'에서 볼 수 있어요. 지금 많이 힘들다면 청소년상담 1388, 자살예방상담 109로 바로 전화하세요.":"보내 주신 내용은 운영자가 직접 읽고, 정해진 업데이트 때 반영해요."}</p></div>
     <section class="card" id="askCard">
-      <div class="seg" role="group" aria-label="종류">${["문의","오류 신고","제안"].map(k=>`<button type="button" data-ak="${k}" aria-pressed="${askKind===k}">${k}</button>`).join("")}</div>
-      <textarea id="askText" maxlength="500" placeholder="예) 결과에 ○○ 직업이 없어요 / 소방청 링크가 안 열려요" style="min-height:120px"></textarea>
+      <div class="seg" role="group" aria-label="종류">${["고민상담","문의","오류 신고","제안"].map(k=>`<button type="button" data-ak="${k}" aria-pressed="${askKind===k}">${k}</button>`).join("")}</div>
+      <textarea id="askText" maxlength="500" placeholder="${askKind==="고민상담"?"예) 결과는 물류가 나왔는데 운전이 무서워요. 뭐부터 해야 할지 모르겠어요":"예) 결과에 ○○ 직업이 없어요 / 소방청 링크가 안 열려요"}" style="min-height:120px"></textarea>
       <p class="hint" id="askCnt">0 / 500</p>
       <label class="agree"><input type="checkbox" id="askAgree"><span><b>(필수)</b> 이름·전화번호 같은 개인정보는 적지 않았어요. 답변을 위해 이 내용이 저장되는 데 동의해요 (답변 뒤 1년 보관 후 삭제).</span></label>
       <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${web?`<button class="btn" id="askSend" type="button">보내기</button>`:`<a class="btn" id="askMail" href="#" target="_blank" rel="noopener" style="text-decoration:none">이메일로 보내기</a>`}<span class="hint" id="askNote" role="status"></span></div>
@@ -2169,8 +2234,8 @@ function ask(){
   const setMail=()=>{ if(mail) mail.href="mailto:"+MAIL+"?subject="+encodeURIComponent("[표지기 "+askKind+"]")+"&body="+encodeURIComponent(((ta&&ta.value)||"")+"\n\n(표지기 문의하기 화면에서 보냈어요)"); };
   setMail();
   if(ta) ta.oninput=()=>{ const c=document.getElementById("askCnt"); if(c) c.textContent=ta.value.length+" / 500"; setMail(); };
-  app.querySelectorAll("[data-ak]").forEach(b=>b.onclick=()=>{ askKind=b.dataset.ak; app.querySelectorAll("[data-ak]").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); setMail(); });
-  const thanks=(code)=>{ const t=document.getElementById("askThanks"); if(t) t.innerHTML=`<section class="card thanks"><h3>보내 주셔서 고마워요!</h3><p>꼼꼼히 읽고 답변할게요. 보내 주신 한마디 덕분에 표지기가 조금씩 나아져요.</p>${code?`<p class="hint" style="color:var(--ink)">확인 번호 <b style="font-size:18px;letter-spacing:1px">${code}</b> · 답변이 달리면 이 화면의 '내 문의'에서 볼 수 있어요.</p>`:""}</section>`; const c=document.getElementById("askCard"); if(c) c.hidden=true; };
+  app.querySelectorAll("[data-ak]").forEach(b=>b.onclick=()=>{ const keep=ta?ta.value:""; askKind=b.dataset.ak; render(); const t2=document.getElementById("askText"); if(t2&&keep){ t2.value=keep; if(t2.oninput) t2.oninput(); } });
+  const thanks=(code)=>{ const t=document.getElementById("askThanks"); if(t) t.innerHTML=`<section class="card thanks"><h3>보내 주셔서 고마워요!</h3><p>${askKind==="고민상담"?"24시간 안에 답장할게요. 아래 확인 번호를 꼭 저장해 두세요.":"꼼꼼히 읽고 답변할게요."} 보내 주신 한마디 덕분에 표지기가 조금씩 나아져요.</p>${code?`<p class="hint" style="color:var(--ink)">확인 번호 <b style="font-size:18px;letter-spacing:1px">${code}</b> · 답변이 달리면 이 화면의 '내 문의'에서 볼 수 있어요.</p>`:""}</section>`; const c=document.getElementById("askCard"); if(c) c.hidden=true; };
   if(mail) mail.onclick=e=>{ if(!(ta&&ta.value.trim())||!(ag&&ag.checked)){ if(e&&e.preventDefault) e.preventDefault(); if(note) note.textContent=!(ta&&ta.value.trim())?"내용을 적어 주세요.":"동의에 체크해 주세요."; return; } setMail(); thanks(""); };
   const send=document.getElementById("askSend");
   if(send) send.onclick=()=>{
@@ -2463,7 +2528,7 @@ function privacy(){
       <h3>답은 내 기기에만 저장돼요</h3>
       <p class="hint" style="color:var(--ink)">질문에 고른 답과 적은 문장은 지금 쓰는 기기의 브라우저에만 저장돼요. 중간에 나갔다가 이어서 하기 위한 용도이고, 운영자는 볼 수 없어요.</p>
       <h3>익명 이용 통계</h3>
-      <p class="hint" style="color:var(--ink)">서비스를 고치기 위해 방문·시작·완주 시각(분 단위), 상황 종류(예: 고등학생), 나이대, 추천된 길 3개, 만족도 버튼, '이 추천은 아니에요' 선택, 결과 전에 그만둔 질문 번호만 기록해요. 누가 했는지 알 수 없게 남기고, 답 내용, 적은 문장, 이름, 연락처, IP 주소는 저장하지 않아요.</p>
+      <p class="hint" style="color:var(--ink)">서비스를 고치기 위해 방문·시작·완주 시각(분 단위), 상황 종류(예: 고등학생), 나이대, 추천된 길 3개, 만족도 버튼, '이 추천은 아니에요' 선택, 다음 날 '해 봤어요' 버튼, 결과 전에 그만둔 질문 번호만 기록해요. 누가 했는지 알 수 없게 남기고, 답 내용, 적은 문장, 이름, 연락처, IP 주소는 저장하지 않아요.</p>
       <h3>한마디 피드백</h3>
       <p class="hint" style="color:var(--ink)">결과 화면에서 '피드백 보내기'를 누를 때만 그 한마디(300자 이내)와 만족도, 상황 종류, 추천 결과가 서버에 저장돼 운영자가 읽어요. 90일 뒤 자동으로 지워지니 이름·연락처는 적지 마세요. 같은 사람이 하루 5번까지 보낼 수 있고, 이를 세려고 IP 주소를 알아볼 수 없게 바꾼 값만 이틀 보관해요.</p>
       <h3>지우는 방법</h3>
@@ -2497,16 +2562,16 @@ function privacy(){
   });
 })();
 
-function ask(m){ try{ return typeof confirm!=="function" || confirm(m); }catch(e){ return true; } }
+function askOk(m){ try{ return typeof confirm!=="function" || confirm(m); }catch(e){ return true; } }
 // 이 기기에 남은 표지기 기록(답·결과·문의 코드·동의 표시)을 한 번에 지우기 — 공용 PC·개인정보 삭제 요청용
 function wipeAll(){
-  if(!ask("이 기기에 저장된 표지기 기록을 모두 지울까요?\n고른 답, 결과, 한 줄 고민, 문의 코드가 지워지고 되돌릴 수 없어요.")) return;
+  if(!askOk("이 기기에 저장된 표지기 기록을 모두 지울까요?\n고른 답, 결과, 한 줄 고민, 문의 코드가 지워지고 되돌릴 수 없어요.")) return;
   try{ const ks=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && (k===S.k || /^pyojigi_/.test(k))) ks.push(k); } ks.forEach(k=>localStorage.removeItem(k)); }catch(e){}
   st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null};
   try{ localStorage.removeItem(S.k); }catch(e){}
   render(); try{ alert("이 기기에서 표지기 기록을 모두 지웠어요."); }catch(e){}
 }
-function reset(){ if(Object.keys(st.ans||{}).length && !ask("지금까지 고른 답이 지워지고 처음부터 다시 시작해요. 계속할까요?")) return; st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null}; save(); render(); }
+function reset(){ if(Object.keys(st.ans||{}).length && !askOk("지금까지 고른 답이 지워지고 처음부터 다시 시작해요. 계속할까요?")) return; st={ans:{},i:0,phase:"intro",mid:-1,review:0,fb:null,fbt:"",miss:{},fbSent:0,run:null,rt:null}; save(); render(); }
 document.getElementById("resetBtn").onclick=reset;
 
 // 문의 이메일 (스팸 수집기를 피하려고 화면에서 조립)

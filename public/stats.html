@@ -187,6 +187,7 @@ async function load(quiet){
   <h2 class="grp" id="g-fb">반응</h2>
   <div class="grid">
   <section class="card"><h2>만족도</h2>${bars(fb,k=>k)}<p class="muted">피드백 보내기 버튼 ${copy}회</p></section>
+  <section class="card"><h2>하루 뒤 확인 (결과 다음 날 다시 온 사람)</h2>${bars(sumObj(days,"didAns"),k=>["해 봤어요","아직이에요","안 할래요"][+k]||k)}<h3>해 본 것</h3>${bars(sumObj(days,"didWhat"),k=>({first:"내일 할 일(첫 걸음)",sup:"지원제도·국비",cert:"자격·시험 접수",job:"공고·학원",etc:"다른 거"})[k]||k)}<p class="muted">'해 봤어요' 비율 = 결과를 보고 실제로 움직인 사람. 같은 기기로 다음 날 다시 들어온 사람에게만 한 번 물어요.</p></section>
   <section class="card"><h2>'이건 아니에요'가 많은 추천</h2>${bars(sumObj(days,"miss"),k=>{const [a,b]=k.split(":");return (PATH[a]||a)+" · "+(MISSWHY[+b]||b);})}</section>
   </div>
   <details class="card fold"><summary><h2>받은 한마디 (최근 ${feedback.length}개, 90일 보관)</h2></summary>${feedback.length?feedback.map(x=>`<div style="border-top:1px solid var(--line);padding:10px 0"><p class="muted">${esc((x.at||"").slice(0,16).replace("T"," "))} · ${esc(x.fb||"만족도 없음")} · ${esc(SIT[x.sit]||"-")} · 추천 ${esc((x.top||[]).map(k=>PATH[k]||k).join(", "))}</p>${x.text?`<p style="margin:4px 0 0">${esc(x.text)}</p>`:""}${Object.keys(x.miss||{}).length?`<p class="muted">이건 아니에요: ${Object.entries(x.miss).map(([k,v])=>esc((PATH[k]||k)+" - "+(MISSWHY[v]||v))).join(" / ")}</p>`:""}</div>`).join(""):`<p class="muted">아직 받은 한마디가 없어요.</p>`}</details>

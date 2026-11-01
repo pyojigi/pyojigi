@@ -6,7 +6,9 @@
 import { SITS, PATHS, FB, json, ensure, SCHEMA, kstAt } from "../_lib/common.js";
 export { ensure, SCHEMA };
 const ST_TTL = 731 * 86400; // KV 날짜별 숫자는 2년 보관
-const TYPES = ["visit", "start", "finish", "feedback", "copy", "miss", "leave", "etc"];
+const TYPES = ["visit", "start", "finish", "feedback", "copy", "miss", "leave", "etc", "did", "didw"];
+// did: 하루 뒤 "해 봤어요(0)/아직(1)/안 할래요(2)" + 그때 1순위 길, didw: 해 본 것 종류
+const DIDW = ["first", "sup", "cert", "job", "etc"];
 const ETC_Q = ["goal", "cert", "plan", "cur"]; // '기타'에 직접 적은 직업·자격 이름 (목록에 없던 것만)
 const inc = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
 const incCap = (st, name, key, cap = 80) => { const o = st[name] = st[name] || {}; if (Object.keys(o).length < cap || o[key]) inc(o, key); };
@@ -40,6 +42,8 @@ export function clean(e) {
     r.low = e.low === true ? 1 : 0;
   } else if (e.type === "feedback") { if (!FB.includes(e.fb)) return null; r.fb = e.fb; }
   else if (e.type === "miss") { if (!PATHS.includes(e.top) || !Number.isInteger(e.why) || e.why < 0 || e.why > 3) return null; r.top1 = e.top; r.why = e.why; }
+  else if (e.type === "did") { if (!Number.isInteger(e.why) || e.why < 0 || e.why > 2) return null; r.why = e.why; if (PATHS.includes(e.top)) r.top1 = e.top; }
+  else if (e.type === "didw") { if (!DIDW.includes(e.what)) return null; r.qid = e.what; }
   else if (e.type === "leave") { if (typeof e.at !== "string" || !/^[a-z0-9_-]{1,12}$/.test(e.at)) return null; r.qid = e.at; }
   else if (e.type === "etc") {
     // 직업·자격 이름만 받는다: 30자 이하, 숫자 5개 이상 연속(전화번호 등)·@(이메일)·주소 같은 건 거절
@@ -86,6 +90,8 @@ export async function onRequestPost({ request, env }) {
   else if (r.type === "copy") inc(st, "fbCopy");
   else if (r.type === "miss") { st.miss = st.miss || {}; inc(st.miss, r.top1 + ":" + r.why); }
   else if (r.type === "leave") incCap(st, "leave", r.qid);
+  else if (r.type === "did") { st.didAns = st.didAns || {}; inc(st.didAns, String(r.why)); }
+  else if (r.type === "didw") { st.didWhat = st.didWhat || {}; inc(st.didWhat, r.qid); }
   else if (r.type === "etc") incCap(st, r.why ? "etc" : "etcOld", r.qid + ":" + r.kw, 100);
   await env.PYOJIGI_KV.put(key, JSON.stringify(st), { expirationTtl: ST_TTL });
   return json({ ok: true });

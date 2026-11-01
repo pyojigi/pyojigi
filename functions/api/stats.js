@@ -25,6 +25,8 @@ async function fromDB(db, n) {
   await group("top1", "type='finish'", "top");
   await group("fb", "type='feedback'");
   await group("qid", "type='leave'", "leave");
+  await group("why", "type='did'", "didAns");
+  await group("qid", "type='didw'", "didWhat");
   const lows = await q(`SELECT day, COUNT(*) AS c FROM events WHERE day >= ? AND type='finish' AND low=1 GROUP BY day`, from);
   for (const r of lows) (by[r.day] = by[r.day] || { day: r.day }).low = r.c;
   const miss = await q(`SELECT day, top1 || ':' || why AS k, COUNT(*) AS c FROM events WHERE day >= ? AND type='miss' GROUP BY day, k`, from);
