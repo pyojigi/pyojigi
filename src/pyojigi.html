@@ -1070,6 +1070,10 @@ function score(){
     if(p.key==="bop" && !(["sal","off","log","fac"].includes(f.cur) && st.ans.exp>0) && f.want!=="sal") block=true;
     if(k==="col" && p.key==="adv" && !f.grad) block=true;
     if(p.key==="hcl" && !(f.c_hcl||f.mj==="nurse"||f.mj==="allied")) block=true;
+    // 재학 중인 간호·보건 전공생은 아직 면허가 없어 '준비 3개월'이 사실과 다름 → 면허를 이미 가진 경우만 (2026-11-01 페르소나 간호학과 지수)
+    if(p.key==="hcl" && k==="col" && !f.c_hcl) block=true;
+    // 전공이 안 맞거나 다른 분야를 원한다고 한 간호학과 학생에게 간호사 길을 밀지 않음
+    if(p.key==="nur" && k==="col" && !f.c_nur && g!=="nur" && (f.majfit===-1||st.ans.c3===1)) block=true;
     if(p.key==="tch" && !(f.c_tch||YK(k)||k==="col"||st.ans.edu===2||st.ans.edu===3||g==="tch")) block=true;
     if(p.key==="nur" && !(f.c_nur||YK(k)||f.mj==="nurse"||g==="nur")) block=true;
     if(p.key==="spo" && !(f.maj==="spo"||f.c_sport||f.p_spo||g==="spo"||(t.body||0)>=5)) block=true;

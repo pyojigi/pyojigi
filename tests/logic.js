@@ -61,6 +61,8 @@ function check(a) {
   if (k === 'col' && f.grad && !top3.some(p => p.key === 'adv')) errs.push('대학원 원하는 대학생에게 진학 경로 없음');
   if (top3.some(p => p.key === 'bop') && !(['sal','off','log','fac'].includes(f.cur)) && f.want !== 'sal') errs.push('경력 없는 사람에게 경력직 경로');
   if (top3.some(p => p.key === 'hcl') && !(f.c_hcl || f.mj === 'nurse' || f.mj === 'allied')) errs.push('면허 없이 보건·의료직');
+  if (k === 'col' && !f.c_hcl && top3.some(p => p.key === 'hcl')) errs.push('면허 없는 재학생에게 교대 없는 보건·의료직');
+  if (k === 'col' && !f.c_nur && M.goalKey(f) !== 'nur' && (f.majfit === -1 || a.c3 === 1) && top3.some(p => p.key === 'nur')) errs.push('전공 안 맞는 간호학과생에게 간호사');
   if (k === 'hs' && real.some(x => /생활비가|버틸 수 있는 기간/.test(x))) errs.push('고등학생에게 생활비 문구');
   if (top3.some(p => p.key === 'spo') && !(f.maj === 'spo' || f.c_sport || f.p_spo || M.goalKey(f) === 'spo' || (t.body || 0) >= 5)) errs.push('체육 배경 없이 체육');
   if (top3.some(p => !M.YTQ[p.key])) errs.push('영상 검색어 없음');
