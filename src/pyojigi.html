@@ -1586,7 +1586,7 @@ let P_CUR=[];
 const SITLINE={job:"아직 원서 낼 곳을 못 정한 취준생",move:"옮길까 말까 고민 중인 사람",gap:"잠깐 쉬어 가는 중인 사람",slump:"잠깐 멈춰 있는 사람",switch:"분야를 바꾸려는 사람",mil:"전역하고 다음을 찾는 사람",hs:"진로를 정해야 하는 고등학생",col:"전공과 진로 사이에 있는 대학생",ms:"뭐가 될지 궁금한 중학생",drop:"학교 밖에서 길을 찾는 중",retake:"재수하면서 다음도 생각하는 사람"};
 function oneLine(tops){ const a=TRAIT[tops[0]], b=TRAIT[tops[1]]; if(!a) return "";
   const line=`나는 '${a}'${b?`·'${b}'`:""} 쪽인데, 지금은 ${SITLINE[sitKey()||"job"]}`;
-  return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">친구한테 보내기</button></div>`; }
+  return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">내 길 3개 친구한테 보내기</button></div>`; }
 function result(){
   AFF_SHOWN=0;
   const {t,f}=tally(); const ALL=score(); const P=ALL.slice(0,3); const tops=topTraits(t,5); P_CUR=P;
@@ -1723,7 +1723,8 @@ function result(){
   document.getElementById("again").onclick=reset;
   document.getElementById("rtGo").onclick=()=>{ st.phase="plan"; st.rtEdit=0; save(); render(); };
   document.getElementById("imgRes").onclick=()=>makeImage("result");
-  const shl=document.getElementById("shareLine"); if(shl) shl.onclick=()=>{ const text=shl.dataset.t+"\n너는 뭐 나와? 10분 무료 진로 검사", url="https://pyojigi.pages.dev/?src=share";
+  const shl=document.getElementById("shareLine"); if(shl) shl.onclick=()=>{ const three=(P_CUR||[]).slice(0,3).map((p,i)=>`${i+1}. ${p.n.replace(/ \(.*\)$/,"")}`).join("\n"); // 길 이름만 (답·적은 말은 안 넣음)
+    const text=shl.dataset.t+(three?"\n표지기가 골라 준 내 길 3개:\n"+three:"")+"\n너는 뭐 나와? 10분 무료 진로 검사", url="https://pyojigi.pages.dev/?src=share";
     try{ if(navigator.share){ navigator.share({text,url}).catch(()=>{}); return; } }catch(e){}
     try{ navigator.clipboard.writeText(text+" "+url).then(()=>toast("복사했어요. 친구한테 붙여 넣어 보내 주세요."),()=>toast(text+" "+url)); }catch(e){ toast(text+" "+url); } };
 }
