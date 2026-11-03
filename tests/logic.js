@@ -64,6 +64,7 @@ function check(a) {
   if (k === 'col' && !f.c_hcl && top3.some(p => p.key === 'hcl')) errs.push('면허 없는 재학생에게 교대 없는 보건·의료직');
   if (k === 'col' && !f.c_nur && M.goalKey(f) !== 'nur' && (f.majfit === -1 || a.c3 === 1) && top3.some(p => p.key === 'nur')) errs.push('전공 안 맞는 간호학과생에게 간호사');
   if (k === 'hs' && real.some(x => /생활비가|버틸 수 있는 기간/.test(x))) errs.push('고등학생에게 생활비 문구');
+  if (k === 'col' && f.noinc) errs.push('대학생 수입 없음을 빠른 수입 필요로 셈');
   if (top3.some(p => p.key === 'spo') && !(f.maj === 'spo' || f.c_sport || f.p_spo || M.goalKey(f) === 'spo' || (t.body || 0) >= 5)) errs.push('체육 배경 없이 체육');
   if (top3.some(p => !M.YTQ[p.key])) errs.push('영상 검색어 없음');
   if (['job', 'col', 'hs', 'switch'].includes(k) && top3.some(p => ['off', 'it'].includes(p.key)) && !real.some(x => x.startsWith('한국은행 분석'))) errs.push('AI 영향 높은 길인데 현실 점검 문구 없음');

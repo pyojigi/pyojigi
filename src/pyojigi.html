@@ -1025,11 +1025,15 @@ function sitKey(){const a=st.ans.sit; return a==null?null:SITQ().o[a][2].sit}
 function list(){const s=sitKey(); return Q.filter(q=>(!q.br || q.br===s) && (!q.cond || q.cond()))}
 
 function tally(upto){
-  const t={}, f={}; const L=list();
+  const t={}, f={}; const L=list(), sk=sitKey();
   L.forEach((q,ix)=>{ if(upto!=null && ix>upto) return;
     const a=st.ans[q.id]; if(a==null||q.text) return;
+    // 대학생의 '월 수입 없음'은 학생이라 당연한 것 → '빠른 수입 필요'로 세지 않음 (급한지는 생활비 질문 buffer 로 봄. 2026-11-03 공대 민준, 할 일 72·76)
+    if(q.id==="inc" && sk==="col") return;
+    // 대학생이 전공이 '안 맞는다'고 했고 전공을 살리겠다고도 안 했으면 그 학과 보기의 성향 점수(예: 간호학 돌봄)는 빼고 학과 정보만 씀 (2026-11-03 간호학과 지수, 할 일 13)
+    const noT = q.id==="major" && sk==="col" && st.ans.c2===2 && st.ans.c3!==0;
     (Array.isArray(a)?a:[a]).forEach(k=>{const o=q.o[k]; if(!o) return;
-      for(const x in o[1]) t[x]=(t[x]||0)+o[1][x];
+      if(!noT) for(const x in o[1]) t[x]=(t[x]||0)+o[1][x];
       if(o[2]) for(const x in o[2]) f[x]=o[2][x];});
   });
   return {t,f};
