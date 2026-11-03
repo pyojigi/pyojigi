@@ -33,10 +33,10 @@ const PERSONAS = [
   ['9 자퇴생 지호', { ag: '10대', sit: '학교를 그만뒀다', d2: '빨리 돈', d3: '아직 안 했다', goal: '아직 없다' }],
   ['10 전기과 고3(교사 검증)', { ag: '10대', sit: '고등학생', h1: '특성화고', h2: '바로 취업', goal: '아직 없다', cert: ['딱히 없음'] }],
   ['11 반수 수아(경영 1학년)', { ag: '20대', sit: '대학', major: '경영학', c1: '1~2학년', c2: '그럭저럭', c3: '다른 분야', goal: '아직 없다', inc: '없음', buffer: '6개월 이상' }],
-  ['12 공장 태윤(같은 업계)', { ag: '20대', sit: '이직', cur: '생산·제조', edu: '고졸', major: '해당 없음', exp: '1년 미만', m2: '같은 업계', move: '떠날 수 없다', shift: '괜찮다', inc: '250만원 이상', goal: '아직 없다' }],
-  ['12b 공장 태윤(교대 불가)', { ag: '20대', sit: '이직', cur: '생산·제조', edu: '고졸', exp: '1년 미만', m2: '업계 자체', shift: '절대', move: '떠날 수 없다', inc: '250만원 이상', goal: '아직 없다' }],
+  ['12 공장 태윤(같은 업계)', { ag: '20대', sit: '이직', cur: '생산·제조', edu: '고졸', major: '해당 없음', exp: '1년 미만', m2: '같은 업계', move: '떠날 수 없다', shift: '괜찮다', inc: ['300만원 이상','250만원 이상'], goal: '아직 없다' }],
+  ['12b 공장 태윤(교대 불가)', { ag: '20대', sit: '이직', cur: '생산·제조', edu: '고졸', exp: '1년 미만', m2: '업계 자체', shift: '절대', move: '떠날 수 없다', inc: ['300만원 이상','250만원 이상'], goal: '아직 없다' }],
   ['13 실용음악 예린(고3)', { ag: '10대', sit: '고등학생', h1: '일반고', h2: '모르겠다', goal: '문화예술', prep: 2 }],
-  ['14 배달 서진', { ag: '20대', sit: '취업 준비', cur: '물류', edu: '고졸', inc: '250만원 이상', goal: '아직 없다' }],
+  ['14 배달 서진', { ag: '20대', sit: '취업 준비', cur: '물류', edu: '고졸', inc: ['300만원 이상','250만원 이상'], goal: '아직 없다' }],
   ['15 간호학과 지수(안 맞음)', { ag: '20대', sit: '대학', major: '간호학', c2: '안 맞는다', c3: '다른 분야', goal: '아직 없다', inc: '없음' }],
   ['15b 간호학과 지수(공무원)', { ag: '20대', sit: '대학', major: '간호학', c2: '안 맞는다', c3: '공무원', goal: '아직 없다' }],
   ['16 게임 건우(고2)', { ag: '10대', sit: '고등학생', h1: '일반고', h2: '모르겠다', goal: 'IT', prep: 2, sit8: 0 }],
@@ -49,8 +49,11 @@ const VARIANTS = 40;
 function optIdx(q, v) {
   const os = q.o.map(o => o[0]);
   if (typeof v === 'number') return v;
-  let i = q.o.findIndex(o => String(o[0]).includes(v));
+  if (Array.isArray(v)) { for (const w of v) { const j = q.o.findIndex(o => String(o[0]).includes(w)); if (j >= 0) return j; } }
+  let i = Array.isArray(v) ? -1 : q.o.findIndex(o => String(o[0]).includes(v));
   if (i < 0 && q.oy) i = q.oy.findIndex(o => o && String(o).includes(v));
+  if (i < 0 && Array.isArray(v)) { for (const w of v) { i = optIdx(q, w); if (i >= 0) break; } } // 판마다 보기 이름이 다르면 [새 이름, 옛 이름]
+  if (i < 0 && !Array.isArray(v)) i = -1;
   if (i < 0) throw new Error(`페르소나 보기 못 찾음: ${q.id} '${v}' (${os.join(' / ')})`);
   return i;
 }
