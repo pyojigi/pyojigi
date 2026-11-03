@@ -48,7 +48,11 @@ a{text-underline-offset:3px}
  mask:radial-gradient(circle 6px,#0000 97%,#000) -12px -12px/24px 24px round,linear-gradient(#000 0 0) padding-box;filter:drop-shadow(0 0 1px #D5DAE0)}
 @media (prefers-color-scheme:dark){.sum{background:#1E3A2D}}
 h1{position:relative}
-.cta{position:relative}.cta::after{content:"₩0";position:absolute;right:16px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:12px;border:2px solid currentColor;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;opacity:.8}`;
+.cta{position:relative}.cta::after{content:"₩0";position:absolute;right:16px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:12px;border:2px solid currentColor;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;opacity:.8}
+/* 읽기 쉬운 글자·터치 영역 (2026-11-03, 저시력 하은): 글자 14px 이상, 누르는 곳 44px 이상 */
+header small,.src,.srcl,footer{font-size:14px}header a.logo{min-height:44px}
+footer nav a,.chips a,header>a:not(.logo){display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px}footer nav{gap:0 16px}
+li>a:only-child{display:inline-block;padding:10px 0;min-width:44px}`;
 
 // 로고 (리본이 묶인 표지 기둥) — favicon.svg와 같은 모양
 const LOGO = `<svg width="26" height="32" viewBox="0 30 220 230" aria-hidden="true"><rect x="95" y="38" width="30" height="40" rx="5" fill="#A82E25"/><path d="M8 62 C70 46 150 44 214 60" fill="none" stroke="var(--wood)" stroke-width="16" stroke-linecap="round"/><rect x="94" y="47" width="32" height="18" rx="4" fill="#D23F33"/><rect x="99" y="64" width="22" height="13" rx="5" fill="#A82E25"/><path d="M118 74 C128 92 131 108 136 124 L127 119 L123 128 C120 108 116 92 110 76 Z" fill="#A82E25"/><path d="M95 75 L123 75 C125 130 126 190 128 254 L112 239 L94 256 C95 190 95 130 95 75 Z" fill="#D23F33"/></svg>`;
@@ -76,7 +80,7 @@ function page({ url, title, desc, body, crumbs, ld = [], og = '/og.png', ogAlt, 
 <meta property="og:type" content="${type}"><meta property="og:site_name" content="표지기"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">${noindex ? '' : `<meta property="og:url" content="${SITE + url}">`}
 <meta property="og:image" content="${img}"><meta property="og:image:width" content="${OG_W}"><meta property="og:image:height" content="${OG_H}"><meta property="og:image:alt" content="${esc(ogAlt || title)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${img}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#F2F4F6">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#F2F4F6">
 ${blocks.map(ldTag).join('\n')}<style>${CSS}</style></head><body><div class="w">
 <header><a class="logo" href="/">${LOGO}<span>표지기<small>길 잃은 사람을 위한 리본</small></span></a><a href="/jobs/">직업 안내</a></header>
 ${crumbs ? `<nav class="src" aria-label="현재 위치">${crumbHtml(crumbs)}</nav>` : ''}

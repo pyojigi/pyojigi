@@ -34,7 +34,7 @@ function audit() {
     let t = e;
     if (e.matches('input[type=checkbox],input[type=radio]') && e.closest('label')) t = e.closest('label');
     // 문장 속 링크는 예외 (WCAG 2.5.8 inline)
-    if (e.tagName === 'A' && getComputedStyle(e).display === 'inline' && e.parentElement && [...e.parentElement.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) { } else {
+    if (e.tagName === 'A' && /^inline(-block)?$/.test(getComputedStyle(e).display) && e.parentElement && [...e.parentElement.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) { } else {
       const r = t.getBoundingClientRect(); if (r.height < 43.5 || r.width < 43.5) out.touch.push(name(t) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
     }
     const nm = (e.getAttribute('aria-label') || e.textContent || e.value || e.placeholder || e.title || (e.labels && e.labels[0] && e.labels[0].textContent) || '').trim();
@@ -90,6 +90,20 @@ function audit() {
       if (process.env.A11Y_ALL) for (const k of ['small', 'touch', 'contrast']) console.log(`#${scheme} ${tag} ${k}\n` + [...new Set(r[k].map(x => x.replace(/ "[^"]*"/, '')))].join('\n'));
     }
     if (errs.length) { bad++; console.log('페이지 오류', errs); }
+    // 빌드로 만든 안내 페이지들 (직업별·상황별·진로 가이드·404·개인정보)
+    const fs = require('fs'), PUB = path.resolve(__dirname, '../public');
+    const pick = d => { try { return fs.readdirSync(path.join(PUB, d)).filter(f => f.endsWith('.html')).map(f => d + '/' + f); } catch (e) { return []; } };
+    const pages = ['404.html', 'privacy.html', ...pick('jobs'), ...pick('for'), ...pick('guide')];
+    const ptot = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0 };
+    for (const f of pages) {
+      await p.goto('file://' + path.join(PUB, f));
+      const r = await p.evaluate(audit), line = [];
+      const lang = await p.evaluate(() => document.documentElement.lang);
+      if (!lang) { bad++; line.push('lang 없음'); }
+      for (const k of Object.keys(LIMIT)) { const c = k === 'overflow' ? r[k] : r[k].length; ptot[k] += c; if (c > LIMIT[k]) { bad++; line.push(`${k} ${c}: ${(r[k].slice ? r[k].slice(0, 4).join(' | ') : '')}`); } }
+      if (line.length) console.log(`[${scheme}] ${f}\n  ` + line.join('\n  '));
+    }
+    console.log(`[${scheme}] 안내 페이지 ${pages.length}개: 작은 글자 ${ptot.small} · 좁은 터치 ${ptot.touch} · 가로 넘침 ${ptot.overflow} · 대비 미달 ${ptot.contrast} · 이름 없음 ${ptot.noname}`);
     await ctx.close();
   }
   await b.close();
