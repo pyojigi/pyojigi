@@ -27,10 +27,10 @@ function runFlow(rnd, opts = {}) {
   const env = makeEnv();
   const timers = [];
   const setTimeout = (fn) => { timers.push(fn); };
-  const ctx = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', script + '\nreturn {get st(){return st}, render, list, missing};');
+  const ctx = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', script + '\nreturn {get st(){return st}, render, list, missing, sitKey};');
   const api = ctx(env.document, env.window, env.localStorage, setTimeout, class { constructor() { this.signal = {}; } abort() {} });
   const click = id => { const e = env.document.getElementById(id); if (!e || !e.onclick) throw new Error('버튼 없음: ' + id + ' / phase=' + api.st.phase); e.onclick(); while (timers.length) timers.shift()(); };
-  { if (!env.document.getElementById('toPrivacy')) throw new Error('개인정보 안내 없음'); click('ag1'); if (api.st.phase !== 'q' || api.st.i !== 1 || api.st.ans.ag !== 1) throw new Error('나이 눌러 시작 안 됨'); }
+  { if (!env.document.getElementById('toPrivacy')) throw new Error('개인정보 안내 없음'); const ag = opts.ag != null ? opts.ag : (rnd() < 0.5 ? 1 : Math.floor(rnd() * 4)); click('ag' + ag); if (api.st.phase !== 'q' || api.st.i !== 1 || api.st.ans.ag !== ag) throw new Error('나이 눌러 시작 안 됨'); }
   let steps = 0, skipped = 0;
   while (api.st.phase !== 'result') {
     if (++steps > 400) throw new Error('무한 루프: phase=' + api.st.phase + ' i=' + api.st.i);
@@ -40,6 +40,8 @@ function runFlow(rnd, opts = {}) {
     if (api.st.phase !== 'q') throw new Error('예상 못한 phase ' + api.st.phase);
     const L = api.list(), q = L[api.st.i];
     if (!q) throw new Error('질문 없음 i=' + api.st.i);
+    if (q.auto && q.auto() != null) throw new Error('자동으로 채운 질문이 화면에 나옴 ' + q.id);
+    { const si = L.findIndex(x => x.id === 'sit'), F = { ms: 'ms1', mil: 'mi0' }[api.sitKey ? api.sitKey() : '']; if (F && L[si + 1] && L[si + 1].id !== F) throw new Error('상황 바로 뒤 질문 순서 이상 ' + L[si + 1].id); }
     if (rnd() < (opts.back || 0) && api.st.i > 0 && !api.st.review) { click('back'); continue; }
     if (q.text) { env.document.getElementById('ta').value = ['테스트 문장','소방관이 되고 싶어요','뭘 해야 할지 모르겠다',''][Math.floor(rnd()*4)]; click('next'); continue; }
     if (!api.st.review && rnd() < (opts.skip || 0)) { skipped++; click('next'); continue; }

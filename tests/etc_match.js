@@ -9,6 +9,7 @@ const E=[ // [질문, 적은 말, 맞아야 하는 보기 이름 앞부분(null 
  ["goal","급식 조리사","요리·제빵"],["goal","파티시에","요리·제빵"],["goal","게임 개발","IT"],["goal","전기기사","전기·설비"],
  ["goal","공무원","공무원·공기업"],["goal","교사","학교 교사"],["goal","9급","공무원·공기업"],["goal","코치","체육 지도"],
  ["cur","호텔 조리사","매장"],["cur","식당 주방","매장"],["cur","부사관","군인"],["cur","배달","물류"],
+ ["goal","아직 모름","아직 없다"],["goal","몰라요","아직 없다"],["goal","모르겠어요","아직 없다"],["cur","그냥 대학생인데요","일해본 적 없음"],["cur","취준생","일해본 적 없음"],
  ["goal","ㅁㄴㅇㄹ",null]];
 (async()=>{ const b=await chromium.launch(); const p=await b.newPage();
  await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.fulfill({status:200,body:'{}'}));
