@@ -19,6 +19,7 @@
    - `node tests/majors2.js 50` → 마지막 줄 100%
    - `node tests/routine.js` → 준비계획 시간표 "오류 0건"
    - `node tests/etc_once.js` → ALL PASS (기타 칸이 검사 1번에 질문마다 정확히 1건만 기록되는지)
+   - `node tests/etc_match.js` → ALL PASS (기타 칸에 적은 말이 알맞은 보기에 맞는지. 줄임말을 더할 때마다 여기에 한 줄 추가)
    - `cd tests/mock && for t in v2 d1 t mail did; do node --no-warnings $t.mjs; done` → 모두 ALL PASS
 4. 검사가 하나라도 실패하면 main에 올리지 않는다. 고칠 수 없으면 `FEEDBACK_LOG.md`에 이유를 적고 멈춘다.
 5. 커밋 메시지는 한국어로 무엇을 왜 고쳤는지.
