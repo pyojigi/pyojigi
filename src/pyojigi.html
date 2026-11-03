@@ -1768,7 +1768,7 @@ function result(){
   const runBtn=isMS()?"한 달 알아보기 계획":stuPlanOn(f)?"졸업 전에 해 볼 것":"첫 월급까지";
   const plans=(st.ans.plan||[]).map(i=>PLANS[i]).filter(x=>x&&x[1]);
   const lk=(l)=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`;
-  const goalCard = gp ? `<section class="card" id="goal"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">하고 싶은 일 준비 안내</span><h3>${gp.n}</h3><div class="chips"><span class="chip ${P.some(p=>p.key===gk)?"k":""}">${P.some(p=>p.key===gk)?"추천 3개 안에 있어요":"추천 밖이지만 준비 방법은 여기 있어요"}</span></div></div>
+  const goalCard = gp ? `<section class="card" id="goal"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">하고 싶은 일 준비 안내</span><h3>${gp.n}</h3><div class="chips"><span class="chip ${P.some(p=>p.key===gk)?"k":""}">${P.some(p=>p.key===gk)?"추천 3개 안에 있어요":"추천 밖이지만 준비 방법은 여기 있어요"}</span></div>${f.artq&&ARTQ_COPY[gk]&&!P.some(p=>p.key===gk)?`<p class="why"><b>예체능 입시 경험</b> · ${ARTQ_COPY[gk]}</p>`:""}</div>
       <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(gp.prep)}</dd>${gp.sal?`<dt>연봉</dt><dd>연 ${gp.sal[0].toLocaleString()}만 → 경력 5년+ ${gp.sal[1].toLocaleString()}만원 (대략)</dd>`:""}${!gp.sal&&gp.salNote?`<dt>연봉</dt><dd>${gp.salNote}</dd>`:""}<dt>필요한 것</dt><dd>${needTxt(gp)}</dd>${GD&&GD.how?`<dt>준비 순서</dt><dd>${GD.how}</dd>`:""}</dl>
       ${GD&&GD.cert.length?`<div><p class="hint">자격·시험</p><ul class="glist">${GD.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기 ↗</a>`:""}${bookA(c[0])}</li>`).join("")}</ul>${bookNote(GD.cert)}</div>`:""}
       ${firstBox(gk,gp.first)}${planBox(gk)}${affBox(gk)}
@@ -1793,7 +1793,7 @@ function result(){
     ${P.map((p,i)=>`<article class="path ${i===0?"top":""}" id="path-${i}">
       <span class="rank">${i+1}순위</span>
       <h2>${p.n}</h2>
-      ${p.note?`<p class="why"><b>${p.note}</b></p>`:""}${whyFor(p,f).length?`<p class="why">맞는 이유: ${whyFor(p,f).join(", ")}</p>`:""}
+      ${p.note?`<p class="why"><b>${p.note}</b></p>`:""}${whyFor(p,f).length?`<p class="why">맞는 이유: ${whyFor(p,f).join(", ")}</p>`:""}${f.artq&&ARTQ_COPY[p.key]?`<p class="why"><b>예체능 입시 경험</b> · ${ARTQ_COPY[p.key]}</p>`:""}
       ${isMS()?"":p.sal?salBar(p.sal)+salSrc(p.key):p.salNote?`<p class="hint"><b style="color:var(--ink)">연봉</b> · ${p.salNote}</p>`:`<p class="hint">진학 경로라 연봉 대신 학과별 졸업 후 진로를 비교해 보세요. <a href="https://www.career.go.kr" target="_blank" rel="noopener">커리어넷 학과정보</a></p>`}
       ${p.v&&p.v.length?`<p class="hint" style="color:var(--blaze-ink);background:var(--blaze);border-radius:6px;padding:6px 10px">맞지 않는 점: ${p.v.join(", ")}</p>`:""}
       ${firstBox(p.key,p.first,p.firstLink)}
@@ -2172,6 +2172,9 @@ const STU_COPY={
  pln:{first:"수업·동아리·아르바이트에서 개선해 본 일 하나를 '문제-한 일-결과' 세 줄로 정리해 보세요."},
  bop:{first:"'영업관리' '구매' 신입·인턴 공고 5개에서 요구하는 경험을 찾아보고, 지금 해 볼 수 있는 것(아르바이트·동아리)에 표시해 보세요."},
  sal:{first:"보험설계사 시험은 보험사에 소속돼야 볼 수 있어요. 지금은 현직자 영상 3개로 실적 압박과 수입 차이부터 알아보세요."}};
+// 예체능 입시를 준비하다 방향을 바꾸는 고등학생(f.artq): 문화예술·교육 카드에 입시 경험을 살리는 한 줄 (숫자 없이. 2026-11-03 실용음악 고3 예린)
+const ARTQ_COPY={art:"입시로 쌓은 실기 실력과 매일 연습한 습관은 공연·방송 현장(무대·음향 스태프, 공연 기획)에서 그대로 쓰여요. 연습·공연 영상과 무대 경험을 한곳에 모아 두면 지원할 때 보여 줄 수 있어요.",
+ edu:"입시를 준비하며 익힌 연습 방법과 실기 요령은 예체능 학원에서 가르치는 일로 이어 갈 수 있어요. 내가 연습한 방법을 다른 사람에게 10분 동안 설명해 보는 것부터 해 보세요."};
 const HS_KEEP=["hsj","adv","uni","env"]; // 고등학생에게도 원래 문구가 맞는 길
 // 길 하나의 문구를 지금 상황에 맞게: {first, link, try, need}
 function pathCopy(k){
