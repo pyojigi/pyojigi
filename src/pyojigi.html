@@ -1698,6 +1698,10 @@ function planDraw(k,search){
   // 재직자: 새 일의 첫 월급이 지금 월 수입보다 낮으면 알려 준다 (페르소나 태윤: 월 250 이상인데 218만원만 보이던 문제)
   const incLo=[0,0,150,250,300][st.ans.inc]||0;
   if(employed(f) && sitKey()!=="mil" && incLo && c.pay<incLo) items.unshift(`이 길의 첫 월급(약 ${c.pay.toLocaleString()}만원)은 지금 월 수입(${incLo}만원 이상)보다 적어요. 자격·경력이 붙으면 오르는 길인지 추천 카드의 '현실 점검'을 보고, ${SF.plat?"새 일에 합격한 뒤 지금 일을 줄이면":"옮길 곳에 합격한 뒤 그만두면"} 수입 공백이 없어요.`);
+  // 학교 밖 청소년: 지금 버는 돈(d4 구간)의 아래 끝과 첫 월급을 비교한 한 줄. 구간이라 '최대 약'으로만 말함 (2026-11-03 자퇴생 지호)
+  const dI=sitKey()==="drop"?(f.dinc||0):0;
+  if(dI){ const lo=[0,0,50,100][dI], lab=["","50만원 미만","50~100만원","100만원 이상"][dI];
+    if(c.pay>lo) items.unshift(`지금 버는 돈(한 달 ${lab})과 비교하면, 이 길의 첫 월급(약 ${c.pay.toLocaleString()}만원)은 한 달 <b>최대 약 ${(c.pay-lo).toLocaleString()}만원</b> 더 많을 수 있어요. 실제 차이는 지금 버는 돈과 회사마다 달라요`); }
   if(sitKey()==="col") items.unshift("아직 재학 중이라면 준비 기간이 남은 학기와 겹쳐요. 첫 월급은 졸업한 다음부터라 위 개월 수보다 늦어질 수 있어요");
   // 준비 기간은 카드와 같은 말(prepTxt)로, 계산은 넉넉한 쪽 개월 수로 (화면마다 숫자가 다르던 문제)
   box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>${ged||dis}${prepTxt(c.p.prep)}</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${ged||dis}${c.F}개월째 <i>약 ${c.pay.toLocaleString()}만원</i></span></li></ol>
