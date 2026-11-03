@@ -23,6 +23,7 @@
    - `node tests/free_answer.js` → ALL PASS (한 줄 고민 답이 상황에 맞는지)
    - `node tests/sit_copy.js` → 오류 0건 (상황별 결과 화면에 나오면 안 되는 말, 제휴 링크와 대가성 문구)
    - `node tests/a11y.js` → ALL PASS (작은 글자·좁은 버튼·가로 넘침·대비)
+   - `node tests/haeyo.js` → ALL PASS (빌드된 화면에 합니다체 0건)
    - 추천 점수를 바꿨으면 `node tests/score_diff.js HEAD 5000 30` 로 전후 비교해 나빠짐 0건 확인
    - `cd tests/mock && for t in v2 d1 t mail did; do node --no-warnings $t.mjs; done` → 모두 ALL PASS
 4. 검사가 하나라도 실패하면 main에 올리지 않는다. 고칠 수 없으면 `FEEDBACK_LOG.md`에 이유를 적고 멈춘다.
