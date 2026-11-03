@@ -1930,7 +1930,7 @@ const PRO={
  aut:{t:"2025년 조사에서 자동차 정비원 임금 중위값은 연 4,650만원, 상위 25%는 5,525만원이었어요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000001070"},
  bld:{t:"도배공은 학력·자격 요건이 없고 3~6개월 경력이면 기능공으로 인정받는 편이에요. 2025년 조사 임금 중위값은 연 4,000만원이었어요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000001188"},
  mtc:{t:"2025년 조사에서 물리치료사 임금 중위값은 연 4,000만원이었어요. 대부분 주간 근무예요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000007501"},
- eng:{t:"2025년 조사에서 반도체공학 기술자·연구원 임금 중위값은 연 8,000만원이었어요. 다만 연구직은 대학원 졸업자가 많아요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000001184"},
+ eng:{t:"제품 성능을 높이고, 공정의 최적 조건을 정하고, 불량 원인을 찾아 고치는 일이라 공학 전공을 그대로 살릴 수 있어요. 다만 연구직은 대학원 졸업자가 많아요.",src:"커리어넷 직업정보 · 반도체공학기술자 (2026-11-03 확인)",url:"https://www.career.go.kr/cnet/front/base/job/jobView.do?SEQ=157"},
  tch:{t:"교육공무원은 정년이 62세로, 일반 공무원(60세)보다 2년 길어요.",src:"교육공무원법",url:LAW("교육공무원법")},
  nur:{t:"2023년 기준 신규 간호사 평균 초봉이 4,136만원이라는 보도가 있지만, 병원에 따라 최대 2,217만원까지 차이가 나서 어느 병원에 가느냐가 중요해요.",src:"후생신보·메디칼타임즈 보도",url:"https://www.medicaltimes.com/Mobile/News/NewsView.html?ID=1072834"},
  env:{t:"지자체·공단 공무직이라 정년까지 일할 수 있어요. 2026년 속초시시설관리공단 환경공무관 공고는 연봉 4천만원 이상을 내걸었어요. 대신 새벽 근무와 체력검정이 있어요.",src:"퍼블릭타임스 (2026.4)",url:"https://www.public25.com/news/articleView.html?idxno=44517"}
@@ -2487,7 +2487,7 @@ const JOBD={
 "온라인 판매":["온라인 쇼핑몰·마켓에서 상품을 판매해요.","사업자등록과 통신판매업 신고를 보통 해야 해요."]
 };
 let dictQ="", dictCat="all";
-const DICT_CATS=[["all","전체",null],["tech","기술·현장",["sec","avs","fac","tec","aut","bld","arc","rail","avi","log","env"]],["office","사무·IT·금융",["off","fin","tax","lgl","law","pro","trd","it","eng","sal","bop","pln","rea"]],["arts","문화·디자인·언론",["med","dsn","art","mkt"]],["public","공공·교사",["pub","pbc","uni","mlc","tch"]],["care","보건·돌봄·체육",["doc","nur","mtc","hcl","diet","car","cns","kid","spo","ath","edu"]],["svc","서비스·창업",["ckg","bty","svc","own"]],["stu","학생",["adv","hsj"]]];
+const DICT_CATS=[["all","전체",null],["tech","기술·현장",["sec","avs","fac","tec","aut","bld","arc","rail","avi","log","env","eng"]],["office","사무·IT·금융",["off","fin","tax","lgl","law","pro","trd","it","sal","bop","pln","rea"]],["arts","문화·디자인·언론",["med","dsn","art","mkt"]],["public","공공·교사",["pub","pbc","uni","mlc","tch"]],["care","보건·돌봄·체육",["doc","nur","mtc","hcl","diet","car","cns","kid","spo","ath","edu"]],["svc","서비스·창업",["ckg","bty","svc","own"]],["stu","학생",["adv","hsj"]]];
 function dict(){
   const n=Object.values(JOBS).reduce((a,b)=>a+b.length,0);
   el(`<section style="display:flex;flex-direction:column;gap:14px">
