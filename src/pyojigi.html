@@ -2107,9 +2107,13 @@ function supports(f,P,today){
   if((k==="gap"||f.flat) && !emp && age>=1 && age<=4) out.push({n:"청년도전지원사업",who:"오래 쉬었거나 구직 의욕이 떨어진 청년",t:"자신감 회복 프로그램부터 시작해 취업 준비까지 단계적으로 돕고, 참여하면 수당도 지급돼요. 지역 청년센터·고용센터에서 모집해요.",links:[["고용24에서 찾기",W24]]});
   if(f.carebreak) out.push({n:"새일센터 (여성새로일하기센터)",who:"육아·가족 돌봄으로 경력이 끊긴 경우",t:"직업 상담, 직업훈련, 인턴, 취업 연계까지 한곳에서 받을 수 있어요.",links:[["새일센터",'https://saeil.mogef.go.kr']]});
   if(k==="mil" && f.rank && f.rank!=="pvt") out.push({n:"제대군인지원센터",who:"중·장기 복무 후 전역(예정)자",t:"전역 전부터 취업·창업 상담, 교육훈련, 일자리 연계를 받을 수 있어요. 군 경력을 민간 이력서로 옮기는 것도 도와줍니다.",links:[["제대군인지원센터 (국가보훈부)","https://www.vnet.go.kr"]]});
+  // 항목 44 (상병 도현): 복무 중인 병에게 장병 지원. 출처: 국방부 게시 Sh장병내일준비적금 상품설명서(2025-11-25 시행) https://mdc.mnd.go.kr/sites/fmc/files/sh-02.pdf ,
+  // 자기개발비용·대학 원격강좌 학점인정제: 정책브리핑 '군 장병 복지증진' https://www.korea.kr/news/policyNewsView.do?newsId=148899382 (금액은 2022년 기사라 넣지 않음, 2026-11-03 확인)
+  const svcPvt = k==="mil" && f.inSvc && f.rank==="pvt";
+  if(svcPvt) out.push({n:"장병 지원 (복무 중에 챙길 것)",who:"현역병 등 의무복무 중",t:"장병내일준비적금은 은행을 합쳐 월 55만원까지 넣을 수 있고, 2024년 이후 넣은 원금만큼 정부가 매칭지원금을 더해 줘요. 자격시험 응시료·어학·교재 같은 자기개발 비용도 일부를 실비로 지원받을 수 있고, 대학 원격강좌를 들으면 학점으로 인정받을 수 있어요. 금액과 신청 방법은 해마다 바뀌니 부대 담당자나 나라사랑포털에서 확인하세요.",links:[]});
   const young = age>=1 && age<=4;
   const hasIncome = emp || (st.ans.inc!=null && st.ans.inc>=1);
-  if(young && (st.ans.inc==null || st.ans.inc<=2)) out.push({n:"청년월세 지원",who:"만 19~34세, 부모님과 따로 살며 월세 내는 청년",t:"소득·재산 기준을 충족하면 월 최대 20만원씩 최대 24개월 월세를 지원받아요. 2026년부터 연중 상시 신청으로 바뀌었어요. 보증금 5천만원·월세 70만원 이하 집이 기준이에요.",links:[["복지로에서 신청","https://www.bokjiro.go.kr"]]});
+  if(young && !svcPvt && (st.ans.inc==null || st.ans.inc<=2)) out.push({n:"청년월세 지원",who:"만 19~34세, 부모님과 따로 살며 월세 내는 청년",t:"소득·재산 기준을 충족하면 월 최대 20만원씩 최대 24개월 월세를 지원받아요. 2026년부터 연중 상시 신청으로 바뀌었어요. 보증금 5천만원·월세 70만원 이하 집이 기준이에요.",links:[["복지로에서 신청","https://www.bokjiro.go.kr"]]});
   const fut=windowState(WIN.fut,today);
   if(fut.show && (young || (k==="mil" && age<=5)) && hasIncome) out.push({n:"청년미래적금",who:fut.label,t:"만 19~34세(군 복무 기간만큼 연장) 소득이 있는 청년이 월 50만원까지 3년간 넣으면 정부가 6%(우대형 12%)를 더 얹어 줘요. 중소기업 재직 등 우대형은 실효 금리가 연 최대 19.4% 수준이에요.",links:[["금융위원회 안내","https://www.korea.kr/news/policyNewsView.do?newsId=148972819"]]});
   const tmr=windowState(WIN.tmr,today);
