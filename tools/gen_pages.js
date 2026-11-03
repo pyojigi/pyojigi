@@ -15,7 +15,7 @@ const prepTxt = m => m <= 1 ? '1개월 이내' : m <= 3 ? '1~3개월' : m <= 6 ?
 const yt = k => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(M.YTQ[k] || '');
 const P = Object.fromEntries(M.PATHS.map(p => [p.key, p]));
 
-const CSS = `.srcl{font-size:12px;color:var(--muted)}:root{--bg:#EEF0EA;--surface:#FAFBF7;--ink:#1D2B24;--muted:#5D6B63;--line:#D3D9CF;--pine:#24543F;--soft:#E3EBE2;--blaze:#F3E3C3;--wood:#6B5442}
+const CSS = `.srcl{font-size:12px;color:var(--muted)}.hs1{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 12px;font-size:15px}:root{--bg:#EEF0EA;--surface:#FAFBF7;--ink:#1D2B24;--muted:#5D6B63;--line:#D3D9CF;--pine:#24543F;--soft:#E3EBE2;--blaze:#F3E3C3;--wood:#6B5442}
 @media (prefers-color-scheme:dark){:root{--bg:#121A16;--surface:#1A241F;--ink:#E6ECE6;--muted:#9AA89F;--line:#2E3B34;--pine:#7FB89A;--soft:#22302A;--blaze:#3A3020;--wood:#B89A80}}
 *{box-sizing:border-box}html,body{overflow-x:clip}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;word-break:keep-all;overflow-wrap:anywhere}
 .w{max-width:720px;margin:0 auto;padding:20px 16px 48px}a{color:var(--pine)}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
@@ -113,7 +113,9 @@ function jobPage(p) {
   const sal = p.sal ? `연 ${p.sal[0].toLocaleString()}만원 → 경력 5년 이상 ${p.sal[1].toLocaleString()}만원 정도 (대략)` : (p.salNote || '진학 경로라 연봉 대신 학과별 진로를 비교해 보세요.');
   const title = `${nm} 되는 법, 연봉, 자격증 | 표지기`;
   const desc = `${nm}: ${J.slice(0, 4).join(', ')}. 준비 기간 ${prepTxt(p.prep)}, ${p.sal ? `연봉 연 ${p.sal[0].toLocaleString()}~${p.sal[1].toLocaleString()}만원 정도. ` : ''}${p.need.split('.')[0]}.`;
+  // 고등학생에게 맨 위 한 줄: 이 페이지는 졸업 뒤 기준이라 학생용 안내로 이어 준다 (2026-11-03 고2 페르소나 '/jobs/ 맨 위 고등학생 한 줄')
   const body = `<h1>${esc(nm)} 되는 법</h1><p class="lede">${esc(p.n)}${CAT[k] ? ' · ' + esc(CAT[k]) : ''}</p>
+<p class="hs1"><b>고등학생이면</b> · <a href="/for/hs.html">고등학생 진로 안내</a>부터 보세요. <a href="/?src=jobs-hs">검사</a>에서 '고등학생이다'를 고르면 학교에서 할 수 있는 준비로 바꿔 보여 줘요.</p>
 <div class="card"><dl class="kv"><dt>준비 기간</dt><dd>${prepTxt(p.prep)}</dd><dt>연봉</dt><dd>${esc(sal)}${p.sal ? `<span class="src" style="display:block">${SAL_SRC[k] ? esc(SAL_SRC[k]) + '. ' : ''}앞 숫자는 신입, 뒤는 경력 5년 이상의 대략적인 분야 기준이에요. 지원할 공고의 급여를 꼭 확인하세요.</span>` : ''}</dd><dt>필요한 것</dt><dd>${esc(p.need)}</dd>${G.how ? `<dt>준비 순서</dt><dd>${esc(G.how)}</dd>` : ''}${A ? `<dt>AI 영향</dt><dd>${esc(M.AIXT[A][0])} · ${esc(M.AIXT[A][1])}</dd>` : ''}</dl></div>
 ${J.length ? `<h2>세부 직업</h2>${J.map(j => { const d = JOBD[j]; return `<div class="card"><b>${esc(j)}</b>${d ? `<p>${esc(d[0])}</p>${d[1] ? `<p class="src">되는 법 · ${esc(d[1])}</p>` : ''}` : ''}</div>`; }).join('')}` : ''}
 ${G.cert.length ? `<h2>자격증·시험</h2><ul>${G.cert.map(c => `<li><b>${esc(c[0])}</b> · ${esc(c[1])}${c[2] ? ` <a href="${esc(c[2])}" rel="noopener">바로가기</a>` : ''}</li>`).join('')}</ul>` : ''}
