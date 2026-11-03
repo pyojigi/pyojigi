@@ -1607,6 +1607,14 @@ const SITLINE={job:"아직 원서 낼 곳을 못 정한 취준생",move:"옮길�
 function oneLine(tops){ const a=TRAIT[tops[0]], b=TRAIT[tops[1]]; if(!a) return "";
   const line=`나는 '${a}'${b?`·'${b}'`:""} 쪽인데, 지금은 ${SITLINE[sitKey()||"job"]}`;
   return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">친구한테 보내기</button></div>`; }
+// 하고 싶다고 고른 길이 내가 고른 조건(교대 등) 때문에 3개에서 빠지면, 맨 아래가 아니라 결과 위쪽에 이유와 이어 가는 법을 보여 줌 (2026-11-03 조리과 다경, 할 일 1)
+const GOAL_DAY={ckg:"요리 실력은 낮에 일하는 쪽으로 이어 갈 수 있어요. 학교·회사 단체급식 조리, 식품 생산·제과 공장의 주간 근무처럼 밤샘 없는 자리를 공고에서 '주간'으로 찾아보세요."};
+function goalOut(f,ALL,P){
+  const gk=goalKey(f); if(!gk || P.some(p=>p.key===gk)) return "";
+  const gp=ALL.find(p=>p.key===gk); if(!gp || !gp.v || !gp.v.length) return "";
+  const day=gp.v.includes("교대·야간 근무") && GOAL_DAY[gk];
+  return `<div class="warn">하고 싶다고 고른 '${gp.n}' 쪽은 '${gp.v.join("', '")}' 조건과 겹쳐서 추천 3개에서 빠졌어요.${day?" "+day:""} <a href="#goal">준비 안내 보기</a></div>`;
+}
 function result(){
   AFF_SHOWN=0;
   const {t,f}=tally(); const ALL=score(); const P=ALL.slice(0,3); const tops=topTraits(t,5); P_CUR=P;
@@ -1637,7 +1645,7 @@ function result(){
       ${(f.flat||f.longslump)&&!(free&&CRISIS_RE.test(free))?`<div class="care"><b>요즘 많이 지쳤다면</b><p>진로보다 내 몸과 마음이 먼저예요. 혼자 견디지 말고 이야기해 보세요. 청소년·청년(만 24세까지) <a href="tel:1388">1388</a>, 마음이 힘들 때 <a href="tel:109">109</a>(24시간), 위급하면 112·119.</p></div>`:""}
       <nav class="jump" aria-label="결과 바로가기">${isMS()?`<button type="button" data-go="run">한 달 알아보기 계획</button>`:free && CRISIS_RE.test(free) ? "" : `<button type="button" data-go="run">첫 월급까지</button>`}<button type="button" data-go="paths">추천 길 3개</button><button type="button" data-go="keep">저장·준비계획</button><button type="button" data-go="money">돈 지원 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button>${corp.length?`<button type="button" data-go="corp">기업 프로그램 ${corp.length}개</button>`:""}${gp?`<button type="button" data-go="goal">하고 싶은 일 준비</button>`:""}</nav>
     </div>
-    ${P[0].v.length?`<div class="warn">말씀하신 조건을 모두 피하는 길이 없어서, 가장 덜 겹치는 길을 보여드려요. 카드마다 맞지 않는 점을 적어 뒀어요.</div>`:""}
+    ${P[0].v.length?`<div class="warn">말씀하신 조건을 모두 피하는 길이 없어서, 가장 덜 겹치는 길을 보여드려요. 카드마다 맞지 않는 점을 적어 뒀어요.</div>`:""}${goalOut(f,ALL,P)}
     <div id="paths"></div>
     ${P.map((p,i)=>`<article class="path ${i===0?"top":""}" id="path-${i}">
       <span class="rank">${i+1}순위</span>
