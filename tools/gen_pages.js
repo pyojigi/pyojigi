@@ -6,6 +6,7 @@ const html = fs.readFileSync(require('path').join(__dirname,'..','src','pyojigi.
 const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const JOBD = new Function(js.match(/const JOBD=\{[\s\S]*?\n\};/)[0] + '\nreturn JOBD;')();
 const DICT_CATS = new Function(js.match(/const DICT_CATS=\[[^\n]*\];/)[0] + '\nreturn DICT_CATS;')();
+const SAL_SRC = (m => m ? new Function(m[0] + '\nreturn SAL_SRC;')() : {})(js.match(/const SAL_SRC=\{[^\n]*\};/));
 const OUT = process.argv[2], SITE = (process.argv[3] || process.env.SITE_URL || 'https://pyojigi.pages.dev').replace(/\/$/, '');
 const TODAY = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -109,7 +110,7 @@ function jobPage(p) {
   const title = `${nm} 되는 법, 연봉, 자격증 | 표지기`;
   const desc = `${nm}: ${J.slice(0, 4).join(', ')}. 준비 기간 ${prepTxt(p.prep)}, ${p.sal ? `연봉 연 ${p.sal[0].toLocaleString()}~${p.sal[1].toLocaleString()}만원 정도. ` : ''}${p.need.split('.')[0]}.`;
   const body = `<h1>${esc(nm)} 되는 법</h1><p class="lede">${esc(p.n)}${CAT[k] ? ' · ' + esc(CAT[k]) : ''}</p>
-<div class="card"><dl class="kv"><dt>준비 기간</dt><dd>${prepTxt(p.prep)}</dd><dt>연봉</dt><dd>${esc(sal)}</dd><dt>필요한 것</dt><dd>${esc(p.need)}</dd>${G.how ? `<dt>준비 순서</dt><dd>${esc(G.how)}</dd>` : ''}${A ? `<dt>AI 영향</dt><dd>${esc(M.AIXT[A][0])} · ${esc(M.AIXT[A][1])}</dd>` : ''}</dl></div>
+<div class="card"><dl class="kv"><dt>준비 기간</dt><dd>${prepTxt(p.prep)}</dd><dt>연봉</dt><dd>${esc(sal)}${p.sal ? `<span class="src" style="display:block">${SAL_SRC[k] ? esc(SAL_SRC[k]) + '. ' : ''}앞 숫자는 신입, 뒤는 경력 5년 이상의 대략적인 분야 기준이에요. 지원할 공고의 급여를 꼭 확인하세요.</span>` : ''}</dd><dt>필요한 것</dt><dd>${esc(p.need)}</dd>${G.how ? `<dt>준비 순서</dt><dd>${esc(G.how)}</dd>` : ''}${A ? `<dt>AI 영향</dt><dd>${esc(M.AIXT[A][0])} · ${esc(M.AIXT[A][1])}</dd>` : ''}</dl></div>
 ${J.length ? `<h2>세부 직업</h2>${J.map(j => { const d = JOBD[j]; return `<div class="card"><b>${esc(j)}</b>${d ? `<p>${esc(d[0])}</p>${d[1] ? `<p class="src">되는 법 · ${esc(d[1])}</p>` : ''}` : ''}</div>`; }).join('')}` : ''}
 ${G.cert.length ? `<h2>자격증·시험</h2><ul>${G.cert.map(c => `<li><b>${esc(c[0])}</b> · ${esc(c[1])}${c[2] ? ` <a href="${esc(c[2])}" rel="noopener">바로가기</a>` : ''}</li>`).join('')}</ul>` : ''}
 ${R.length ? `<h2>준비 단계 (대략적인 시간)</h2><ol>${R.map(r => `<li>${esc(r[0])} <span class="src">약 ${r[1]}시간</span></li>`).join('')}</ol>` : ''}
