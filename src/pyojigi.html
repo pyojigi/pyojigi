@@ -1556,6 +1556,7 @@ function planDraw(k,search){
   if(SPn.includes("청년월세 지원")) items.push("청년월세 지원: 만 19~34세, 따로 살면 월 최대 20만원");
   const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM && p.key!==k).sort((a,b)=>a.prep-b.prep)[0];
   if(shorter) items.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 일하면서 이 길을 준비하는 방법`);
+  if(shorter && AIX[shorter.key]==="high") items.push(`다만 '${shorter.n.replace(/ \(.*\)$/,"")}' 쪽은 AI 영향이 커서 신입 자리가 줄고 있어요. 오래 머물 곳보다 잠깐 거쳐 가는 다리로 생각하세요`); // 항목 60
   if(SPn.includes("국민내일배움카드")) items.push("교육비는 국민내일배움카드로 줄이기 (5년간 300만원까지)");
   const ged = k==="hsj" && sitKey()==="drop" && st.ans.d3!==0 ? "검정고시 뒤 " : "";
   if(ged) items.unshift("이 길은 검정고시에 붙은 다음부터 시작돼요. 위 기간에 검정고시 준비 기간을 더해서 보세요 (시험은 1년에 두 번, 보통 4월·8월)");
@@ -1580,7 +1581,8 @@ function calcDraw(){
     tips.push(`한 달에 ${c.perMonth.toLocaleString()}만원 정도면 채울 수 있어요.${c.perMonth<=66?" 주말 이틀 단기 일로 메울 수 있는 크기예요.":""}`);
     const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM).sort((a,b)=>a.prep-b.prep)[0];
     if(shorter) tips.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 돈을 벌면서 이 길을 준비하는 방법도 있어요.`);
-    else if(!o.nat) tips.push("국민취업지원제도 조건이 맞으면 6개월간 360만원을 더 받을 수 있어요. '더 정확하게'에서 넣어 보세요.");
+    if(shorter && AIX[shorter.key]==="high") tips.push(`다만 '${shorter.n.replace(/ \(.*\)$/,"")}' 쪽은 AI 영향이 커서 신입 자리가 줄고 있어요. 오래 머물 곳보다 잠깐 거쳐 가는 다리로 생각하세요.`); // 항목 60
+    if(!shorter && !o.nat) tips.push("국민취업지원제도 조건이 맞으면 6개월간 360만원을 더 받을 수 있어요. '더 정확하게'에서 넣어 보세요.");
   }
   const rows=c.rows.map(r=>`<div class="mrow"><span>${r.m}개월째 <small>${r.stage}</small></span><b class="${r.bal<0?"negt":""}">${r.bal.toLocaleString()}만원</b></div>`).join("");
   box.innerHTML=verdict+`<div class="runbar" role="img" aria-label="첫 월급까지 ${c.F}개월 중 ${last}개월 버팀"><i style="width:${pct}%"></i></div>
@@ -1675,7 +1677,7 @@ function result(){
       ${help.map(supItem).join("")}
       <p class="src">지원 금액과 요건은 해마다 바뀔 수 있어 신청 전 각 기관에서 최종 확인됩니다.</p>
     </section>
-    ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요. 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
+    ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요(표지기 공고 확인일 ${CORP_CHECKED}). 그 뒤 바뀌었을 수 있으니 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
     <section class="card keep" id="keep"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">저장하고 이어가기</span><h3>결과를 사진으로 갖고 가세요</h3><p class="hint">갤러리에 저장해 두면 다시 들어오지 않아도 바로 볼 수 있어요.</p></div>
       <button class="btn" id="rtGo" type="button">${st.rt?"내 준비계획 보기":"나에게 딱 맞는 준비계획"}</button>
       <button class="btn alt" id="imgRes" type="button">결과 이미지로 저장</button>
@@ -1999,6 +2001,8 @@ const CAL=[
  {n:"SSAFY 17기 교육생 모집",s:"2026-10-26",e:"2026-11-09",cat:"corp",who:"29세 이하 미취업, 대학·마이스터고 졸업(예정)자, 전공 무관",act:"2027년 1월부터 1년, 전국 5개 캠퍼스 무료 교육 + 월 100만원 교육지원비",url:SSAFY},
  {n:"SK 아이젠(AIGEN) 1기 지원서·포트폴리오 접수",s:"2026-11-01",e:"2026-11-15",cat:"corp",who:"만 19~34세, 학력·전공·코딩 경험 무관, 2년 전일제 참여 가능자",act:"11월 AI 인터뷰 → 12월 초 사고역량 확인 → 12월 프로젝트 면접 → 2027년 1월 최종 선발. 활동 2027년 3월~2028년 12월(약 22개월), 50명 내외, 월 300만원 성장지원금",url:AIG}
 ];
+// 기업 프로그램(corpSupports·WAITING corp) 공고를 마지막으로 확인한 날. 다시 확인하면 이 날짜를 바꾼다 (항목 60)
+const CORP_CHECKED="2026-10-23";
 // 일정 발표를 기다리는 제도 (날짜가 나오면 CAL로 옮긴다)
 const WAITING=[
  {n:"국가장학금 2027학년도 1학기 1차 신청",hint:"지난해 같은 시기 1차 신청은 11월 말~12월 말에 열렸어요.",url:KOSAF,cat:"money"},
@@ -2091,7 +2095,7 @@ function supports(f,P,today){
     out.push({n:"커리어넷 진로·학과 정보",who:k==="hs"?"고등학생":k==="retake"?"재수·N수생":"대학생",t:"학과별 졸업 후 진출 직업, 직업별 하는 일과 전망을 무료로 찾아볼 수 있는 정부 진로 사이트예요.",links:[["커리어넷","https://www.career.go.kr"]]});
     if(k==="hs") out.push({n:"학교 취업지원관·진로 선생님",who:f.voc?"특성화고·마이스터고 학생":"취업도 고민하는 학생",t:"고졸 채용 공고와 추천 전형 정보는 학교로 먼저 들어와요. 진로 상담실에 이 결과를 들고 가서 같이 보세요.",links:[]});
     if(k==="col") out.push({n:"대학일자리플러스센터",who:f.senior?"졸업 예정자":"재학생",t:"학교마다 있는 취업 지원 기관이에요. 진로 상담, 이력서 첨삭, 모의면접, 현장실습 연결을 무료로 받을 수 있어요.",links:[]});
-    if(k==="col" || f.go==="adv") out.push({n:"국가장학금",who:"학기마다 신청",t:"가구 소득구간에 따라 등록금을 지원받아요. 재학생은 직전 학기 12학점 이상·80점(B) 이상이 기본 기준이고, 부모님 정보 제공 동의를 안 하면 심사가 안 돼요. 1차 신청은 보통 학기 시작 전 겨울·여름에 열려요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]});
+    if(k==="col" || f.go==="adv") out.push({n:"국가장학금",who:"학기마다 신청",t:"가구 소득구간에 따라 등록금을 지원받아요. 재학생은 직전 학기 12학점 이상·80점(B) 이상이 기본 기준이고, 부모님 정보 제공 동의를 안 하면 심사가 안 돼요. 1차 신청은 보통 학기 시작 전 겨울·여름에 열려요. 휴학한 학기에는 받을 수 없어요. 복학할 학기의 신청 기간에 복학생으로 신청하면 돼요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]}); // 복학생 신청 대상: 한국장학재단 2026-1학기 1차 신청 공지 https://www.kosaf.go.kr/ko/notice.do?mode=view&seqNo=20327 (2026-11-03 확인)
     if(k==="col" || f.go==="adv") out.push({n:"취업 후 상환 학자금대출",who:"학부생 만 35세 이하",t:"등록금 전액과 생활비 학기당 200만원까지 빌릴 수 있고, 2026년 1학기 금리는 연 1.7%였어요. 졸업 후 연소득이 3,037만원을 넘을 때부터 갚기 시작해요. 빚이니 장학금으로 모자란 만큼만 쓰세요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]});
     if(k==="col" && f.senior) out.push({n:"국민내일배움카드",who:"졸업까지 2년 미만 남았거나 졸업했으면 신청 가능",t:"졸업까지 남은 기간이 2년 미만이면 재학 중에도 신청할 수 있고, 졸업하면 구직자로 발급받아 5년간 300만원(저소득층 등 최대 500만원)까지 국비 훈련을 들을 수 있어요.",links:[["고용24",W24],["훈련과정 검색",TRAIN]]});
     out.push(...polySup(f,P,k,emp,age));
