@@ -69,9 +69,11 @@ function check(a) {
   if (k === 'move' && f.same && f.mv !== 'fit' && f.cur && !M.goalKey(f)) { const cp = P.find(p => p.key === f.cur); if (cp && cp.s > -9999 && !cp.v.length && !top3.includes(cp)) errs.push('같은 업계 원하는데 지금 경력 길이 3위 밖'); }
   if (top3.some(p => p.key === 'spo') && !(f.maj === 'spo' || f.c_sport || f.p_spo || M.goalKey(f) === 'spo' || (t.body || 0) >= 5)) errs.push('체육 배경 없이 체육');
   if (top3.some(p => !M.YTQ[p.key])) errs.push('영상 검색어 없음');
-  if (['job', 'col', 'hs', 'switch'].includes(k) && top3.some(p => ['off', 'it'].includes(p.key)) && !real.some(x => x.startsWith('한국은행 분석'))) errs.push('AI 영향 높은 길인데 현실 점검 문구 없음');
+  if (['job', 'col', 'hs', 'switch'].includes(k) && top3.some(p => ['off', 'it'].includes(p.key)) && !real.some(x => x.includes('한국은행 분석'))) errs.push('AI 영향 높은 길인데 현실 점검 문구 없음');
   if (top3.some(p => !p.n || !p.first || !p.try || !p.need)) errs.push('경로 문구 빠짐');
-  if ((k === 'hs') && sp.some(x => x.n === '국민내일배움카드')) errs.push('고등학생에게 내일배움카드');
+  // 고용24 국민내일배움카드 지원 제외 대상은 '고등학교 1~2학년생' (2026-11-03 확인) — 3학년만 카드 안내
+  if ((k === 'hs') && f.hsG !== 3 && sp.some(x => x.n === '국민내일배움카드')) errs.push('고1·2에게 내일배움카드');
+  if ((k === 'hs') && f.hsG === 3 && !sp.some(x => x.n === '국민내일배움카드')) errs.push('고3에게 내일배움카드 안내 없음');
   if (new Set(real).size !== real.length) errs.push('현실 점검 문구 중복');
   if (new Set(sp.map(x => x.n)).size !== sp.length) errs.push('지원제도 중복');
   if (!sp.length) errs.push('지원제도 0개');
