@@ -1768,7 +1768,9 @@ function result(){
   const MONEY=["교육비·교육급여 지원","국가장학금","취업 후 상환 학자금대출","청년월세 지원","청년미래적금","청년내일저축계좌","실업급여 (구직급여)","국민취업지원제도","청년창업사관학교","햇살론유스 (청년 저금리 대출)","서민금융통합지원센터 상담"];
   const LOAN=x=>/대출/.test(x.n), money=SP.filter(x=>MONEY.includes(x.n)).sort((a,b)=>LOAN(a)-LOAN(b)), corp=SP.filter(x=>x.corp), help=SP.filter(x=>!MONEY.includes(x.n)&&!x.corp);
   const gk=guideKey(f), gp=gk&&PATHS.find(p=>p.key===gk), GD=gk&&guideFor(gk);
-  const tagT=teen()?tops.filter(x=>x!=="shiftok"):tops; // 10대에게 '교대 가능' 태그는 빼기
+  // 결과 맨 위 성향 태그도 중간 화면처럼 나이·상황 보기 점수(10대→성장 지향 등)는 빼고 고른다 (표시만, 2026-11-03 고2 건우)
+  const tA={...t}; ["ag","sit"].forEach(id=>{ const q=Q.find(x=>x.id===id), a=st.ans[id], o=q&&a!=null&&q.o[a]; if(o) for(const x in o[1]) tA[x]=(tA[x]||0)-o[1][x]; });
+  const tagT=topTraits(tA,5).filter(x=>!(teen()&&x==="shiftok")); // 10대에게 '교대 가능' 태그는 빼기
   const runBtn=isMS()?"한 달 알아보기 계획":stuPlanOn(f)?"졸업 전에 해 볼 것":"첫 월급까지";
   const plans=(st.ans.plan||[]).map(i=>PLANS[i]).filter(x=>x&&x[1]);
   const lk=(l)=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]}<i class=ext aria-hidden=true>↗</i></a>`;

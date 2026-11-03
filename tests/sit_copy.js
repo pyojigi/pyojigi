@@ -44,7 +44,10 @@ for (let si = 0; si < SITS.length; si++) {
     const tx = text(h); M.setAns(a); const { t, f } = M.tally(); const emp = M.employed(f);
     // '맞는 이유'의 성장 지향은 나이·상황 보기 점수만으로 붙지 않는다 (고2 건우: 10대 +1 로 '성장 지향')
     { const tw = { ...t }; for (const id of ['ag', 'sit']) { const q = M.Q.find(x => x.id === id), o = q && a[id] != null && q.o[a[id]]; if (o) for (const x in o[1]) tw[x] = (tw[x] || 0) - o[1][x]; }
-      if ((tw.growth || 0) < 2) { const m = h.match(/맞는 이유: [^<]*성장 지향/); if (m) bad(k, '나이·상황 점수만으로 성장 지향', a, m[0]); } }
+      if ((tw.growth || 0) < 2) { const m = h.match(/맞는 이유: [^<]*성장 지향/); if (m) bad(k, '나이·상황 점수만으로 성장 지향', a, m[0]); }
+      // 결과 맨 위 성향 태그도 같은 기준 (나이·상황을 빼면 성장 점수가 없는데 태그가 나오면 오류)
+      const tg = (h.match(/<\/ol>\s*<div class="chips">([\s\S]*?)<\/div>/) || [])[1] || '';
+      if ((tw.growth || 0) <= 0 && />성장 지향</.test(tg)) bad(k, '나이·상황 점수만으로 성장 지향 태그', a); }
     const rules = (BAN[k] || []).filter(r => (!(k === 'move' || k === 'slump') || emp) && !(f.cur === 'mil' && r[1].startsWith('군 경력')));
     if ((k === 'switch' || k === 'mil') && emp) rules.push([/돈이 급하면/, '돈이 급하면(재직자)']);
     // 배달·대리·프리랜서(plat)·입대 앞둠(enl)·복무 중: 직장인 문구 대신 지금 일 유지·전역 뒤 기준 (배달 라이더 서진·상병 도현)
