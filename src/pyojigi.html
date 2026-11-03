@@ -615,21 +615,23 @@ const CERT_G=certGroups(CERT_OWN).concat([["",[CERT_OWN.length]]]);
 const PLANS=CERT_PLAN.map(i=>[CERTS[i][0],CERTS[i][2][0],CERTS[i][2]]).concat([["아직 없다",null,[]]]);
 const PLAN_O=PLANS.map(p=>[p[0],{},p[2].length?Object.fromEntries(p[2].map(k=>["p_"+k,1])):{}]);
 const PLAN_GROUPS=certGroups(CERT_PLAN).concat([["",[CERT_PLAN.length]]]);
+// 특성화고 학과(질문 h1b): [보기, 표시(hmj), 그 학과로 많이 가는 길]. 결과의 '내 학과로 갈 수 있는 길' 칸에만 쓰고 추천 점수에는 넣지 않는다
+const HS_MAJ=[["기계·자동차","mech",["aut","fac","tec","avi","rail"]],["전기·전자·반도체","elec",["tec","fac","rail","eng"]],["건축·토목·인테리어","bldg",["bld","arc","tec"]],["화학·바이오·환경","chem",["fac","env","eng"]],["정보·컴퓨터·게임","sw",["it","dsn"]],["디자인·영상·콘텐츠","dsn",["dsn","mkt","med"]],["경영·회계·사무","biz",["off","fin","tax"]],["조리·제과·식품","food",["ckg","diet"]],["미용","beauty",["bty"]],["보건·간호·복지","care",["car","nur","kid"]],["관광·서비스·유통","svc",["svc","log","sal"]],["농업·수산·해양","agri",["env","log","fac"]],["다른 학과·잘 모르겠다",null,[]]];
 const Q = [
  {id:"ag",ch:0,big:1,q:"먼저, 나이대를 골라 주세요",hint:"가볍게 시작해요. 고른 나이에 맞는 질문만 이어져요",o:[["10대",{growth:1}],["20대",{growth:1}],["30대",{}],["40대 이상",{stable:1}]]},
- {id:"sit",ch:0,vis:sitVis,q:"지금 상황에 가장 가까운 건?",o:[["취업 준비 중 (아직 첫 직장 전)",{},{sit:"job"}],["다니는 중인데 이직을 고민 중",{},{sit:"move"}],["그만두고 쉬는 중",{fast:1},{sit:"gap"}],["일은 하는데 아무 의욕이 없다",{},{sit:"slump"}],["완전히 다른 분야로 바꾸고 싶다",{growth:1},{sit:"switch"}],["군 복무 중이거나 막 전역했다",{},{sit:"mil"}],["고등학생이다",{},{sit:"hs"}],["대학(전문대 포함) 재학 중이다",{},{sit:"col"}],["중학생이다",{growth:1},{sit:"ms"}],["학교를 그만뒀다 (자퇴·학교 밖)",{},{sit:"drop"}],["재수·N수 준비 중이다",{mind:1},{sit:"retake"}],["육아 등으로 쉬다가 다시 일하려 한다",{},{sit:"gap",brk:1}]]},
- {id:"cur",etc:1,cond:NOTY,ch:0,groups:[["현장·기술",[0,1,6,7,11,9,15]],["사무·IT·영업·서비스·디자인",[2,3,5,12,16]],["교육·돌봄",[4,10,8]],["",[13,14]]],q:"지금 하는 일 (쉬는 중이면 마지막으로 한 일)은?",hint:"이직·전환을 원하면 같은 분야는 추천에서 뒤로 미룹니다",o:[["보안·경비",{},{cur:"sec"}],["생산·제조",{},{cur:"fac"}],["사무·행정",{},{cur:"off"}],["영업·판매·상담",{},{cur:"sal"}],["체육·교육",{},{cur:"spo"}],["IT·개발",{},{cur:"it"}],["기술·설비",{},{cur:"tec"}],["물류·운송",{},{cur:"log"}],["돌봄·의료",{},{cur:"car"}],["군인 (병·부사관·장교)",{},{cur:"mil"}],["교육·강사",{},{cur:"edu"}],["청소·미화·환경",{},{cur:"env"}],["매장·서비스·요식 (카페·식당·편의점)",{},{cur:"svc"}],["일해본 적 없음",{}],["기타 (아래 칸에 직접 적기)",{}],["연구·설계·엔지니어",{},{cur:"eng"}],["디자인 (시각·제품·웹·영상)",{},{cur:"dsn"}]]},
+ {id:"sit",ch:0,vis:sitVis,q:"지금 상황에 가장 가까운 건?",o:[["취업 준비 중 (아직 첫 직장 전)",{},{sit:"job"}],["다니는 중인데 이직을 고민 중",{},{sit:"move"}],["그만두고 쉬는 중",{fast:1},{sit:"gap"}],["일은 하는데 아무 의욕이 없다",{},{sit:"slump"}],["완전히 다른 분야로 바꾸고 싶다",{growth:1},{sit:"switch"}],["군 복무 중이거나 막 전역했다",{},{sit:"mil"}],["고등학생이다",{},{sit:"hs"}],["대학(전문대 포함) 재학 중이다",{},{sit:"col"}],["중학생이다",{growth:1},{sit:"ms"}],["학교를 그만뒀다 (자퇴·학교 밖)",{},{sit:"drop"}],["재수·N수 준비 중이다",{mind:1},{sit:"retake"}],["육아 등으로 쉬다가 다시 일하려 한다",{},{sit:"gap",brk:1}],["대학 휴학 중이다 (자퇴·편입 고민 포함)",{},{sit:"col",hue:1}],["배달·대리·프리랜서 일을 한다",{},{sit:"move",plat:1}],["입대를 앞두고 있다",{},{sit:"job",enl:1}],["시험·학교를 마치고 쉬는 중이다",{fast:1},{sit:"gap",fresh:1}]]},
+ {id:"cur",etc:1,cond:()=>NOTY()&&sitKey()!=="col",auto:()=>sitKey()==="mil"?9:null,ch:0,groups:[["현장·기술",[0,1,6,7,11,9,15]],["사무·IT·영업·서비스·디자인",[2,3,5,12,16]],["교육·돌봄",[4,10,8]],["",[13,14]]],q:"지금 하는 일 (쉬는 중이면 마지막으로 한 일)은?",hint:"이직·전환을 원하면 같은 분야는 추천에서 뒤로 미뤄요",o:[["보안·경비",{},{cur:"sec"}],["생산·제조",{},{cur:"fac"}],["사무·행정",{},{cur:"off"}],["영업·판매·상담",{},{cur:"sal"}],["체육·교육",{},{cur:"spo"}],["IT·개발",{},{cur:"it"}],["기술·설비",{},{cur:"tec"}],["물류·운송",{},{cur:"log"}],["돌봄·의료",{},{cur:"car"}],["군인 (병·부사관·장교)",{},{cur:"mil"}],["교육·강사",{},{cur:"edu"}],["청소·미화·환경",{},{cur:"env"}],["매장·서비스·요식 (카페·식당·편의점)",{},{cur:"svc"}],["일해본 적 없음",{}],["기타 (아래 칸에 직접 적기)",{}],["연구·설계·엔지니어",{},{cur:"eng"}],["디자인 (시각·제품·웹·영상)",{},{cur:"dsn"}]]},
  {id:"age",cond:()=>false,ch:0,q:"나이대는?",o:[["10대",{growth:1}],["20대 초반 (~23)",{growth:1}],["20대 중반 (24~26)",{}],["20대 후반 (27~29)",{}],["30대 초반",{}],["30대 후반",{stable:1}],["40대 이상",{stable:1}]]},
- {id:"edu",cond:NOTY,ch:0,q:"최종 학력은?",o:[["고졸",{}],["전문대 졸",{}],["4년제 졸",{}],["대학원 이상",{mind:1}],["고등학교 재학·졸업 예정",{}],["대학 재학 중",{}]]},
- {id:"major",cond:NOTY,ch:0,q:"전공(또는 가장 오래 공부한 분야)은?",hint:"가장 가까운 학과를 골라 주세요",groups:MAJOR_GROUPS,o:MAJORS},
- {id:"exp",cond:NOTY,ch:0,q:"지금까지 일한 경력은 합쳐서?",hint:"아르바이트 제외, 4대보험 되는 일 기준",o:[["없음",{}],["1년 미만",{}],["1~3년",{}],["3년 이상",{stable:1}]]},
+ {id:"edu",cond:NOTY,auto:()=>sitKey()==="col"?5:null,ch:0,q:"최종 학력은?",o:[["고졸",{}],["전문대 졸",{}],["4년제 졸",{}],["대학원 이상",{mind:1}],["고등학교 재학·졸업 예정",{}],["대학 재학 중",{}]]},
+ {id:"major",cond:NOTY,ch:0,alt:()=>st.ans.edu===0?{q:"고등학교에서 배운 분야(또는 가장 오래 공부한 분야)는?",hint:"분야를 누르면 학과가 나와요. 일반고를 나왔다면 맨 아래 '해당 없음'을 골라 주세요"}:null,q:"전공(또는 가장 오래 공부한 분야)은?",hint:"가장 가까운 학과를 골라 주세요",groups:MAJOR_GROUPS,o:MAJORS},
+ {id:"exp",cond:NOTY,auto:()=>sitKey()!=="col"&&sitKey()!=="mil"&&st.ans.cur===13?0:null,ch:0,q:"지금까지 일한 경력은 합쳐서?",hint:"짧은 아르바이트는 빼고, 회사·배달·대리·프리랜서처럼 꾸준히 돈을 번 일을 모두 합쳐 주세요",o:[["없음",{}],["1년 미만",{}],["1~3년",{}],["3년 이상",{stable:1}]]},
  {id:"cert",etc:1,ch:0,multi:1,none:CERT_OWN.length,groups:CERT_G,q:"가지고 있는 자격·면허·특기를 모두 골라 주세요",hint:"분야를 누르면 자격이 나와요",o:CERT_O},
  {id:"goal",etc:1,ch:0,q:"이미 하고 싶은 일이 정해져 있나요?",hint:"고르면 그 일에 필요한 자격증, 준비 기간, 신청 링크를 결과에 꼭 넣어 드려요. 목록에 없으면 아래 기타 칸에 적어 주세요.",o:GOALS.map(g=>[g[0],{},g[1]?{goal:g[1]}:undefined]),groups:GOAL_GROUPS},
- {id:"inc",cond:ADULT,ch:0,q:"지금 월 수입은?",o:[["없음",{fast:2},{noinc:1}],["150만원 미만",{fast:1}],["150~250만원",{}],["250만원 이상",{}]]},
+ {id:"inc",cond:ADULT,ch:0,alt:()=>sitKey()==="col"?{q:"지금 내가 버는 돈은 한 달에?",hint:"알바처럼 내가 직접 버는 돈 기준이에요. 용돈은 빼요"}:null,q:"지금 월 수입은?",o:[["없음",{fast:2},{noinc:1}],["150만원 미만",{fast:1}],["150~250만원",{}],["250~300만원",{}],["300만원 이상",{}]]},
 
- {id:"buffer",cond:ADULT,ch:1,q:"수입이 끊겨도 생활비로 버틸 수 있는 기간은?",hint:"대충 골라도 괜찮아요. 이 답은 서버로 보내지 않아요. 빨리 벌어야 하면 바로 돈 버는 길을 앞에 보여 줘요",o:[["1개월도 어렵다",{fast:3},{urgent:2}],["1~3개월",{fast:2},{urgent:1}],["3~6개월",{}],["6개월 이상",{growth:1}]]},
- {id:"fam",cond:ADULT,ch:1,q:"내 수입에 기대는 가족이 있나요?",o:[["있다",{stable:2,money:1},{fam:1}],["일부 보탠다",{stable:1}],["없다",{}]]},
- {id:"debt",cond:ADULT,ch:1,q:"매달 갚아야 하는 돈이 있나요?",hint:"금액은 묻지 않아요",o:[["있다",{money:1,fast:1},{debtY:1}],["없다",{}]]},
+ {id:"buffer",cond:ADULT,ch:1,q:"수입이 끊겨도 생활비로 버틸 수 있는 기간은?",hint:"대충 골라도 괜찮아요. 이 답은 서버로 보내지 않아요. 빨리 벌어야 하면 바로 돈 버는 길을 앞에 보여 줘요",alt:()=>sitKey()==="col"?{q:"알바·용돈이 끊겨도 생활비로 버틸 수 있는 기간은?"}:sitKey()==="mil"&&st.ans.mi0===0?{q:"전역한 뒤 수입 없이 생활비로 버틸 수 있는 기간은?"}:null,o:[["1개월도 어렵다",{fast:3},{urgent:2}],["1~3개월",{fast:2},{urgent:1}],["3~6개월",{}],["6개월 이상",{growth:1}],["부모님과 살아서 당장은 괜찮다",{},{withP:1}]]},
+ {id:"fam",cond:ADULT,ch:1,alt:()=>sitKey()==="col"?{q:"내가 버는 돈으로 도와야 하는 가족이 있나요?"}:null,q:"내 수입에 기대는 가족이 있나요?",o:[["있다",{stable:2,money:1},{fam:1}],["일부 보탠다",{stable:1}],["없다",{}]]},
+ {id:"debt",cond:ADULT,ch:1,alt:()=>sitKey()==="col"?{hint:"학자금 대출처럼 갚고 있는 돈도 넣어요. 금액은 묻지 않아요"}:null,q:"매달 갚아야 하는 돈이 있나요?",hint:"금액은 묻지 않아요",o:[["있다",{money:1,fast:1},{debtY:1}],["없다",{}]]},
  {id:"prep",cond:NOTMS,ch:1,qy:"뭔가를 배워서 써먹기까지 얼마나 기다릴 수 있어요?",hy:"운동·악기·게임 실력이 늘던 때를 떠올려 보세요. 준비가 긴 직업이 맞는지 보려는 질문이에요",oy:["빨리 써먹고 싶다, 몇 주면 좋겠다","몇 달 정도는 꾸준히 할 수 있다","1년쯤은 참고 할 수 있다","몇 년이 걸려도 괜찮다"],q:"새 일을 위해 준비에 쓸 수 있는 기간은?",o:[["당장 일해야 한다",{fast:2},{maxPrep:1}],["3개월 정도",{},{maxPrep:3}],["6개월~1년",{growth:1},{maxPrep:12}],["1년 이상도 괜찮다",{growth:2},{maxPrep:24}]]},
  {id:"plan",etc:1,ch:1,qy:"앞으로 따 보고 싶은 자격·시험이 있나요?",hy:"몰라도 괜찮아요. 없으면 '아직 없다'를 골라 주세요",cond:()=>NOTMS()&&st.ans.prep!=null&&st.ans.prep>0,multi:1,none:CERT_PLAN.length,groups:PLAN_GROUPS,q:"준비하는 동안 따거나 붙으려는 자격·시험이 있나요?",hint:"지금 가진 자격만 보지 않고, 준비 기간 안에 갖출 계획까지 추천에 반영해요",o:PLAN_O},
  {id:"study",ch:1,qy:"학교·학원 수업 말고, 진로 준비에 하루 쓸 수 있는 시간은?",oy:[0,0,0,"방학이면 하루 종일도 가능"],q:"하루에 공부·준비에 낼 수 있는 시간은?",o:[["1시간 미만",{}],["1~2시간",{}],["3~4시간",{growth:1}],["하루 종일 가능",{growth:2}]]},
@@ -641,29 +643,30 @@ const Q = [
  {id:"team",ch:2,qy:"조별 과제·팀 활동에서 더 편한 건?",oy:["정해진 역할과 규칙대로 하기","다 같이 부딪히며 하기","내 몫을 혼자 맡아 끝까지 하기"],q:"더 편한 일하는 방식은?",o:[["정해진 규칙대로, 조직 안에서",{stable:2,routine:1}],["팀과 같이 부딪히며",{people:1}],["혼자 맡아서 끝까지",{solo:2}]]},
  {id:"learn",ch:2,q:"새로운 프로그램이나 기계를 배울 때 나는?",o:[["설명서 보고 혼자 금방 익힌다",{tech:2,mind:1}],["누가 한 번 보여주면 따라 한다",{tech:1}],["오래 걸리고 스트레스다",{routine:1}]]},
 
- {id:"shift",ch:3,qy:"밤늦게까지 깨어 있던 다음 날(시험 공부·게임 등)은?",hy:"밤·새벽에 돌아가며 일하는 직업(교대 근무)이 맞는지 보려는 질문이에요",oy:["멀쩡하다, 오히려 밤에 쌩쌩하다","하루 이틀은 버틴다","하루 종일 힘들다, 밤엔 자야 한다"],q:"교대 근무, 야간 근무는?",hint:"수당이 붙는 대신 생활 리듬이 깨집니다",o:[["괜찮다, 돈 되면 한다",{shiftok:3,money:1}],["당분간은 가능",{shiftok:1}],["절대 못 한다",{time:1},{noShift:1}]]},
- {id:"press",ch:3,qy:"점수나 순위가 매번 공개되는 대회·게임에서 나는?",hy:"실적으로 평가받는 직업이 맞는지 보려는 질문이에요",oy:["더 불타오른다","적당히 신경 쓰인다","부담돼서 하기 싫어진다"],q:"매달 실적 숫자로 평가받는 건?",o:[["오히려 동기부여 된다",{pressureok:3,money:1}],["적당하면 괜찮다",{}],["생각만 해도 숨 막힌다",{stable:1},{noPress:1}]]},
- {id:"emo",ch:3,qy:"누가 나한테 괜히 짜증을 내거나 화를 내면?",hy:"손님·민원을 상대하는 직업이 맞는지 보려는 질문이에요",oy:["담담하게 넘긴다",0,0],q:"화난 고객·민원을 상대하는 일은?",o:[["담담하게 넘길 수 있다",{people:1}],["가끔이면 괜찮다",{}],["며칠씩 마음에 남는다",{solo:1},{noEmo:1}]]},
+ {id:"shift",ch:3,cond:NOTMS,qy:"밤늦게까지 깨어 있던 다음 날(시험 공부·게임 등)은?",hy:"밤·새벽에 돌아가며 일하는 직업(교대 근무)이 맞는지 보려는 질문이에요",oy:["멀쩡하다, 오히려 밤에 쌩쌩하다","하루 이틀은 버틴다","하루 종일 힘들다, 밤엔 자야 한다"],q:"교대 근무, 야간 근무는?",hint:"수당이 붙는 대신 생활 리듬이 깨져요",o:[["괜찮다, 돈 되면 한다",{shiftok:3,money:1}],["당분간은 가능",{shiftok:1}],["절대 못 한다",{time:1},{noShift:1}]]},
+ {id:"press",ch:3,cond:NOTMS,qy:"점수나 순위가 매번 공개되는 대회·게임에서 나는?",hy:"실적으로 평가받는 직업이 맞는지 보려는 질문이에요",oy:["더 불타오른다","적당히 신경 쓰인다","부담돼서 하기 싫어진다"],q:"매달 실적 숫자로 평가받는 건?",o:[["오히려 동기부여 된다",{pressureok:3,money:1}],["적당하면 괜찮다",{}],["생각만 해도 숨 막힌다",{stable:1},{noPress:1}]]},
+ {id:"emo",ch:3,cond:NOTMS,qy:"누가 나한테 괜히 짜증을 내거나 화를 내면?",hy:"손님·민원을 상대하는 직업이 맞는지 보려는 질문이에요",oy:["담담하게 넘긴다",0,0],q:"화난 고객·민원을 상대하는 일은?",o:[["담담하게 넘길 수 있다",{people:1}],["가끔이면 괜찮다",{}],["며칠씩 마음에 남는다",{solo:1},{noEmo:1}]]},
  {id:"sit8",ch:3,qy:"하루 종일 책상 앞에 앉아 있는 건? (수업·자습을 떠올려 보세요)",q:"하루 8시간 이상 모니터 앞에 앉아 있는 건?",o:[["괜찮다",{mind:1}],["중간중간 움직이면 괜찮다",{}],["못 견딘다",{body:2},{noDesk:1}]]},
- {id:"move",ch:3,qy:"가족·친구와 떨어져 낯선 곳에서 지내는 건? (수련회·캠프를 떠올려 보세요)",hy:"멀리 근무하거나 출장이 잦은 직업이 맞는지 보려는 질문이에요",oy:["어디서든 잘 지낸다","잠깐이면 괜찮다","집 근처를 떠나기 싫다"],q:"지방 근무나 잦은 출장은?",o:[["어디든 간다",{money:1}],["가까운 지역까지만",{}],["지금 사는 곳을 떠날 수 없다",{},{noMove:1}]]},
- {id:"unst",ch:3,qy:"용돈을 받는다면 어떤 쪽이 좋아요?",hy:"버는 돈이 달마다 달라지는 직업이 맞는지 보려는 질문이에요",oy:["한 만큼 받기 (잘하면 훨씬 많이)","기본 용돈에 잘하면 조금 더","매달 정해진 금액이 마음 편하다"],q:"달마다 수입이 들쭉날쭉한 건?",o:[["많이 벌 수 있다면 괜찮다",{money:2,pressureok:1}],["기본급이 있으면 괜찮다",{}],["불안해서 못 견딘다",{stable:2},{noUnst:1}]]},
+ {id:"move",ch:3,cond:NOTMS,qy:"가족·친구와 떨어져 낯선 곳에서 지내는 건? (수련회·캠프를 떠올려 보세요)",hy:"멀리 근무하거나 출장이 잦은 직업이 맞는지 보려는 질문이에요",oy:["어디서든 잘 지낸다","잠깐이면 괜찮다","집 근처를 떠나기 싫다"],q:"지방 근무나 잦은 출장은?",o:[["어디든 간다",{money:1}],["가까운 지역까지만",{}],["지금 사는 곳을 떠날 수 없다",{},{noMove:1}]]},
+ {id:"unst",ch:3,cond:NOTMS,qy:"용돈을 받는다면 어떤 쪽이 좋아요?",hy:"버는 돈이 달마다 달라지는 직업이 맞는지 보려는 질문이에요",oy:["한 만큼 받기 (잘하면 훨씬 많이)","기본 용돈에 잘하면 조금 더","매달 정해진 금액이 마음 편하다"],q:"달마다 수입이 들쭉날쭉한 건?",o:[["많이 벌 수 있다면 괜찮다",{money:2,pressureok:1}],["기본급이 있으면 괜찮다",{}],["불안해서 못 견딘다",{stable:2},{noUnst:1}]]},
 
- {id:"pay",ch:4,qy:"나중에 돈은 얼마나 벌고 싶어요?",hy:"정확한 금액은 몰라도 돼요. 느낌대로 골라 주세요",oy:["먹고살 만큼이면 충분하다","남들만큼은 벌고 싶다","남들보다 꽤 많이 벌고 싶다","아주 많이, 힘들어도 괜찮다"],q:"5년 뒤 바라는 연봉은?",o:[["3천만원대면 충분",{time:1,stable:1}],["4천만원대",{}],["5~6천만원대",{money:2}],["7천만원 이상",{money:3,pressureok:1}]]},
+ {id:"pay",ch:4,cond:NOTMS,qy:"나중에 돈은 얼마나 벌고 싶어요?",hy:"정확한 금액은 몰라도 돼요. 느낌대로 골라 주세요",oy:["먹고살 만큼이면 충분하다","남들만큼은 벌고 싶다","남들보다 꽤 많이 벌고 싶다","아주 많이, 힘들어도 괜찮다"],q:"5년 뒤 바라는 연봉은?",o:[["3천만원대면 충분",{time:1,stable:1}],["4천만원대",{}],["5~6천만원대",{money:2}],["7천만원 이상",{money:3,pressureok:1}]]},
  {id:"after",ch:4,qy:"방과 후·주말의 내 시간은 얼마나 중요해요?",hy:"퇴근 후 시간이 보장되는 직업이 맞는지 보려는 질문이에요",oy:["무엇보다 중요하다","어느 정도는 지키고 싶다","목표가 있으면 다 써도 된다"],q:"퇴근 후 시간은 얼마나 중요해요?",o:[["돈보다 중요하다",{time:3}],["어느 정도는 지키고 싶다",{time:1}],["지금은 일에 다 걸어도 된다",{money:1,growth:1}]]},
  {id:"top",ch:4,qy:"나중에 일할 때 딱 하나만 고른다면?",q:"일에서 딱 하나만 고른다면?",o:[["돈",{money:3}],["안정 (잘리지 않는 것)",{stable:3}],["시간 (내 삶)",{time:3}],["성장 (실력이 느는 것)",{growth:3}],["의미 (보람)",{meaning:3}]]},
- {id:"home",ch:4,qy:"어른이 되면 먼저 이루고 싶은 건?",oy:["내 집 마련","가족과 함께하는 안정된 생활","일단 나 혼자 자리 잡기","아직 잘 모르겠다"],q:"앞으로 계획에 가까운 건?",o:[["집 마련이 1순위",{stable:1,money:1}],["결혼·가정이 1순위",{stable:2,time:1}],["일단 나 혼자 자리 잡기",{growth:1}],["아직 잘 모르겠다",{}]]},
+ {id:"home",ch:4,cond:NOTMS,qy:"어른이 되면 먼저 이루고 싶은 건?",oy:["내 집 마련","가족과 함께하는 안정된 생활","일단 나 혼자 자리 잡기","아직 잘 모르겠다"],q:"앞으로 계획에 가까운 건?",o:[["집 마련이 1순위",{stable:1,money:1}],["결혼·가정이 1순위",{stable:2,time:1}],["일단 나 혼자 자리 잡기",{growth:1}],["아직 잘 모르겠다",{}]]},
  {id:"five",ch:4,qy:"어른이 된 내 모습으로 가장 끌리는 건?",q:"5년 뒤 내 모습으로 가장 끌리는 건?",o:[["큰 회사에서 오래 다니는 사람",{stable:3}],["기술 하나로 어디서든 먹고사는 사람",{tech:3}],["내 가게·사업을 하는 사람",{money:1,pressureok:1,creative:1}],["사람을 가르치거나 돕는 사람",{meaning:2,care:1,people:1}]]},
 
- {id:"j1",ch:5,br:"job",q:"취업 준비는 얼마나 했나요?",o:[["이제 막 시작",{}],["6개월 미만",{}],["6개월~1년",{fast:1}],["1년 이상",{fast:2}]]},
- {id:"j2",ch:5,br:"job",q:"가장 많이 막히는 단계는?",o:[["어디에 지원할지 모르겠다",{},{jb:"dir"}],["서류에서 떨어진다",{},{jb:"doc"}],["면접에서 떨어진다",{},{jb:"itv"}],["합격해도 가기 싫다",{},{jb:"fit"}]]},
+ {id:"j1",ch:5,br:"job",cond:()=>!SITF().enl,q:"취업 준비는 얼마나 했나요?",o:[["이제 막 시작",{}],["6개월 미만",{}],["6개월~1년",{fast:1}],["1년 이상",{fast:2}]]},
+ {id:"j2",ch:5,br:"job",cond:()=>!SITF().enl,q:"가장 많이 막히는 단계는?",o:[["어디에 지원할지 모르겠다",{},{jb:"dir"}],["서류에서 떨어진다",{},{jb:"doc"}],["면접에서 떨어진다",{},{jb:"itv"}],["합격해도 가기 싫다",{},{jb:"fit"}]]},
  {id:"j3",ch:5,br:"job",q:"공무원·공기업 시험도 고려하나요?",o:[["진지하게 고려 중",{stable:3}],["생각만 해봤다",{stable:1}],["아니다",{}]]},
 
- {id:"m1",ch:5,br:"move",q:"지금 직장을 떠나고 싶은 가장 큰 이유는?",o:[["돈이 너무 적다",{money:2}],["사람 (상사·동료)",{},{mv:"ppl"}],["일 자체가 안 맞는다",{growth:1},{mv:"fit"}],["미래가 안 보인다",{growth:2,stable:1}],["몸이 너무 힘들다",{time:2}]]},
- {id:"m2",ch:5,br:"move",q:"이직한다면?",o:[["같은 업계, 더 좋은 조건",{},{same:1}],["업계 자체를 바꾸고 싶다",{growth:1}],["아직 모르겠다",{}]]},
+ {id:"m1",ch:5,br:"move",alt:()=>SITF().plat?{q:"지금 일을 바꾸고 싶은 가장 큰 이유는?"}:null,q:"지금 직장을 떠나고 싶은 가장 큰 이유는?",o:[["돈이 너무 적다",{money:2}],["사람 (상사·동료)",{},{mv:"ppl"}],["일 자체가 안 맞는다",{growth:1},{mv:"fit"}],["미래가 안 보인다",{growth:2,stable:1}],["몸이 너무 힘들다",{time:2}]]},
+ {id:"m2",ch:5,br:"move",alt:()=>SITF().plat?{q:"일을 바꾼다면?",ol:["같은 일, 더 좋은 조건 (직고용·정규직 등)"]}:null,q:"이직한다면?",o:[["같은 업계, 더 좋은 조건",{},{same:1}],["업계 자체를 바꾸고 싶다",{growth:1}],["아직 모르겠다",{}]]},
  {id:"m3",ch:5,br:"move",q:"지금 직장에서 배운 것 중 들고 갈 수 있는 건?",o:[["자격증·기술",{tech:2}],["경력 연차 그 자체",{stable:1}],["사람 다루는 법",{people:1}],["딱히 없다",{}]]},
 
  {id:"g1",ch:5,br:"gap",q:"쉰 지 얼마나 됐나요?",o:[["3개월 미만",{}],["3~6개월",{fast:1}],["6개월~1년",{fast:2}],["1년 이상",{fast:2},{longgap:1}]]},
- {id:"g2",ch:5,br:"gap",q:"그만둔 이유에 가까운 건?",o:[["너무 지쳐서",{time:2}],["계약 종료·회사 사정",{},{inv:1}],["일이 안 맞아서",{growth:1},{gw:"fit"}],["사람 때문에",{solo:1}],["육아·가족 돌봄",{time:2,stable:1},{carebreak:1}]]},
+ {id:"g2",ch:5,br:"gap",cond:()=>!NOWORK(),q:"그만둔 이유에 가까운 건?",o:[["너무 지쳐서",{time:2}],["계약 종료·회사 사정",{},{inv:1}],["일이 안 맞아서",{growth:1},{gw:"fit"}],["사람 때문에",{solo:1}],["육아·가족 돌봄",{time:2,stable:1},{carebreak:1}],["학교·전공이 안 맞아서 (휴학·자퇴)",{growth:1},{schq:1}]]},
+ {id:"g2n",ch:5,br:"gap",cond:NOWORK,q:"요즘 어떻게 지내요?",o:[["시험·학교를 마치고 잠깐 쉬는 중",{},{rest:"done"}],["뭘 할지 몰라서 멈춰 있다",{growth:1},{rest:"lost"}],["지쳐서 쉬고 있다",{time:2},{rest:"tired"}],["학교·전공이 안 맞아서 그만뒀다",{growth:1},{schq:1}],["가족을 돌보고 있다",{time:2,stable:1},{carebreak:1}]]},
  {id:"g3",ch:5,br:"gap",q:"요즘 하루 생활 리듬은?",o:[["규칙적이다",{}],["조금 흐트러졌다",{}],["밤낮이 바뀌었다",{},{rhythm:1}]]},
 
  {id:"g4",ch:5,br:"gap",q:"요즘 기운은 어떤가요?",o:[["뭔가 해보고 싶은 마음은 있다",{}],["무기력하고 아무것도 하기 싫다",{},{flat:1}]]},
@@ -675,26 +678,29 @@ const Q = [
  {id:"w2",ch:5,br:"switch",q:"그 분야를 위해 해본 게 있나요?",o:[["강의·책으로 공부 중",{growth:1}],["작게라도 결과물을 만들어 봤다",{growth:2}],["아직 생각만 했다",{}]]},
  {id:"w3",ch:5,br:"switch",q:"전환하는 동안 지금 일을 병행할 수 있나요?",o:[["가능하다",{}],["어렵다",{fast:1}]]},
 
- {id:"mi0",ch:5,br:"mil",q:"지금 어떤 상태인가요?",o:[["복무 중 (전역 예정)",{},{inSvc:1}],["전역했다",{fast:1}]]},
- {id:"mi1",ch:5,br:"mil",q:"복무 형태는?",o:[["의무복무 (병)",{},{rank:"pvt"}],["부사관",{stable:1},{rank:"nco"}],["장교",{mind:1,people:1},{rank:"off"}]]},
- {id:"mi2",ch:5,br:"mil",q:"군에서 맡은 일(주특기)에 가까운 건?",o:[["보병·수색 등 전투",{body:3,pressureok:1},{spec:"inf"}],["폭발물·공병",{tech:2,body:1},{spec:"eod"}],["정비·기술",{tech:3},{spec:"mech"}],["운전·수송 (운전병)",{body:1,solo:1},{spec:"drv"}],["통신·전산",{tech:2,mind:1},{spec:"com"}],["행정·인사",{mind:2,routine:1},{spec:"adm"}],["취사·급양",{body:1,creative:1},{spec:"ckg"}],["의무 (구급·간호)",{care:2,body:1},{spec:"med"}],["헌병·경계·경호",{body:2,stable:1},{spec:"mp"}]]},
- {id:"mi3",ch:5,br:"mil",q:"군 조직 생활은 나와 맞았나요?",hint:"계급·규율·단체생활 기준",o:[["잘 맞았다",{stable:2,routine:1},{milfit:1}],["그럭저럭",{}],["전혀 안 맞았다",{solo:1,growth:1},{milfit:-1}]]},
+ {id:"mi0",ch:0,br:"mil",q:"지금 어떤 상태인가요?",o:[["복무 중 (전역 예정)",{},{inSvc:1}],["전역했다",{fast:1}]]},
+ {id:"mi1",ch:0,br:"mil",q:"복무 형태는?",o:[["의무복무 (병)",{},{rank:"pvt"}],["부사관",{stable:1},{rank:"nco"}],["장교",{mind:1,people:1},{rank:"off"}]]},
+ {id:"mi2",ch:0,br:"mil",q:"군에서 맡은 일(주특기)에 가까운 건?",o:[["보병·수색 등 전투",{body:3,pressureok:1},{spec:"inf"}],["폭발물·공병",{tech:2,body:1},{spec:"eod"}],["정비·기술",{tech:3},{spec:"mech"}],["운전·수송 (운전병)",{body:1,solo:1},{spec:"drv"}],["통신·전산",{tech:2,mind:1},{spec:"com"}],["행정·인사",{mind:2,routine:1},{spec:"adm"}],["취사·급양",{body:1,creative:1},{spec:"ckg"}],["의무 (구급·간호)",{care:2,body:1},{spec:"med"}],["헌병·경계·경호",{body:2,stable:1},{spec:"mp"}]]},
+ {id:"mi3",ch:5,br:"mil",q:"군 조직 생활은 나와 맞나요?",hint:"계급·규율·단체생활 기준",o:[["잘 맞았다",{stable:2,routine:1},{milfit:1}],["그럭저럭",{}],["전혀 안 맞았다",{solo:1,growth:1},{milfit:-1}]]},
+ {id:"h0",ch:5,br:"hs",q:"지금 몇 학년인가요?",o:[["1학년",{},{hsG:1}],["2학년",{},{hsG:2}],["3학년",{},{hsG:3}]]},
  {id:"h1",ch:5,br:"hs",q:"다니는 학교는?",o:[["일반고",{}],["특성화고·마이스터고",{tech:1},{voc:1}]]},
- {id:"h2",ch:5,br:"hs",q:"졸업하고 나서 가장 가까운 생각은?",o:[["대학이나 전문대에 가고 싶다",{growth:1},{go:"adv"}],["바로 취업해서 돈을 벌고 싶다",{fast:1,money:1},{go:"hsj"}],["군대부터 다녀오려 한다",{},{go:"mil"}],["전혀 모르겠다",{}]]},
+ {id:"h1b",ch:5,br:"hs",cond:()=>st.ans.h1===1,q:"다니는 학과에 가장 가까운 건?",hint:"결과에 내 학과로 갈 수 있는 길을 따로 보여 줘요. 추천 순위에는 넣지 않아요",o:HS_MAJ.map(m=>[m[0],{},m[1]?{hmj:m[1]}:undefined])},
+ {id:"h2",ch:5,br:"hs",q:"졸업하고 나서 가장 가까운 생각은?",o:[["대학이나 전문대에 가고 싶다",{growth:1},{go:"adv"}],["바로 취업해서 돈을 벌고 싶다",{fast:1,money:1},{go:"hsj"}],["군대부터 다녀오려 한다",{},{go:"mil"}],["전혀 모르겠다",{}],["예체능 입시를 준비했는데 방향을 바꾸려 한다",{creative:1},{artq:1}]]},
  {id:"h3",ch:5,br:"hs",q:"공부(시험·과제)는 나와 맞나요?",o:[["잘 맞는 편이다",{mind:2}],["보통이다",{}],["안 맞는다, 몸으로 하는 게 낫다",{body:2}]]},
- {id:"ms1",ch:5,br:"ms",q:"지금 몇 학년인가요?",o:[["1학년",{}],["2학년",{}],["3학년",{},{ms3:1}]]},
- {id:"ms2",ch:5,br:"ms",q:"가고 싶은 고등학교에 가장 가까운 건?",hint:"아직 몰라도 괜찮아요",o:[["일반고 (대학 진학 위주)",{mind:1},{hsT:"gen"}],["특성화고·마이스터고 (기술 배우고 취업)",{tech:1,fast:1},{hsT:"voc",voc:1}],["예술고",{creative:2},{hsT:"art"}],["체육고",{body:2},{hsT:"pe"}],["과학고·외고 같은 특목고",{mind:2},{hsT:"spe"}],["아직 모르겠다",{},{hsT:"none"}]]},
- {id:"ms5",ch:5,br:"ms",groups:[["수도권 (서울·경기·인천)",[0,1,2]],["충청 (대전·세종·충북·충남)",[6,8,10,11]],["호남 (광주·전북·전남)",[5,12,13]],["영남 (부산·대구·울산·경북·경남)",[3,4,7,14,15]],["강원·제주",[9,16]]],q:"사는 지역은?",hint:"고등학교 원서 날짜가 지역마다 달라요",o:REGIONS.map((r,i)=>[r[0],{},{reg:i}])},
+ {id:"ms1",ch:0,br:"ms",q:"지금 몇 학년인가요?",o:[["1학년",{}],["2학년",{}],["3학년",{},{ms3:1}]]},
+ {id:"ms2",ch:0,br:"ms",q:"가고 싶은 고등학교에 가장 가까운 건?",hint:"아직 몰라도 괜찮아요",o:[["일반고 (대학 진학 위주)",{mind:1},{hsT:"gen"}],["특성화고·마이스터고 (기술 배우고 취업)",{tech:1,fast:1},{hsT:"voc",voc:1}],["예술고",{creative:2},{hsT:"art"}],["체육고",{body:2},{hsT:"pe"}],["과학고·외고 같은 특목고",{mind:2},{hsT:"spe"}],["아직 모르겠다",{},{hsT:"none"}]]},
+ {id:"ms5",ch:0,br:"ms",groups:[["수도권 (서울·경기·인천)",[0,1,2]],["충청 (대전·세종·충북·충남)",[6,8,10,11]],["호남 (광주·전북·전남)",[5,12,13]],["영남 (부산·대구·울산·경북·경남)",[3,4,7,14,15]],["강원·제주",[9,16]]],q:"사는 지역은?",hint:"고등학교 원서 날짜가 지역마다 달라요",o:REGIONS.map((r,i)=>[r[0],{},{reg:i}])},
  {id:"ms3",ch:5,br:"ms",q:"공부(시험·과제)는 나와 맞나요?",o:[["잘 맞는 편이다",{mind:2}],["보통이다",{}],["안 맞는다, 몸으로 하는 게 낫다",{body:2}]]},
  {id:"ms4",ch:5,br:"ms",q:"시간 가는 줄 모르고 하는 건?",o:[["게임·컴퓨터",{tech:2},{like:"game"}],["운동",{body:2},{like:"sport"}],["그림·만들기·꾸미기",{creative:2},{like:"make"}],["친구들과 이야기",{people:2},{like:"talk"}],["책·글·영상 보기",{mind:1,creative:1},{like:"media"}],["동생·동물 돌보기",{care:2},{like:"care"}],["딱히 없다",{}]]},
  {id:"d1",ch:5,br:"drop",q:"학교를 그만둔 지 얼마나 됐나요?",o:[["6개월이 안 됐다",{}],["6개월~1년",{}],["1년이 넘었다",{}]]},
  {id:"d2",ch:5,br:"drop",q:"지금 가장 가까운 생각은?",o:[["검정고시 보고 대학에 가고 싶다",{growth:1,mind:1},{go:"adv"}],["기술을 배워서 일하고 싶다",{tech:1},{go:"skill"}],["빨리 돈을 벌고 싶다",{fast:2,money:1},{go:"hsj"}],["아직 모르겠다",{}]]},
+ {id:"d4",ch:5,br:"drop",q:"지금 일하고 있나요? (알바 포함)",hint:"대충 골라도 괜찮아요. 금액 구간만 쓰고 서버로 보내지 않아요",o:[["안 한다",{}],["한다, 한 달 50만원 미만",{},{dinc:1}],["한다, 한 달 50~100만원",{},{dinc:2}],["한다, 한 달 100만원 이상",{},{dinc:3}]]},
  {id:"d3",ch:5,br:"drop",q:"검정고시는?",o:[["이미 붙었다",{},{ged:1}],["준비 중이다",{}],["아직 안 했다",{}]]},
  {id:"r1",ch:5,br:"retake",q:"몇 번째 준비인가요?",o:[["처음 (재수)",{}],["두 번 이상 (N수)",{},{nsu:1}]]},
  {id:"r2",ch:5,br:"retake",q:"지금 마음에 가까운 건?",o:[["목표 학과가 분명하다",{mind:1},{go:"adv"}],["대학은 가고 싶은데 학과는 모르겠다",{},{go:"adv"}],["계속할지 다른 길로 갈지 고민이다",{growth:1},{retq:1}]]},
- {id:"c1",ch:5,br:"col",q:"지금 몇 학년인가요?",o:[["1~2학년",{growth:1}],["졸업을 앞두고 있다",{fast:1},{senior:1}]]},
+ {id:"c1",ch:5,br:"col",vis:()=>[0,2,1],q:"지금 몇 학년인가요?",o:[["1~2학년",{growth:1}],["졸업을 앞두고 있다",{fast:1},{senior:1}],["3~4학년 (졸업까지 1년 넘게)",{},{jr:1}]]},
  {id:"c2",ch:5,br:"col",q:"전공은 나와 맞나요?",o:[["잘 맞는다",{},{majfit:1}],["그럭저럭",{}],["안 맞는다",{growth:1},{majfit:-1}]]},
- {id:"c3",ch:5,br:"col",q:"졸업 후 가장 끌리는 길은?",o:[["전공 살려 취업",{},{majfit:1}],["전공과 다른 분야로 취업",{growth:1}],["공무원·공기업",{stable:2},{want:"pub"}],["대학원 진학",{mind:2},{grad:1}],["전문 자격시험 준비 (세무사·회계사·노무사 등)",{mind:2},{prof:1}]]},
+ {id:"c3",ch:5,br:"col",q:"앞으로 가장 끌리는 길은?",o:[["전공 살려 취업",{},{majfit:1}],["전공과 다른 분야로 취업",{growth:1}],["공무원·공기업",{stable:2},{want:"pub"}],["대학원 진학",{mind:2},{grad:1}],["전문 자격시험 준비 (세무사·회계사·노무사 등)",{mind:2},{prof:1}],["반수·편입·전과로 학교나 학과 바꾸기",{growth:1},{reup:1}],["휴학하고 일·경험부터 해 보기",{},{tryw:1}]]},
  {id:"free",ch:5,q:"마지막으로, 지금 가장 막막한 걸 한 줄로 적어 주세요",hint:"선택 사항이지만 적어 주시면 결과 화면에서 AI가 이 문장과 모든 답을 함께 읽고 풀어드려요.",text:1}
 ];
 
@@ -1013,8 +1019,13 @@ function ADULT(){return !YK(sitKey())}
 function NOTY(){return !YK(sitKey())}
 function NOTMS(){return sitKey()!=="ms"}
 function isMS(){return sitKey()==="ms"}
+// 고른 상황 보기의 표시 (hue 휴학·plat 플랫폼 일·enl 입대 앞둠·fresh 시험·학교 마치고 쉬는 중 등)
+function SITF(){ const a=st.ans.sit; return a==null?{}:(SITQ().o[a]||[])[2]||{}; }
+// 일해 본 적 없음: '그만둔 이유' 대신 '요즘 어떻게 지내요?'를 묻는다
+function NOWORK(){ return !!SITF().fresh || st.ans.cur===13 || st.ans.exp===0; }
  // 나이대별로 보여 줄 상황 (보기 번호, 보여 줄 순서)
-const SITVIS=[[8,6,7,9,10,0],[7,0,10,1,2,3,4,5],[1,0,2,11,3,4,7],[1,0,2,11,3,4]];
+// 12~15는 2026-11-03 추가(휴학·플랫폼 일·입대 앞둠·시험·학교 마치고 쉬는 중). 새 상황 키 없이 기존 키(col·move·job·gap)에 연결하고 hue·plat·enl·fresh 표시만 붙인다
+const SITVIS=[[8,6,7,9,10,0,15,14],[7,12,0,10,15,1,13,2,3,4,5,14],[1,13,0,2,11,3,4,7],[1,13,0,2,11,3,4]];
 const AGEMAP=[0,2,4,6];
 function sitVis(){ return SITVIS[st.ans.ag]||Q.find(q=>q.id==="sit").o.map((_,i)=>i); }
 function YK(k){ return ["hs","ms","drop","retake"].includes(k); }
@@ -1022,11 +1033,21 @@ const SITQ=()=>Q.find(q=>q.id==="sit");
 function agreed(){ try{ return localStorage.getItem("pyojigi_agree")==="1"; }catch(e){ return !!st.agree; } }
 function setAgree(){ st.agree=1; try{ localStorage.setItem("pyojigi_agree","1"); }catch(e){} }
 function sitKey(){const a=st.ans.sit; return a==null?null:SITQ().o[a][2].sit}
-function list(){const s=sitKey(); return Q.filter(q=>(!q.br || q.br===s) && (!q.cond || q.cond()))}
+// 상황에 맞는 질문을 상황 질문 바로 뒤로 (중학생: 학년·고등학교·지역, 군: 복무 상태·형태·주특기)
+const FRONT={ms:["ms1","ms2","ms5"],mil:["mi0","mi1","mi2"]};
+// auto: 답이 정해진 질문(대학생의 학력, 군인의 지금 하는 일, 일해 본 적 없는 사람의 경력)은 묻지 않고 채운다
+const qOn=(q,s)=>(!q.br || q.br===s) && (!q.cond || q.cond());
+function autoQs(){ const s=sitKey(); return Q.filter(q=>q.auto && qOn(q,s) && q.auto()!=null); }
+function autoFill(){ const A=autoQs(), was=st.autoK||[];
+  was.forEach(id=>{ if(!A.some(q=>q.id===id)) delete st.ans[id]; });
+  A.forEach(q=>{ st.ans[q.id]=q.auto(); }); st.autoK=A.map(q=>q.id); }
+function list(){const s=sitKey(); autoFill(); const L=Q.filter(q=>qOn(q,s) && !(q.auto && q.auto()!=null)), F=FRONT[s];
+  if(!F) return L; const fq=L.filter(q=>F.includes(q.id)), rest=L.filter(q=>!F.includes(q.id)), at=rest.findIndex(q=>q.id==="sit")+1;
+  return [...rest.slice(0,at),...fq,...rest.slice(at)]; }
 
 function tally(upto){
-  const t={}, f={}; const L=list();
-  L.forEach((q,ix)=>{ if(upto!=null && ix>upto) return;
+  const t={}, f={}; const L=list(), A=autoQs();
+  [...L,...A].forEach((q,ix)=>{ if(upto!=null && ix>upto && ix<L.length) return;
     const a=st.ans[q.id]; if(a==null||q.text) return;
     (Array.isArray(a)?a:[a]).forEach(k=>{const o=q.o[k]; if(!o) return;
       for(const x in o[1]) t[x]=(t[x]||0)+o[1][x];
@@ -1070,7 +1091,7 @@ function score(){
     if(p.key==="ath" && !(g==="ath" || f.hsT==="pe" || ((f.maj==="spo"||f.c_sport) && st.ans.age!=null && st.ans.age<=3))) block=true;
     if(p.key==="mlc" && !(k==="mil" || f.cur==="mil")) block=true;
     if(p.key==="bop" && !(["sal","off","log","fac"].includes(f.cur) && st.ans.exp>0) && f.want!=="sal") block=true;
-    if(k==="col" && p.key==="adv" && !f.grad) block=true;
+    if(k==="col" && p.key==="adv" && !f.grad && !f.reup) block=true; // 반수·편입을 고른 대학생에게는 진학 길을 연다
     if(p.key==="hcl" && !(f.c_hcl||f.mj==="nurse"||f.mj==="allied")) block=true;
     // 재학 중인 간호·보건 전공생은 아직 면허가 없어 '준비 3개월'이 사실과 다름 → 면허를 이미 가진 경우만 (2026-11-01 페르소나 간호학과 지수)
     if(p.key==="hcl" && k==="col" && !f.c_hcl) block=true;
@@ -1145,7 +1166,7 @@ function score(){
   let intent=[];
   if((k==="hs"||k==="drop"||k==="retake") && f.go==="adv" && !f.retq) intent=["adv"]; else if((k==="hs"||k==="drop") && f.go==="hsj") intent=["hsj"];
   else if(k==="drop" && f.go==="skill") intent=["tec","aut","fac","ckg","bty","bld"];
-  else if(k==="col" && f.grad) intent=["adv"]; else if(f.want) intent=WANTK[f.want]||[];
+  else if(k==="col" && (f.grad||f.reup)) intent=["adv"]; else if(f.want) intent=WANTK[f.want]||[];
   // 꼭 3위 안에 보여줄 것: 하고 싶은 일, 직접 고른 방향, 희소한 경력(군 폭발물처리). 조건에 걸리지 않을 때만.
   const groups=[];
   if(g) groups.push({keys:[g],note:"하고 싶다고 고른 일"});
@@ -1204,7 +1225,7 @@ function intro(){
       <h1>뭐 할지 몰라도 돼요.<br>10분이면 내 길 3개가 나와요</h1>
       <p class="lede">성격 유형 말고 <strong>지금 내 상황</strong>으로 골라 줘요. 되는 법, 신입 연봉, <strong>받을 수 있는 지원</strong>까지.</p>
     </div>
-    ${has?"":`<div class="agepick"><p class="pk-h">나이대를 누르면 <b>바로 시작</b>돼요</p><div class="opts tiles" role="radiogroup">${["10대","20대","30대","40대 이상"].map((t,k)=>`<button type="button" class="opt" id="ag${k}" data-k="${k}">${t}</button>`).join("")}</div></div>`}
+    ${has?"":`<div class="agepick"><p class="pk-h">나이대를 누르면 <b>바로 시작</b>돼요</p><div class="opts tiles" role="radiogroup">${["10대","20대","30대","40대 이상"].map((t,k)=>`<button type="button" class="opt" id="ag${k}" data-k="${k}">${t}</button>`).join("")}</div></div><p class="src">중학생이라면 <a href="/for/ms.html">고등학교 고르기 안내</a>를 먼저 읽어 봐도 좋아요.</p>`}
     ${perksHTML()}
     <div class="cta">
       ${has?`<button class="btn" id="cont" type="button">이어서 하기</button><button class="btn alt" id="start" type="button">새로 시작</button>`:`<p class="src">무료 · 가입 없음 · 약 10분이면 내 길 3개가 나와요</p>`}
@@ -1276,6 +1297,9 @@ function etcToks(label){ const out=[]; const add=t=>{ t=ETCN(t); if(t.length>=2&
   return out; }
 function etcFind(q,txt){
   let n=ETCN(txt); if(n.length<2) return -1;
+  // '모름'·'아직 없음'은 목록의 '아직 없다'로, 지금 하는 일에 '학생'·'취준'은 '일해본 적 없음'으로 (기타 기록에 남기지 않음)
+  if(q.id==="goal" && /^(아직|잘|딱히|그냥)?(모름|모르겠|몰라|없음|없어|없다|미정|안정해|못정해)[가-힣]{0,4}$/.test(n)) return q.o.findIndex(o=>/^아직 없다/.test(o[0]));
+  if(q.id==="cur" && /^(그냥|아직)?(대학생|고등학생|학생|휴학생|휴학중|취준생?|취업준비중?|백수|무직|없음|없어요|없다)(인데요|이에요|예요|입니다|임|요|중)?$/.test(n)) return q.o.findIndex(o=>/^일해본 적 없음/.test(o[0]));
   const AL=q.id==="cur"?Object.assign({},ETCA,ETCA_CUR):(q.id==="cert"||q.id==="plan")?Object.assign({},ETCA,ETCA_CERT):q.id==="goal"?Object.assign({},ETCA,ETCA_GOAL):ETCA;
   const al=Object.keys(AL).find(a=>n===ETCN(a)||n.startsWith(ETCN(a))||(q.id==="cur"&&n.includes(ETCN(a)))); if(al) n=ETCN(AL[al]);
   const bad=k=>q.none===k||/^(아직 없다|딱히 없|해당 없|없음|일해본 적 없음|기타)/.test(q.o[k][0]);
@@ -1301,11 +1325,14 @@ function etcBox(q){
   const prev=(st.etc||{})[q.id]||"";
   return `<div class="etc"><label for="etcIn"><b>기타</b> · 목록에서 못 찾았으면 직접 적어 주세요</label><div class="etcrow"><input id="etcIn" maxlength="30" autocomplete="off" placeholder="${q.id==="goal"?"예) 드론 조종사":"예) 조주기능사"}" value="${prev.replace(/"/g,"&quot;")}"><button type="button" class="btn alt" id="etcGo">확인</button></div><p class="hint" id="etcMsg" role="status"></p></div>`;
 }
-/* 10대(ag=0)에게는 문구만 바꿔 보여 줘요. 점수 연결(o[i][1..])은 그대로 */
-function youngQ(q){ if(!q||st.ans.ag!==0||!(q.qy||q.oy||"hy" in q)) return q;
+/* 10대(ag=0) 중고등학생에게는 문구만 바꿔 보여 줘요. 점수 연결(o[i][1..])은 그대로. 학교 밖·재수·대학생 등은 어른용 문구 */
+function youngQ(q){ if(!q||st.ans.ag!==0||!["hs","ms"].includes(sitKey())||!(q.qy||q.oy||"hy" in q)) return q;
   return {...q, q:q.qy||q.q, hint:"hy" in q?q.hy:q.hint, o:q.oy?q.o.map((o,i)=>q.oy[i]?[q.oy[i],...o.slice(1)]:o):q.o}; }
+// alt: 상황에 따라 바꿔 보여 줄 질문 문구 {q, hint, ol(보기 이름)}. 점수 연결은 그대로
+function altQ(q){ const a=q&&q.alt&&q.alt(); if(!a) return q;
+  return {...q, q:a.q||q.q, hint:"hint" in a?a.hint:q.hint, o:a.ol?q.o.map((o,i)=>a.ol[i]?[a.ol[i],...o.slice(1)]:o):q.o}; }
 function question(){
-  const L=list(), q=youngQ(L[st.i]); if(!q){finish();return}
+  const L=list(), q=altQ(youngQ(L[st.i])); if(!q){finish();return}
   const a=st.ans[q.id];
   let body;
   if(q.text){
@@ -1332,7 +1359,7 @@ function question(){
   }
   const miss=missing();
   el(`<section class="card">
-    ${st.review&&miss.length?`<div class="warn">답하지 않은 질문이 <b>${miss.length}개</b> 있어요. 답을 고르면 다음 빈 질문으로, 다 채우면 결과로 넘어갑니다.</div>`:""}
+    ${st.review&&miss.length?`<div class="warn">답하지 않은 질문이 <b>${miss.length}개</b> 있어요. 답을 고르면 다음 빈 질문으로, 다 채우면 결과로 넘어가요.</div>`:""}
     <div style="display:flex;flex-direction:column;gap:6px"><span class="eyebrow">${CH[q.ch]}</span><h2>${q.q}</h2>${q.hint?`<p class="hint">${q.hint}</p>`:""}${q.multi?`<p class="hint">여러 개 고를 수 있어요</p>`:""}</div>
     ${body}
     ${q.etc?etcBox(q):""}
@@ -1375,6 +1402,8 @@ function question(){
     eg.onclick=go; ei.onkeydown=e=>{ if(e.key==="Enter"){ if(e.preventDefault) e.preventDefault(); go(); } }; }
   const n=document.getElementById("next"); if(n) n.onclick=()=>{
     if(q.text) st.ans[q.id]=document.getElementById("ta").value.trim(); save();
+    // 기타 칸에 적었는데 목록에서 아무것도 안 고른 채 '다음'을 누르면 한 번 알려 준다 (다시 누르면 넘어감)
+    if(q.etc && !q.multi && st.ans[q.id]==null && (st.etc||{})[q.id] && !n.dataset.warned){ n.dataset.warned="1"; const m=document.getElementById("etcMsg"); if(m) m.textContent=q.id==="goal"?"목록에서 가장 가까운 걸 하나 골라 주세요. 없으면 맨 위 '아직 없다 / 모르겠다'를 골라도 돼요. 그래도 넘어가려면 '다음'을 한 번 더 눌러요.":"목록에서 가장 가까운 걸 하나 골라 주세요. 그래도 넘어가려면 '다음'을 한 번 더 눌러요."; return; }
     if(st.review){ const rest=missing().filter(m=>m.id!==q.id); if(!rest.length){ st.review=0; finish(); return; }
       const L=list(); const after=rest.find(m=>L.indexOf(m)>st.i)||rest[0]; st.i=L.indexOf(after); save(); render(); return; }
     advance(); };
@@ -1401,7 +1430,7 @@ function advance(){
 function mid(){
   const L=list(); const lastIx=st.i-1; const {t}=tally(lastIx);
   const tops=st.mid===0?[]:topTraits(t,3); // 1장(나이·상황)만으로는 성향을 말하지 않는다
-  const lines={0:"출발점을 확인했어요.",1:"얼마나 버틸 수 있는지가 보입니다. 이게 경로의 현실성을 정해요.",2:"강점이 모이기 시작했어요.",3:"못 견디는 것들로 길이 꽤 좁혀졌어요.",4:"가고 싶은 방향까지 나왔어요. 마지막은 지금 상황에 맞춘 질문입니다."};
+  const lines={0:"출발점을 확인했어요.",1:"얼마나 버틸 수 있는지가 보여요. 이게 경로의 현실성을 정해요.",2:"강점이 모이기 시작했어요.",3:"못 견디는 것들로 길이 꽤 좁혀졌어요.",4:"가고 싶은 방향까지 나왔어요. 마지막은 지금 상황에 맞춘 질문이에요."};
   const peek = st.mid>=2 ? score().slice(0,2).map(p=>p.n) : null;
   el(`<section class="card">
     <span class="eyebrow">${st.mid+1}장 완료</span>
@@ -1442,6 +1471,7 @@ function reality(f,t,P){
   } else if(f.urgent) out.push("수입 없이 버틸 수 있는 기간이 3개월 이내입니다. 준비 기간이 긴 길이라면 단기 수입원을 먼저 만들고 병행하세요.");
   if(age>=5 && (k==="switch"||k==="move")) out.push("30대 후반 이후의 전환은 신입 공채로 처음부터 다시 시작하기보다, 지금까지의 경력을 새 분야와 이어 붙이는 쪽이 빠르고 연봉 손해도 적습니다. 예를 들어 생산직 경력에 데이터를 더하면 제조 데이터·설비 자동화 쪽 문이 열려요.");
   if(P && P.slice(0,2).some(p=>p.key==="it") && edu===0) out.push("고졸로 IT·AI 직무에 가는 길은 있습니다. 다만 학력 대신 보여줄 결과물이 필요해요. 국비 부트캠프나 기업 교육 프로그램을 마치고 포트폴리오 2~3개를 만드는 걸 목표로 잡으세요.");
+  { const INC=[0,0,0,3000,3600][st.ans.inc]||0; if(INC && P && P.slice(0,3).some(p=>p.sal&&p.sal[0]<INC)) out.push("추천 길 중에는 신입 연봉이 지금 수입보다 낮은 곳이 있어요. 처음엔 지금보다 줄 수 있으니, 경력이 붙어 연봉이 오를 때까지 버틸 수 있는지 먼저 따져 보세요."); }
   if(f.fam) out.push("기대는 가족이 있으니 수입 공백이 생기지 않는 순서로 움직이는 게 중요합니다.");
   if(f.rhythm) out.push("밤낮이 바뀌었다면 첫 2주는 기상 시간 고정부터. 면접·교육 일정이 대부분 오전입니다.");
   if(f.carebreak) out.push("공백 기간은 숨기기보다 육아·돌봄이었다고 짧게 말하는 편이 면접에서 낫습니다. 그 사이 익힌 일정 관리, 문제 해결 경험을 한 줄로 붙이세요.");
@@ -1587,10 +1617,16 @@ const SITLINE={job:"아직 원서 낼 곳을 못 정한 취준생",move:"옮길�
 function oneLine(tops){ const a=TRAIT[tops[0]], b=TRAIT[tops[1]]; if(!a) return "";
   const line=`나는 '${a}'${b?`·'${b}'`:""} 쪽인데, 지금은 ${SITLINE[sitKey()||"job"]}`;
   return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">친구한테 보내기</button></div>`; }
+// 특성화고 학생: 내 학과로 많이 가는 길 (추천 점수와 별개, 2026-11-03)
+function hsMajCard(f,P){ const m=f.hmj&&HS_MAJ.find(x=>x[1]===f.hmj); if(!m||!m[2].length) return "";
+  const ps=m[2].map(k=>PATHS.find(p=>p.key===k)).filter(Boolean); if(!ps.length) return "";
+  return `<section class="card"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">내 학과로 갈 수 있는 길</span><h3>${m[0]} 학과에서 많이 가는 길</h3><p class="hint">학과 공부를 그대로 살리는 길이에요. 추천 3개와 겹치면 표시해 뒀어요.</p></div>
+    <div class="chips">${ps.map(p=>`<span class="chip ${P.some(x=>x.key===p.key)?"k":""}">${p.n}${P.some(x=>x.key===p.key)?" · 추천 안에 있어요":""}</span>`).join("")}</div>
+    <p class="hint">학교 취업지원부에 이 분야 채용 공고와 현장실습 자리를 물어보세요. 특성화고 진로·취업 정보는 <a href="https://www.hifive.go.kr" target="_blank" rel="noopener">하이파이브 ↗</a>에서도 볼 수 있어요.</p></section>`; }
 function result(){
   AFF_SHOWN=0;
   const {t,f}=tally(); const ALL=score(); const P=ALL.slice(0,3); const tops=topTraits(t,5); P_CUR=P;
-  const sitName={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"}[sitKey()||"job"];
+  const sitName={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 복무·전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"}[sitKey()||"job"];
   const free=st.ans.free;
   const SP=supports(f,P);
   const MONEY=["교육비·교육급여 지원","국가장학금","취업 후 상환 학자금대출","청년월세 지원","청년미래적금","청년내일저축계좌","실업급여 (구직급여)","국민취업지원제도","청년창업사관학교","햇살론유스 (청년 저금리 대출)","서민금융통합지원센터 상담"];
@@ -1636,6 +1672,7 @@ function result(){
       </details>
       <div id="miss-${p.key}">${st.miss&&st.miss[p.key]!=null?missNext(p.key,st.miss[p.key],ALL,P):`<button type="button" class="linkbtn" data-miss="${p.key}">이 추천은 아니에요</button>`}</div>
     </article>`).join("")}
+    ${hsMajCard(f,P)}
     <section class="card more-below"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">아래에 더 있어요</span><h3>길만 보고 가기엔 아까워요</h3></div>
       <nav class="jump">${isMS()||(free&&CRISIS_RE.test(free))?"":`<button type="button" data-go="run">첫 월급까지 얼마나 걸릴까</button>`}<button type="button" data-go="money">받을 수 있는 돈 ${money.length}개</button><button type="button" data-go="help">${isMS()?"진로·상담 도움":"취업·훈련 지원"} ${help.length}개</button></nav>
     </section>
@@ -1666,7 +1703,7 @@ function result(){
     </section>
     <section class="card" id="help"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">${isMS()?"진로 · 체험 · 상담 지원":"취업 · 훈련 · 상담 지원"}</span><h3>나를 도와줄 곳</h3></div>
       ${help.map(supItem).join("")}
-      <p class="src">지원 금액과 요건은 해마다 바뀔 수 있어 신청 전 각 기관에서 최종 확인됩니다.</p>
+      <p class="src">지원 금액과 요건은 해마다 바뀔 수 있어 신청 전 각 기관에서 꼭 확인해 주세요.</p>
     </section>
     ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요. 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
     <section class="card keep" id="keep"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">저장하고 이어가기</span><h3>결과를 사진으로 갖고 가세요</h3><p class="hint">갤러리에 저장해 두면 다시 들어오지 않아도 바로 볼 수 있어요.</p></div>
@@ -1684,7 +1721,7 @@ function result(){
   calcDraw();
   const fbText=document.getElementById("fbText"), fbMail=document.getElementById("fbMail");
   // 메일 내용 (이름·연락처 없음)
-  const fbMsg=()=>{ const ageW=(Q.find(q=>q.id==="age").o[st.ans.age]||["-"])[0];
+  const fbMsg=()=>{ const ageW=["10대","20대","30대","40대 이상"][st.ans.ag]||(Q.find(q=>q.id==="age").o[st.ans.age]||["-"])[0]; // 나이대는 처음 고른 4칸(ag) 그대로. 내부 나이 번호(age)는 20대를 2(20대 중반)로 두므로 쓰지 않음
     const text=((fbText&&fbText.value)||"").trim().slice(0,300);
     const missTxt=Object.entries(st.miss||{}).map(([k,v])=>((PATHS.find(p=>p.key===k)||{}).n||k)+" - "+MISSWHY[v]).join(" / ");
     return ["날짜: "+ymd(new Date()),"상황: "+sitName+" / 나이대: "+ageW,"추천: "+P.slice(0,3).map((p,i)=>(i+1)+") "+p.n).join("  "),"도움: "+(st.fb||"선택 안 함"),"이건 아니에요: "+(missTxt||"없음"),"한마디: "+(text||"없음")].join("\n"); };
@@ -2629,8 +2666,12 @@ function rtWeekend(rt){
 }
 function rtShift(rt){
   const work=Math.min(rt.h,150), w2=Math.max(work-30,0), off=Math.min(360,Math.round(rt.h*1.5/30)*30||30), a=Math.ceil(off/2/30)*30, b=off-a;
-  return {work,off,
-    workRows:[["일어나서 30분","씻고 먹기",0],["출근 전 30분","어제 공부한 것 복습",1],["퇴근하고 1시간","씻고 쉬기",0],...(w2?[[`그다음 ${durTxt(w2)}`,"공부",1]]:[]),["자기 30분 전","폰 내려놓고 잠 준비",0]],
+  const dayRows=[["일어나서 30분","씻고 먹기",0],["출근 전 30분","어제 공부한 것 복습",1],["퇴근하고 1시간","씻고 쉬기",0],...(w2?[[`그다음 ${durTxt(w2)}`,"공부",1]]:[]),["자기 30분 전","폰 내려놓고 잠 준비",0]];
+  // 야간조: 퇴근하고 먼저 자고, 일어나서 출근 전에 공부 (2026-11-03, 3교대 생산직 페르소나)
+  const nightRows=[["퇴근하고 바로","씻고 빛 가린 채 자기",0],["자고 일어나서 1시간","씻고 먹기",0],...(w2?[[`출근 전 ${durTxt(w2)}`,"공부",1]]:[]),["출근 직전 30분","오늘 공부한 것 복습",1]];
+  return {work,off,workRows:dayRows,dayRows,nightRows,
+    note:"근무 4일·휴무 2일(4조 2교대) 기준이에요. 교대표가 다르면 근무하는 날과 쉬는 날 수만 바꿔 생각하세요.",
+    edu:"평일 낮 국비 과정은 교대 근무와 같이 다니기 어려워요. 고용24에서 훈련과정을 찾을 때 야간·주말 과정을 골라 보세요.",
     offRows:[["일어나서 1시간","밀린 잠 채우고 아침 먹기",0],[`오전 ${durTxt(a)}`,"공부",1],["점심 1시간","밥 먹고 쉬기",0],...(b?[[`오후 ${durTxt(b)}`,"공부",1]]:[]),["나머지","쉬기·운동",0]]};
 }
 function rtPhases(rt){
@@ -2659,7 +2700,7 @@ function planView(){
     <div class="plv-h"><span class="eyebrow">나에게 딱 맞는 준비계획</span><h1>${p.n}</h1>
       <div class="chips"><span class="chip k">${wl} 준비</span><span class="chip">하루 공부 ${durTxt(SH?SH.work:R.got)}</span>${SH?`<span class="chip">교대 근무</span>`:`<span class="chip">${tLabel(rt.wake)} 기상</span>`}</div></div>
     ${R&&R.capped?`<p class="plv-note">남는 시간이 ${durTxt(R.got)}뿐이라 하루 공부를 ${durTxt(R.got)}로 맞췄어요. 더 하려면 일어나는 시각을 당기거나 주말에 채워 주세요.</p>`:""}
-    ${SH?`<section class="card"><h3>근무하는 날</h3>${relRows(SH.workRows)}</section><section class="card"><h3>쉬는 날</h3>${relRows(SH.offRows)}</section>`
+    ${SH?`<p class="plv-note">${SH.note}</p><section class="card"><h3>주간 근무하는 날</h3>${relRows(SH.dayRows)}</section><section class="card"><h3>야간 근무하는 날</h3>${relRows(SH.nightRows)}</section><section class="card"><h3>쉬는 날</h3>${relRows(SH.offRows)}<p class="hint">${SH.edu}</p></section>`
       :`<section class="card"><h3>평일 하루</h3>${ttRows(R.rows)}<p class="hint">${rtWeekend(rt)}</p></section>`}
     ${PH?`<section class="card"><h3>주차별로 할 일</h3><ol class="ph">${PH.rows.map(r=>`<li><div><b>${r.wk}</b><small>${r.date}</small></div><span>${r.t}${r.part?" <em>일부</em>":""}</span></li>`).join("")}</ol><p class="hint">${PH.sum}</p></section>`
       :`<section class="card"><h3>먼저 해 볼 것</h3><p>${isMS()?"이 일을 하는 사람 영상 3개를 보고, 좋은 점과 힘든 점을 하나씩 적어 보기":(p.try||p.first||"")}</p></section>`}
@@ -2680,7 +2721,7 @@ function rtForm(P,gk,back,err){
     <div class="plv-h"><span class="eyebrow">나에게 딱 맞는 준비계획</span><h1>하루를 알려 주세요</h1><p class="lede">다섯 가지만 고르면 시간표와 주차별 할 일을 만들어 드려요.</p></div>
     <div class="card rq"><h3>1. 어떤 길을 준비할까요?</h3><div class="pks col">${ks.map(k=>pick("k",k,(PATHS.find(p=>p.key===k)||{}).n,d.k===k)).join("")}</div></div>
     <div class="card rq"><h3>2. 준비 기간은?</h3><div class="pks four">${RT_WEEKS.map(([w,l])=>pick("wk",w,l,d.wk===w)).join("")}</div></div>
-    <div class="card rq"><h3>3. 평일에 일어나는 시각과 자는 시각은?</h3><div class="tpair"><label>일어나는 시각<select id="rtWake">${opts(240,720,d.wake)}</select></label><label>자는 시각<select id="rtSleep">${opts(1200,1620,d.sleep)}</select></label></div></div>
+    <div class="card rq" id="rtWS" ${d.fix==="shift"?"hidden":""}><h3>3. 평일에 일어나는 시각과 자는 시각은?</h3><div class="tpair"><label>일어나는 시각<select id="rtWake">${opts(240,720,d.wake)}</select></label><label>자는 시각<select id="rtSleep">${opts(1200,1620,d.sleep)}</select></label></div></div>
     <div class="card rq"><h3>4. 학교·회사·알바처럼 평일에 매일 나가는 일정이 있나요?</h3><div class="pks col">${[["yes","있어요 (매일 같은 시간)"],["no","없어요"],["shift","교대 근무라 매번 달라요"]].map(([v,l])=>pick("fix",v,l,d.fix===v)).join("")}</div>
       <div class="tpair" id="rtFixT" ${d.fix==="yes"?"":"hidden"}><label>집을 나서는 시각<select id="rtOut">${opts(240,1380,d.out)}</select></label><label>집에 돌아오는 시각<select id="rtHome">${opts(360,1560,d.home)}</select></label></div></div>
     <div class="card rq"><h3>5. 하루에 공부할 시간은?</h3><div class="pks">${RT_STUDY.map(m=>pick("h",m,durTxt(m),d.h===m)).join("")}</div></div>
@@ -2691,20 +2732,20 @@ function rtForm(P,gk,back,err){
   const num=v=>v===""||v==null?null:+v;
   app.querySelectorAll(".pk").forEach(b=>b.onclick=()=>{ const f=b.dataset.f, v=b.dataset.v; d[f]=f==="k"||f==="fix"?v:+v;
     app.querySelectorAll(`.pk[data-f="${f}"]`).forEach(x=>{ const on=x===b; x.classList.toggle("sel",on); x.setAttribute("aria-pressed",String(on)); });
-    if(f==="fix"){ const ft=document.getElementById("rtFixT"); if(ft) ft.hidden=v!=="yes"; } hideErr(); });
+    if(f==="fix"){ const ft=document.getElementById("rtFixT"); if(ft) ft.hidden=v!=="yes"; const ws=document.getElementById("rtWS"); if(ws) ws.hidden=v==="shift"; } hideErr(); });
   const hideErr=()=>{ const er=document.getElementById("rtErr"); if(er) er.hidden=true; };
   ["rtWake","rtSleep","rtOut","rtHome"].forEach(id=>{ const e=document.getElementById(id); if(e) e.onchange=hideErr; });
   document.getElementById("rtBack").onclick=()=>{ st.rtEdit=0; save(); if(st.rt) render(); else back(); };
   document.getElementById("rtMake").onclick=()=>{
     const g=id=>{ const e=document.getElementById(id); return e?num(e.value):null; };
     d.wake=g("rtWake"); d.sleep=g("rtSleep"); d.out=g("rtOut"); d.home=g("rtHome");
-    const miss = d.wk==null?"2. 준비 기간을 골라 주세요.": d.wake==null?"3. 일어나는 시각을 골라 주세요.": d.sleep==null?"3. 자는 시각을 골라 주세요.": d.fix==null?"4. 매일 나가는 일정이 있는지 골라 주세요."
+    const sh=d.fix==="shift", miss = d.wk==null?"2. 준비 기간을 골라 주세요.": !sh&&d.wake==null?"3. 일어나는 시각을 골라 주세요.": !sh&&d.sleep==null?"3. 자는 시각을 골라 주세요.": d.fix==null?"4. 매일 나가는 일정이 있는지 골라 주세요."
       : d.fix==="yes"&&(d.out==null||d.home==null)?"4. 집을 나서는 시각과 돌아오는 시각을 골라 주세요.": d.h==null?"5. 하루 공부 시간을 골라 주세요.":null;
     const er=document.getElementById("rtErr");
     const R=miss?null:d.fix==="shift"?{}:routinePlan(d);
     const msg=miss||(R&&R.err)||"";
     if(msg){ if(er){ er.textContent=msg; er.hidden=false; if(er.scrollIntoView) er.scrollIntoView({behavior:"smooth",block:"center"}); } return; }
-    st.rt={k:d.k,wk:d.wk,wake:d.wake,sleep:d.sleep,fix:d.fix,out:d.fix==="yes"?d.out:null,home:d.fix==="yes"?d.home:null,h:d.h}; st.rtEdit=0; save(); render();
+    st.rt={k:d.k,wk:d.wk,wake:sh?null:d.wake,sleep:sh?null:d.sleep,fix:d.fix,out:d.fix==="yes"?d.out:null,home:d.fix==="yes"?d.home:null,h:d.h}; st.rtEdit=0; save(); render();
   };
 }
 
@@ -2760,7 +2801,7 @@ function imgTexts(draw){ const c=document.createElement("canvas"); const g=imgPa
 function todayTxt(){ const d=new Date(); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`; }
 function drawResultImg(g){
   const {t,f}=tally(), P=score().slice(0,3), tops=topTraits(t,4);
-  const sitName={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"}[sitKey()||"job"];
+  const sitName={job:"취업 준비",move:"이직 고민",gap:"쉬는 중",slump:"슬럼프",switch:"분야 전환",mil:"군 복무·전역",hs:"고등학생",col:"대학 재학",ms:"중학생",drop:"학교 밖",retake:"재수·N수"}[sitKey()||"job"];
   let SP=[]; try{ SP=supports(f,P)||[]; }catch(e){}
   g.brand(todayTxt()); g.gap(48);
   g.text(`진로 검사 결과 · ${sitName}`,{size:30,weight:700,color:IC.pine}); g.gap(6);
@@ -2798,7 +2839,8 @@ function drawPlanImg(g){
     if(dur) g.text(dur,{x:g.x,size:24,color:on?IC.pine:IC.muted,lh:h,align:"right",stay:1});
     g.text(label,{x:g.x+240,w:g.w-240-(dur?150:0),size:30,weight:on||fx?700:500,color:on?IC.pine:IC.ink,lh:h}); g.y=Math.max(g.y,y+h); };
   if(SH){
-    g.box(()=>{ g.text("근무하는 날",{size:34,weight:800}); g.gap(12); SH.workRows.forEach(r=>row(r[0],r[1],"",r[2])); }); g.gap(20);
+    g.box(()=>{ g.text("주간 근무하는 날",{size:34,weight:800}); g.gap(12); SH.dayRows.forEach(r=>row(r[0],r[1],"",r[2])); }); g.gap(20);
+    g.box(()=>{ g.text("야간 근무하는 날",{size:34,weight:800}); g.gap(12); SH.nightRows.forEach(r=>row(r[0],r[1],"",r[2])); }); g.gap(20);
     g.box(()=>{ g.text("쉬는 날",{size:34,weight:800}); g.gap(12); SH.offRows.forEach(r=>row(r[0],r[1],"",r[2])); });
   } else {
     g.box(()=>{ g.text("평일 하루",{size:34,weight:800}); g.gap(12); R.rows.forEach(r=>row(tLabel(r.a),r.t,durTxt(r.b-r.a),r.kind==="study",r.kind==="fix")); g.gap(14); g.text(rtWeekend(rt),{size:26,color:IC.muted}); });
