@@ -64,6 +64,7 @@ function check(a) {
   if (k === 'col' && !f.c_hcl && top3.some(p => p.key === 'hcl')) errs.push('면허 없는 재학생에게 교대 없는 보건·의료직');
   if (k === 'col' && !f.c_nur && M.goalKey(f) !== 'nur' && (f.majfit === -1 || a.c3 === 1) && top3.some(p => p.key === 'nur')) errs.push('전공 안 맞는 간호학과생에게 간호사');
   if (k === 'hs' && real.some(x => /생활비가|버틸 수 있는 기간/.test(x))) errs.push('고등학생에게 생활비 문구');
+  if (k === 'col' && f.uni4 && top3.some(p => ['aut', 'fac'].includes(p.key) && p.why.includes('전공 연결'))) errs.push('4년제 공학 재학생에게 정비·생산직을 전공 연결로');
   if (k === 'col' && f.noinc) errs.push('대학생 수입 없음을 빠른 수입 필요로 셈');
   if (k === 'move' && f.same && f.mv !== 'fit' && f.cur && !M.goalKey(f)) { const cp = P.find(p => p.key === f.cur); if (cp && cp.s > -9999 && !cp.v.length && !top3.includes(cp)) errs.push('같은 업계 원하는데 지금 경력 길이 3위 밖'); }
   if (top3.some(p => p.key === 'spo') && !(f.maj === 'spo' || f.c_sport || f.p_spo || M.goalKey(f) === 'spo' || (t.body || 0) >= 5)) errs.push('체육 배경 없이 체육');
