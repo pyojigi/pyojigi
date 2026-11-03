@@ -3,6 +3,7 @@
 
 gen_pages.js 를 먼저 돌린 뒤 실행해요. 생성된 /jobs/*.html, /for/*.html 의 h1 등을 읽어
 public/og.png, public/og/<key>.png, public/og/for-<slug>.png, og/jobs.png, og/for.png 를 만들어요.
+가이드는 content/guides/*.md 머리말(h1, og: 핵심어 · 핵심어 · 핵심어)로 og/guide.png, og/guide-<slug>.png 를 만들어요.
 
 사용: python3 tools/og_images.py public
 """
@@ -140,6 +141,30 @@ def for_specs(pub: Path):
         yield f"og/for-{f.stem}.png", dict(kick="상황별 진로 안내", title=t1, title2=t2, sub=sub, pills=names)
 
 
+GDIR = Path(__file__).resolve().parent.parent / "content" / "guides"
+
+
+def guide_meta(f: Path):
+    head = f.read_text("utf-8").split("\n\n", 1)[0]
+    return {m.group(1): m.group(2).strip() for m in re.finditer(r"^(\w+):\s*(.*)$", head, re.M)}
+
+
+def guide_specs(pub: Path):
+    """가이드 페이지 공유 이미지: 머리말 h1 과 og 줄(· 로 나눈 핵심어 3개)."""
+    if not (pub / "guide").is_dir() or not GDIR.is_dir():
+        return
+    files = sorted(GDIR.glob("*.md"))
+    if not files:
+        return
+    yield "og/guide.png", dict(kick="진로 가이드", title="10대·20대 초가 많이 묻는 진로 정보",
+                                sub="공식 자료로 정리했어요",
+                                pills=["내일배움카드", "청년 지원", "첫 알바", "첫 월급"])
+    for f in files:
+        m = guide_meta(f)
+        pills = [x.strip() for x in m.get("og", "").split("·") if x.strip()][:3]
+        yield f"og/guide-{f.stem}.png", dict(kick="진로 가이드", title=m.get("h1", f.stem), sub="공식 자료로 정리했어요", pills=pills)
+
+
 def all_specs(pub: Path):
     yield "og.png", dict(title="10분이면 내 길 3개가 보여요", sub="중학생·고등학생·대학생·첫 취업 무료 진로 검사",
                           pills=["가입 없이", "답은 내 기기에만 저장"], fs=88)
@@ -148,6 +173,7 @@ def all_specs(pub: Path):
     yield "og/for.png", dict(kick="상황별 진로 안내", title="지금 내 상황에서 갈 수 있는 길", sub="중학생 · 고등학생 · 자퇴 · 재수 · 대학생 · 첫 취업")
     yield from jobs_specs(pub)
     yield from for_specs(pub)
+    yield from guide_specs(pub)
 
 
 def save_png(raw: bytes, out: Path):

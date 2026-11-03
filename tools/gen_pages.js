@@ -6,6 +6,7 @@ const html = fs.readFileSync(require('path').join(__dirname,'..','src','pyojigi.
 const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const JOBD = new Function(js.match(/const JOBD=\{[\s\S]*?\n\};/)[0] + '\nreturn JOBD;')();
 const DICT_CATS = new Function(js.match(/const DICT_CATS=\[[^\n]*\];/)[0] + '\nreturn DICT_CATS;')();
+const SAL_SRC = (m => m ? new Function(m[0] + '\nreturn SAL_SRC;')() : {})(js.match(/const SAL_SRC=\{[^\n]*\};/));
 const OUT = process.argv[2], SITE = (process.argv[3] || process.env.SITE_URL || 'https://pyojigi.pages.dev').replace(/\/$/, '');
 const TODAY = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -89,6 +90,21 @@ ${body}
 </div></body></html>`;
 }
 
+// ---------- 관련 가이드 링크 (직업·상황 페이지 → /guide/) ----------
+// 검색으로 들어온 사람이 다음에 읽을 것: 가이드 머리말의 h1 을 링크 글자로 씀. 없는 가이드는 건너뜀.
+function guideMeta(slug) {
+  const f = path.join(__dirname, '..', 'content', 'guides', slug + '.md'); if (!fs.existsSync(f)) return null;
+  const head = fs.readFileSync(f, 'utf8').split(/\n\s*\n/)[0]; const m = head.match(/^h1:\s*(.*)$/m);
+  return m ? { url: `/guide/${slug}.html`, h1: m[1].trim() } : null;
+}
+const GUIDE_SIT = { job: ['naeil-card', 'youth-support-2026', 'first-paycheck'], mil: ['youth-support-2026', 'naeil-card'], nouni: ['highschool-job', 'naeil-card', 'first-parttime-job'], twenty: ['youth-support-2026', 'naeil-card', 'first-parttime-job'], col: ['major-mismatch', 'youth-support-2026', 'first-paycheck'], hs: ['highschool-job', 'first-parttime-job'], csat: ['highschool-job', 'first-parttime-job'], ms: ['highschool-job', 'first-parttime-job'], drop: ['naeil-card', 'first-parttime-job', 'highschool-job'], retake: ['major-mismatch', 'first-parttime-job'] };
+const HS_JOB = new Set(['hsj', 'rail', 'pbc', 'tec', 'fac', 'aut', 'pub']); // 고졸 채용이 따로 있는 길
+const guideKeysForJob = k => (HS_JOB.has(k) ? ['highschool-job'] : []).concat(['naeil-card', 'first-paycheck']);
+function relGuides(slugs) {
+  const g = slugs.map(guideMeta).filter(Boolean);
+  return g.length ? `<h2>같이 읽으면 좋은 가이드</h2><ul>${g.map(x => `<li><a href="${x.url}">${esc(x.h1)}</a></li>`).join('')}</ul>` : '';
+}
+
 // ---------- 직업별 ----------
 const CAT = {}; for (const [, name, keys] of DICT_CATS) if (keys) for (const k of keys) CAT[k] = name;
 function jobPage(p) {
@@ -98,14 +114,15 @@ function jobPage(p) {
   const title = `${nm} 되는 법, 연봉, 자격증 | 표지기`;
   const desc = `${nm}: ${J.slice(0, 4).join(', ')}. 준비 기간 ${prepTxt(p.prep)}, ${p.sal ? `연봉 연 ${p.sal[0].toLocaleString()}~${p.sal[1].toLocaleString()}만원 정도. ` : ''}${p.need.split('.')[0]}.`;
   const body = `<h1>${esc(nm)} 되는 법</h1><p class="lede">${esc(p.n)}${CAT[k] ? ' · ' + esc(CAT[k]) : ''}</p>
-<div class="card"><dl class="kv"><dt>준비 기간</dt><dd>${prepTxt(p.prep)}</dd><dt>연봉</dt><dd>${esc(sal)}</dd><dt>필요한 것</dt><dd>${esc(p.need)}</dd>${G.how ? `<dt>준비 순서</dt><dd>${esc(G.how)}</dd>` : ''}${A ? `<dt>AI 영향</dt><dd>${esc(M.AIXT[A][0])} · ${esc(M.AIXT[A][1])}</dd>` : ''}</dl></div>
+<div class="card"><dl class="kv"><dt>준비 기간</dt><dd>${prepTxt(p.prep)}</dd><dt>연봉</dt><dd>${esc(sal)}${p.sal ? `<span class="src" style="display:block">${SAL_SRC[k] ? esc(SAL_SRC[k]) + '. ' : ''}앞 숫자는 신입, 뒤는 경력 5년 이상의 대략적인 분야 기준이에요. 지원할 공고의 급여를 꼭 확인하세요.</span>` : ''}</dd><dt>필요한 것</dt><dd>${esc(p.need)}</dd>${G.how ? `<dt>준비 순서</dt><dd>${esc(G.how)}</dd>` : ''}${A ? `<dt>AI 영향</dt><dd>${esc(M.AIXT[A][0])} · ${esc(M.AIXT[A][1])}</dd>` : ''}</dl></div>
 ${J.length ? `<h2>세부 직업</h2>${J.map(j => { const d = JOBD[j]; return `<div class="card"><b>${esc(j)}</b>${d ? `<p>${esc(d[0])}</p>${d[1] ? `<p class="src">되는 법 · ${esc(d[1])}</p>` : ''}` : ''}</div>`; }).join('')}` : ''}
 ${G.cert.length ? `<h2>자격증·시험</h2><ul>${G.cert.map(c => `<li><b>${esc(c[0])}</b> · ${esc(c[1])}${c[2] ? ` <a href="${esc(c[2])}" rel="noopener">바로가기</a>` : ''}</li>`).join('')}</ul>` : ''}
 ${R.length ? `<h2>준비 단계 (대략적인 시간)</h2><ol>${R.map(r => `<li>${esc(r[0])} <span class="src">약 ${r[1]}시간</span></li>`).join('')}</ol>` : ''}
 ${PRO ? `<h2>이 일의 장점</h2><div class="card"><p>${esc(PRO.t)}</p><p class="src">출처: <a href="${esc(PRO.url)}" rel="noopener">${esc(PRO.src)}</a></p></div>` : ''}
 <h2>오늘 해 볼 것</h2><ul><li>${esc(p.first)}</li>${p.try ? `<li>${esc(p.try)}</li>` : ''}<li><a href="${yt(k)}" rel="noopener">현직자 영상 보기 (유튜브)</a></li></ul>
 <a class="cta" href="/?src=job-${k}">이 길이 나한테 맞는지 10분 검사로 확인하기</a>
-<h2>같은 분야 다른 직업</h2><div class="chips">${M.PATHS.filter(x => x.key !== k && CAT[x.key] === CAT[k]).map(x => `<a href="/jobs/${x.key}.html">${esc(short(x.n))}</a>`).join('')}</div>`;
+<h2>같은 분야 다른 직업</h2><div class="chips">${M.PATHS.filter(x => x.key !== k && CAT[x.key] === CAT[k]).map(x => `<a href="/jobs/${x.key}.html">${esc(short(x.n))}</a>`).join('')}</div>
+${relGuides(guideKeysForJob(k))}`;
   const url = `/jobs/${k}.html`;
   const occ = { '@context': 'https://schema.org', '@type': 'Occupation', name: nm, description: clip(`${p.n}. ${J.length ? '세부 직업: ' + J.join(', ') + '. ' : ''}${p.need}`, 300), inLanguage: 'ko', mainEntityOfPage: SITE + url, occupationLocation: { '@type': 'Country', name: '대한민국' } };
   if (CAT[k]) occ.occupationalCategory = CAT[k];
@@ -130,8 +147,8 @@ const SIT = [
   ['지원 수보다 방향이 먼저예요. 계속 떨어진다면 한 직무로 좁혀 자기소개서를 그 직무의 말로 다시 쓰세요.', '수입이 없거나 적다면 국민취업지원제도로 상담·훈련을 받으며 조건이 맞으면 월 60만원씩 6개월 구직촉진수당을 받을 수 있어요.', '국민내일배움카드로 5년간 300만원(저소득층 등 최대 500만원)까지 국비 훈련을 받을 수 있어요.'],
   [['고용24 (국민취업지원제도·내일배움카드)', 'https://www.work24.go.kr'], ['한국폴리텍대학 하이테크·전문기술과정', 'https://ipsi.kopo.ac.kr']]],
  ['mil', '군 복무 중·전역 후 진로 (20대 초)', '군 복무 중이거나 막 전역한 20대 초반이라면: 군 경력·주특기를 살리는 직업, 복무 중 딸 수 있는 자격, 제대군인 지원.', SI('mil'), null,
-  ['복무 중에도 자격증 시험을 볼 수 있어요. 전역 전에 하나를 따 두면 전역 뒤가 빨라져요.', '주특기와 조직 생활 경험은 보안, 소방·경찰, 군무원, 설비 쪽에서 그대로 강점이 돼요.', '국가보훈부 제대군인지원센터에서 전직 상담과 교육을 받을 수 있어요.'],
-  [['제대군인지원센터', 'https://www.vnet.go.kr']]],
+  ['복무 중에도 자격증 시험을 볼 수 있어요. 전역 전에 하나를 따 두면 전역 뒤가 빨라져요.', '주특기와 조직 생활 경험은 보안, 소방·경찰, 군무원, 설비 쪽에서 그대로 강점이 돼요.', '부사관·장교처럼 중·장기 복무 후 전역했다면 국가보훈부 제대군인지원센터에서 전직 상담과 교육을 받을 수 있어요. 의무복무를 마친 병은 고용24에서 국민취업지원제도·내일배움카드를 알아보세요.'],
+  [['제대군인지원센터 (중·장기 복무 후 전역자 대상, 국가보훈부)', 'https://www.vnet.go.kr'], ['고용24 (국민취업지원제도·내일배움카드)', 'https://www.work24.go.kr']]],
  ['nouni', '대학 안 가고 할 수 있는 일', '대학에 안 가도 갈 수 있는 길: 고졸 공채, 특성화고·마이스터고, 폴리텍 2년제·국비 기술 과정, 자격증 하나로 시작하는 직업.', SI('hs'), { h2: 1 },
   ['고졸 공채(공기업·대기업 생산·기술직)는 고3 1학기부터 공고가 나와요. 자격증 1개와 출결이 가장 큰 무기예요.', '기술을 배우고 싶다면 한국폴리텍대학 2년제(2027학년도 5,550명 모집)나 15세 이상 누구나 지원할 수 있는 전문기술과정이 있어요.', '일하면서 나중에 대학에 가는 길(선취업 후진학)도 있어요. 먼저 일하고 필요할 때 공부를 더해도 늦지 않아요.'],
   [['잡알리오 (공공기관 채용)', 'https://job.alio.go.kr'], ['폴리텍 입시', 'https://ipsi.kopo.ac.kr'], ['큐넷 (국가기술자격)', 'https://www.q-net.or.kr']]],
@@ -170,14 +187,25 @@ const FAQ_Q = {
   drop: ['자퇴하면 대학이나 취업은 어떻게 하나요?', '학교 밖 청소년은 어디서 도움받을 수 있나요?', '학력이 없어도 기술을 배울 수 있나요?'],
   retake: ['재수는 언제 해 볼 만한가요?', '계속할지 그만둘지 어떻게 정하나요?', '수능 말고 다른 진학 길도 있나요?'],
 };
+// 상황 페이지에만 붙는 추가 내용 (공식·공신력 있는 출처로 확인한 것만)
+const SIT_EXTRA = {
+  // 항목 65 (중3): 정의는 한국민족문화대백과(한국학중앙연구원) '특성화고등학교'·'마이스터고등학교' 항목(초·중등교육법 시행령 제90·91조 문구), 원서 시기는 위 '먼저 확인할 것'과 같음. 2026-11-03 확인
+  ms: `<h2>일반고·특성화고·마이스터고 한눈에 비교</h2><div class="tw"><table><thead><tr><th style="white-space:nowrap">학교 · 원서</th><th>무엇을 배우나</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap"><b>일반고</b><br><span class="src">12월</span></td><td>여러 과목을 고루 배우며 주로 대학 진학을 준비해요.</td></tr>
+<tr><td style="white-space:nowrap"><b>특성화고</b><br><span class="src">대부분 11월</span></td><td>조리, 디자인, IT, 회계처럼 정해진 분야의 직업 교육과 실습을 해요. 졸업 뒤 취업도, 진학도 할 수 있어요.</td></tr>
+<tr><td style="white-space:nowrap"><b>마이스터고</b><br><span class="src">10월</span></td><td>산업계가 필요로 하는 기술을 맞춤형으로 배워 졸업 뒤 바로 취업하는 것을 목표로 해요.</td></tr>
+</tbody></table></div><p class="src">원서 날짜는 지역마다 달라요. 학교 목록과 학과는 하이파이브(특성화고·마이스터고)에서 찾아볼 수 있어요. 출처: <a href="https://encykorea.aks.ac.kr/Article/E0068532" rel="noopener">한국민족문화대백과 '특성화고등학교'</a> · <a href="https://encykorea.aks.ac.kr/Article/E0068623" rel="noopener">'마이스터고등학교'</a></p>`,
+};
 function sitPage([slug, h1, desc, sitIdx, extra, tips, links]) {
   const tops = topFor(sitIdx, extra).filter(k => P[k]).slice(0, 6);
   const Q = FAQ_Q[slug]; if (!Q || Q.length !== tips.length) throw new Error('FAQ_Q 누락: ' + slug);
   const body = `<h1>${esc(h1)}</h1><p class="lede">${esc(desc)}</p>
 <h2>먼저 확인할 것</h2><ol class="qa">${tips.map((t, i) => `<li><b>${esc(Q[i])}</b>${esc(t)}</li>`).join('')}</ol>
+${SIT_EXTRA[slug] || ''}
 <h2>이 상황에서 많이 추천되는 길</h2><p class="src">표지기 검사에서 같은 상황의 응답 3,000건을 돌려 3위 안에 많이 나온 길이에요.</p>
 <div class="chips">${tops.map(k => `<a href="/jobs/${k}.html">${esc(short(P[k].n))}</a>`).join('')}</div>
 <h2>도움받을 곳</h2><ul>${links.map(l => `<li><a href="${esc(l[1])}" rel="noopener">${esc(l[0])}</a></li>`).join('')}</ul>
+${relGuides(GUIDE_SIT[slug] || [])}
 <a class="cta" href="/?src=for-${slug}">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`;
   const url = `/for/${slug}.html`;
   const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: 'ko', mainEntity: tips.map((t, i) => ({ '@type': 'Question', name: Q[i], acceptedAnswer: { '@type': 'Answer', text: t } })) };
@@ -189,7 +217,7 @@ const BIG_POST = `<svg viewBox="0 0 220 280" role="img" aria-label="리본이 �
 function notFound() {
   const body = `<div class="lost">${BIG_POST}<h1>이 길에는 리본이 없어요</h1><p class="lede">주소가 바뀌었거나 잘못 적힌 것 같아요. 괜찮아요, 아래 리본을 따라가면 다시 길이 나와요.</p></div>
 <a class="cta" href="/?src=404">10분 진로 검사 시작하기</a>
-<div class="card"><b>이런 곳은 어때요?</b><ul><li><a href="/jobs/">직업별 안내</a> · 되는 법, 연봉, 자격증, 준비 기간</li><li><a href="/for/">상황별 안내</a> · 중학생, 고등학생, 자퇴, 재수, 대학생, 첫 취업</li><li><a href="/">처음 화면으로</a></li></ul></div>`;
+<div class="card"><b>이런 곳은 어때요?</b><ul><li><a href="/jobs/">직업별 안내</a> · 되는 법, 연봉, 자격증, 준비 기간</li><li><a href="/for/">상황별 안내</a> · 중학생, 고등학생, 자퇴, 재수, 대학생, 첫 취업</li>${HAS_GUIDE() ? '<li><a href="/guide/">진로 가이드</a> · 내일배움카드, 청년 지원, 첫 알바, 첫 월급</li>' : ''}<li><a href="/">처음 화면으로</a></li></ul></div>`;
   return page({ url: '/404.html', title: '페이지를 찾을 수 없어요 | 표지기', desc: '찾는 페이지가 없어요. 10분 진로 검사, 직업별 안내, 상황별 안내에서 다시 길을 찾아보세요.', body, noindex: true, type: 'website', article: false, foot: false });
 }
 
@@ -274,7 +302,7 @@ function privacy() {
 }
 
 // ---------- 가이드 (content/guides/*.md) ----------
-// 형식: 맨 위 'title: ', 'desc: ', 'h1: ' 줄, 빈 줄 뒤 본문(마크다운 일부: ## / ### 제목, - 목록, 1. 목록, **굵게**, [출처: URL]).
+// 형식: 맨 위 'title: ', 'desc: ', 'h1: ' 줄(+ 공유 이미지 핵심어 'og: 가 · 나 · 다', og_images.py 가 씀), 빈 줄 뒤 본문(마크다운 일부: ## / ### 제목, - 목록, 1. 목록, **굵게**, [출처: URL]).
 // '## 자주 묻는 질문' 아래 '**Q. ...**' / 'A. ...' 는 FAQPage 구조화 데이터로도 넣어요.
 const GDIR = path.join(__dirname, '..', 'content', 'guides');
 function HAS_GUIDE() { return fs.existsSync(GDIR) && fs.readdirSync(GDIR).some(f => f.endsWith('.md')); }
@@ -304,7 +332,7 @@ function guidePage(file) {
   const faq = []; const fm = body.split(/##\s*자주 묻는 질문/)[1] || '';
   for (const m of fm.matchAll(/\*\*Q\.\s*(.+?)\*\*\s*\n\s*A\.\s*(.+)/g)) faq.push({ '@type': 'Question', name: m[1].trim(), acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/\[출처:[^\]]*\]/g, '').trim() } });
   const html = `<h1>${esc(meta.h1)}</h1>${md(body)}<a class="cta" href="/?src=guide-${slug}">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`;
-  return { url, h1: meta.h1, html: page({ url, title: `${meta.title} | 표지기`, desc: meta.desc, body: html, ld: faq.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq }] : [], crumbs: [['표지기', '/'], ['진로 가이드', '/guide/'], [meta.h1, url]] }) };
+  return { url, h1: meta.h1, html: page({ url, title: `${meta.title} | 표지기`, desc: meta.desc, body: html, og: `/og/guide-${slug}.png`, ogAlt: `${meta.h1} · 표지기 진로 가이드`, ld: faq.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq }] : [], crumbs: [['표지기', '/'], ['진로 가이드', '/guide/'], [meta.h1, url]] }) };
 }
 
 // ---------- 쓰기 ----------
@@ -335,7 +363,7 @@ const guidePages = fs.existsSync(GDIR) ? fs.readdirSync(GDIR).filter(f => f.ends
 for (const g of guidePages) { put(g.url, g.url, g.html); pages.push(g.url); }
 if (guidePages.length) {
   const desc = '국민내일배움카드, 청년 지원, 고졸 취업, 전공 고민처럼 10대·20대 초가 많이 찾는 진로 정보를 공식 출처로 정리했어요.';
-  put('/guide/', 'guide/index.html', page({ url: '/guide/', title: '10대·20대 초 진로 가이드 (지원 제도·취업 준비) | 표지기', desc, type: 'website', article: false,
+  put('/guide/', 'guide/index.html', page({ url: '/guide/', title: '10대·20대 초 진로 가이드 (지원 제도·취업 준비) | 표지기', desc, type: 'website', article: false, og: '/og/guide.png', ogAlt: '진로 가이드 · 표지기',
     ld: [collection('/guide/', '진로 가이드', desc, guidePages)],
     body: `<h1>진로 가이드</h1><ul>${guidePages.map(g => `<li><a href="${g.url}">${esc(g.h1)}</a></li>`).join('')}</ul><a class="cta" href="/?src=guide">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`,
     crumbs: [['표지기', '/'], ['진로 가이드', '/guide/']] }));
@@ -364,8 +392,11 @@ for (const [u, h] of Object.entries(written)) {
   if (d.length > 160) errs.push(`${u} description ${d.length}자`);
   (titles[t] = titles[t] || []).push(u); (descs[d] = descs[d] || []).push(u);
   if (!/<a href="\/privacy.html">/.test(h) || !/<a href="\/#ask">/.test(h)) errs.push(u + ' footer 링크 누락');
+  if (HAS_GUIDE() && /^\/(jobs|for)\/[a-z-]+\.html$/.test(u) && !/<a href="\/guide\/[a-z0-9-]+\.html">/.test(h)) errs.push(u + ' 관련 가이드 링크 없음');
+  if (/^\/guide\//.test(u) && !/og:image" content="[^"]*\/og\/guide[-.]/.test(h)) errs.push(u + ' 가이드 공유 이미지 없음');
 }
 for (const [t, us] of Object.entries(titles)) if (us.length > 1) errs.push('title 중복: ' + t + ' ' + us.join(', '));
 for (const [d, us] of Object.entries(descs)) if (us.length > 1) errs.push('description 중복: ' + us.join(', '));
+if (HAS_GUIDE() && !/href="\/guide\/"/.test(written['/404.html'] || '')) errs.push('404 가이드 링크 없음');
 if (errs.length) { console.error('검사 실패:\n' + errs.join('\n')); process.exit(1); }
 console.log('pages', pages.length + 1, '(+404)', 'json-ld', ldCount, 'ok · site', SITE);

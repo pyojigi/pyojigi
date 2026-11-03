@@ -601,14 +601,14 @@ const Q = [
  {id:"uni",cond:()=>sitKey()==="col"&&st.ans.major!=null&&MAJORS[st.ans.major]&&MAJORS[st.ans.major][2]&&ENG_MJ.includes(MAJORS[st.ans.major][2].mj),ch:0,q:"다니는 학교는?",hint:"같은 공학 전공이라도 학교에 따라 많이 가는 길이 달라요",o:[["4년제 대학",{},{uni4:1}],["전문대 (2·3년제)",{}]]},
  {id:"exp",cond:NOTY,auto:()=>sitKey()!=="col"&&sitKey()!=="mil"&&st.ans.cur===13?0:null,ch:0,q:"지금까지 일한 경력은 합쳐서?",hint:"짧은 아르바이트는 빼고, 회사·배달·대리·프리랜서처럼 꾸준히 돈을 번 일을 모두 합쳐 주세요",o:[["없음",{}],["1년 미만",{}],["1~3년",{}],["3년 이상",{stable:1}]]},
  {id:"cert",etc:1,ch:0,multi:1,none:CERT_OWN.length,groups:CERT_G,q:"가지고 있는 자격·면허·특기를 모두 골라 주세요",hint:"분야를 누르면 자격이 나와요",o:CERT_O},
- {id:"goal",etc:1,ch:0,q:"이미 하고 싶은 일이 정해져 있나요?",hint:"고르면 그 일에 필요한 자격증, 준비 기간, 신청 링크를 결과에 꼭 넣어 드려요. 목록에 없으면 아래 기타 칸에 적어 주세요.",o:GOALS.map(g=>[g[0],{},g[1]?{goal:g[1]}:undefined]),groups:GOAL_GROUPS},
+ {id:"goal",etc:1,ch:0,q:"이미 하고 싶은 일이 정해져 있나요?",hy:"아직 없어도 돼요. 정해진 게 없으면 '아직 없다 / 모르겠다'를 고르면 돼요. 고르면 그 일에 필요한 자격증과 준비 방법을 결과에 넣어 드려요.",hint:"고르면 그 일에 필요한 자격증, 준비 기간, 신청 링크를 결과에 꼭 넣어 드려요. 목록에 없으면 아래 기타 칸에 적어 주세요.",o:GOALS.map(g=>[g[0],{},g[1]?{goal:g[1]}:undefined]),groups:GOAL_GROUPS},
  {id:"inc",cond:ADULT,ch:0,alt:()=>sitKey()==="col"?{q:"지금 내가 버는 돈은 한 달에?",hint:"알바처럼 내가 직접 버는 돈 기준이에요. 용돈은 빼요"}:null,q:"지금 월 수입은?",o:[["없음",{fast:2},{noinc:1}],["150만원 미만",{fast:1}],["150~250만원",{}],["250~300만원",{}],["300만원 이상",{}]]},
 
  {id:"buffer",cond:ADULT,ch:1,q:"수입이 끊겨도 생활비로 버틸 수 있는 기간은?",hint:"대충 골라도 괜찮아요. 이 답은 서버로 보내지 않아요. 빨리 벌어야 하면 바로 돈 버는 길을 앞에 보여 줘요",alt:()=>sitKey()==="col"?{q:"알바·용돈이 끊겨도 생활비로 버틸 수 있는 기간은?"}:sitKey()==="mil"&&st.ans.mi0===0?{q:"전역한 뒤 수입 없이 생활비로 버틸 수 있는 기간은?"}:null,o:[["1개월도 어렵다",{fast:3},{urgent:2}],["1~3개월",{fast:2},{urgent:1}],["3~6개월",{}],["6개월 이상",{growth:1}],["부모님과 살아서 당장은 괜찮다",{},{withP:1}]]},
  {id:"fam",cond:ADULT,ch:1,alt:()=>sitKey()==="col"?{q:"내가 버는 돈으로 도와야 하는 가족이 있나요?"}:null,q:"내 수입에 기대는 가족이 있나요?",o:[["있다",{stable:2,money:1},{fam:1}],["일부 보탠다",{stable:1}],["없다",{}]]},
  {id:"debt",cond:ADULT,ch:1,alt:()=>sitKey()==="col"?{hint:"학자금 대출처럼 갚고 있는 돈도 넣어요. 금액은 묻지 않아요"}:null,q:"매달 갚아야 하는 돈이 있나요?",hint:"금액은 묻지 않아요",o:[["있다",{money:1,fast:1},{debtY:1}],["없다",{}]]},
  {id:"prep",cond:NOTMS,ch:1,qy:"뭔가를 배워서 써먹기까지 얼마나 기다릴 수 있어요?",hy:"운동·악기·게임 실력이 늘던 때를 떠올려 보세요. 준비가 긴 직업이 맞는지 보려는 질문이에요",oy:["빨리 써먹고 싶다, 몇 주면 좋겠다","몇 달 정도는 꾸준히 할 수 있다","1년쯤은 참고 할 수 있다","몇 년이 걸려도 괜찮다"],q:"새 일을 위해 준비에 쓸 수 있는 기간은?",o:[["당장 일해야 한다",{fast:2},{maxPrep:1}],["3개월 정도",{},{maxPrep:3}],["6개월~1년",{growth:1},{maxPrep:12}],["1년 이상도 괜찮다",{growth:2},{maxPrep:24}]]},
- {id:"plan",etc:1,ch:1,qy:"앞으로 따 보고 싶은 자격·시험이 있나요?",hy:"몰라도 괜찮아요. 없으면 '아직 없다'를 골라 주세요",cond:()=>NOTMS()&&st.ans.prep!=null&&st.ans.prep>0,multi:1,none:CERT_PLAN.length,groups:PLAN_GROUPS,q:"준비하는 동안 따거나 붙으려는 자격·시험이 있나요?",hint:"지금 가진 자격만 보지 않고, 준비 기간 안에 갖출 계획까지 추천에 반영해요",o:PLAN_O},
+ {id:"plan",etc:1,ch:1,qy:"앞으로 따 보고 싶은 자격·시험이 있나요?",hy:"몰라도 괜찮아요. 없으면 '아직 없다'를 골라 주세요",cond:()=>NOTMS()&&st.ans.prep!=null&&st.ans.prep>0,multi:1,none:CERT_PLAN.length,groups:PLAN_GROUPS,q:"앞으로 따 보고 싶은 자격·시험이 있나요?",hint:"몰라도 괜찮아요. 없으면 맨 아래 '아직 없다'를 누르면 돼요. 고르면 그 준비까지 추천에 반영해요",o:PLAN_O},
  {id:"study",ch:1,qy:"학교·학원 수업 말고, 진로 준비에 하루 쓸 수 있는 시간은?",oy:[0,0,0,"방학이면 하루 종일도 가능"],q:"하루에 공부·준비에 낼 수 있는 시간은?",o:[["1시간 미만",{}],["1~2시간",{}],["3~4시간",{growth:1}],["하루 종일 가능",{growth:2}]]},
 
  {id:"bm",ch:2,q:"둘 중 덜 지치는 쪽은?",o:[["하루 종일 서서 움직이기",{body:3}],["하루 종일 앉아서 생각하기",{mind:3}],["반반 섞인 일",{body:1,mind:1}]]},
@@ -689,7 +689,7 @@ const PATHS = [
  {key:"sal",try:"지인 3명에게 상품 하나를 설명해 보고 반응 기록하기",maj:"biz",n:"영업·보험설계",w:{people:3,pressureok:3,money:3},press:1,emo:1,unst:1,prep:1,sal:[2500,8000],need:"자격시험 1~2개, 실적에 따라 수입 편차 큼",first:"부업 형태로 3개월만 해보고, 그 기간 실제 수입을 기록해 판단하세요."},
  {key:"it",try:"무료 강의로 2주 동안 작은 프로그램 하나 만들어 보기",maj:"eng",n:"IT·데이터·AI 직무",w:{mind:2,tech:3,growth:1,solo:1},desk:1,prep:9,sal:[3200,7000],need:"포트폴리오가 학위보다 중요, 국비 부트캠프·기업 교육 프로그램",first:"작은 결과물 하나(웹페이지, 데이터 분석 1건)를 2주 안에 완성해 깃허브에 올려 보세요."},
  {key:"off",try:"엑셀 실무 과제 하나(가계부 정리 등)를 끝까지 해 보기",maj:"biz",n:"사무·경영지원",w:{mind:2,routine:2,stable:2,time:2},desk:1,prep:3,sal:[2800,4500],need:"컴활·전산회계 등, 엑셀 실무",first:"컴퓨터활용능력 2급 시험 날짜를 잡고, 사무직 공고의 우대 자격을 5개 적어 보세요."},
- {key:"log",try:"물류센터 단기 근무를 3일 해 보기",n:"물류·운송",w:{body:3,solo:2,money:1,fast:2},prep:1,sal:[2800,5000],need:"운전면허(1종·대형), 가고 싶은 일에 맞는 자격 (지게차운전기능사 · 화물·버스 운송종사자격 · 물류관리사)",first:"지게차·택배·화물·버스 중 끌리는 일 하나를 정하고, 지역 공고에서 필요한 자격을 확인해 보세요. 지게차운전기능사는 짧은 기간에 딸 수 있어요."},
+ {key:"log",try:"물류센터 단기 근무를 3일 해 보기",n:"물류·운송",w:{body:3,solo:2,money:1,fast:2},prep:1,sal:[2800,5000],need:"물류센터 입출고·상하차 일은 자격 없이, 지게차는 지게차운전기능사로 바로 시작할 수 있어요. 화물·버스는 운송종사자격이 필요하고, 버스·대형 화물차는 1종 대형면허(만 19세 이상, 운전경험 1년 이상)가 있어야 해요. 관리직은 물류관리사",first:"지게차·택배·화물·버스 중 끌리는 일 하나를 정하고, 지역 공고에서 필요한 자격을 확인해 보세요. 지게차운전기능사는 짧은 기간에 딸 수 있어요."},
  {key:"mkt",try:"관심 주제로 게시물 5개를 올리고 반응 기록하기",maj:"biz art",n:"콘텐츠·마케팅",w:{creative:3,mind:1,growth:2},desk:1,prep:6,sal:[2800,5500],need:"자격보다 포트폴리오, 계정·글·영상 운영 경험",first:"관심 분야로 글이나 짧은 영상 5개를 올려보고 반응을 기록해 보세요."},
  {key:"car",try:"요양시설 봉사를 2회 해 보기",maj:"hea",n:"보건·돌봄",w:{care:3,people:2,meaning:3,stable:1},emo:1,shift:1,prep:6,sal:[2400,3600],need:"요양보호사, 간호조무사 등 (국비 지원 많음)",first:"요양보호사 교육 기관 한 곳에 상담 전화로 기간과 비용을 물어보세요."},
  {key:"uni",try:"체력시험 종목 기록을 재고 2주 뒤 다시 재 보기",n:"소방·경찰·교정 (제복 공무원)",w:{body:3,meaning:2,stable:2,shiftok:2,people:1},shift:1,emo:1,prep:12,sal:[3300,6000],need:"공채(필기+체력) 또는 분야별 경력채용. 대형면허·응급구조사 등 자격이 있으면 유리",first:"소방·경찰 채용 공고에서 체력시험 종목과 만점 기준을 확인하고, 이번 주에 지금 내 기록을 재 보세요."},
@@ -745,7 +745,7 @@ const GUIDE={
  uni:{cert:[["소방공무원 채용","필기·체력·면접, 국가공무원 채용시스템 (2025년 10월부터 소방 원서접수가 여기로 옮겨졌어요)","https://gongmuwon.gosi.kr/spcsv/indexMain3.do"],["경찰공무원 채용","필기·체력·면접, 경찰청 채용 사이트","https://gosi.police.go.kr"]],how:"체력 기록부터 재기 → 필기 과목 공부 → 공고 확인 → 체력·면접",links:[]},
  it:{cert:[["정보처리기사","큐넷 국가기술자격 (학력·경력 응시 자격 있음)",QNET],["포트폴리오","자격보다 직접 만든 결과물 2~3개가 더 중요해요"],["기업 교육 프로그램","SSAFY·SK 아이젠·KT 에이블스쿨 등. 정부·기업 캘린더에서 일정 확인"]],how:"무료 강의로 작은 결과물 → 국비·기업 교육 프로그램 → 포트폴리오 → 지원",links:[["국비 훈련과정 검색","https://www.work24.go.kr"]]},
  off:{cert:[["컴퓨터활용능력","대한상공회의소 자격시험","https://license.korcham.net"],["전산회계","한국세무사회 자격시험"]],how:"컴활 2급 → 엑셀 실무 → 사무직 공고 우대 자격 확인 → 지원",links:[]},
- log:{cert:[["지게차운전기능사","큐넷 국가기술자격, 비교적 짧게 준비",QNET],["화물운송종사자격","1종 보통 이상 면허 + 화물운송종사 자격시험 (한국교통안전공단)"],["버스운전 자격","1종 대형면허 + 운전적성 정밀검사 + 버스운전 자격시험 (한국교통안전공단)"],["물류관리사","정규직·관리직으로 올라갈 때 (큐넷 국가전문자격)",QNET],["1종 대형 운전면허","도로교통공단","https://www.safedriving.or.kr"]],how:"지게차·화물·버스 중 하나 자격 → 물류센터·운송 현장 근무 → 정규직·관리직(물류관리사)",links:[]},
+ log:{cert:[["지게차운전기능사","큐넷 국가기술자격, 비교적 짧게 준비",QNET],["화물운송종사자격","1종 보통 이상 면허 + 화물운송종사 자격시험 (한국교통안전공단)"],["버스운전 자격","1종 대형면허 + 운전적성 정밀검사 + 버스운전 자격시험 (한국교통안전공단)"],["물류관리사","정규직·관리직으로 올라갈 때 (큐넷 국가전문자격)",QNET],["1종 대형 운전면허","만 19세 이상이고 1종·2종 보통 등으로 운전한 경험이 1년 이상이어야 응시할 수 있어요 (도로교통법 제82조 제1항 제6호) · 도로교통공단","https://www.safedriving.or.kr"]],how:"물류센터 일이나 지게차운전기능사로 먼저 시작 → 일하며 운전 경험 1년 쌓기 → 1종 대형면허·운송종사자격으로 화물·버스 → 정규직·관리직(물류관리사)",links:[]},
  mkt:{cert:[["필수 자격 없음","게시물·영상·광고 성과 같은 포트폴리오가 핵심"]],how:"관심 주제로 게시물 쌓기 → 반응 기록 → 결과를 포트폴리오로",links:[]},
  car:{cert:[["요양보호사","교육기관 이수 후 국가시험 (한국보건의료인국가시험원)","https://www.kuksiwon.or.kr"],["간호조무사","교육 이수 후 국가시험","https://www.kuksiwon.or.kr"]],how:"내일배움카드로 교육비 지원 → 국가시험 → 시설·병원 취업",links:[]},
  spo:{cert:[["생활스포츠지도사 2급","필기·실기·구술, 국민체육진흥공단 체육지도자 자격검정","https://sqms.kspo.or.kr"],["종목 단증·지도 경력","현장에서는 단증과 지도 경력을 함께 봐요"]],how:"보조 강사로 경험 → 생활스포츠지도사 → 체육관·센터 강사",links:[]},
@@ -800,7 +800,7 @@ const ROAD={
  sal:[["회사·상품 비교 후 위촉 상담",6],["보험설계사 자격시험 공부",30],["지인에게 상품 설명 연습",10],["부업으로 활동하며 실제 수입 기록",60]],
  it:[["무료 강의로 프로그래밍 기초",80],["작은 결과물 1개 완성해 깃허브에 올리기",40],["국비·기업 교육 과정 지원서 쓰기",10],["결과물 2~3개로 포트폴리오 만들기",120],["정보처리기사 필기 (선택)",80],["신입 공고 지원·면접",20]],
  off:[["컴퓨터활용능력 2급 필기",30],["컴퓨터활용능력 2급 실기",40],["엑셀 실무 과제 1개",15],["사무직 공고 지원",10]],
- log:[["가고 싶은 일 정하기 (지게차·택배·화물·버스)",3],["그 일의 자격 필기 (지게차운전기능사·화물·버스 운송종사자격)",20],["실기·교육 이수 (학원·교통안전공단)",25],["물류센터·운송 공고 지원",6]],
+ log:[["물류센터 입출고·상하차 공고에 먼저 지원 (자격 없이 시작)",3],["지게차운전기능사 필기",20],["지게차 실기 연습 (학원)",25],["지게차·운송 공고 지원",6]],
  mkt:[["주제 정하고 계정 만들기",5],["게시물·짧은 영상 20개 만들기",50],["반응 기록하고 잘 된 것 분석",10],["포트폴리오로 정리·지원",15]],
  car:[["교육기관 상담 (기간·비용·국비)",3],["요양보호사 표준교육 이수 (이론·실기·실습 320시간)",320],["국가시험 대비",30],["시설·재가센터 지원",6]],
  uni:[["체력시험 종목 기록 재기",3],["필기 과목 기본 강의 1회독",400],["체력 훈련 (주 3회 꾸준히)",120],["기출·모의고사",300]],
@@ -1177,6 +1177,7 @@ function score(){
     const WANT={pub:["pub","pbc"],it:["it"],tec:["tec","aut","bld","eng","rail","avi"],ppl:["car","edu","spo","kid","svc","hcl","tch","nur","mtc"],sal:["sal","bop","own","rea"],art:["mkt","bty"],uni:["uni"]};
     if(f.want && WANT[f.want].includes(p.key)){s+=40; why.unshift("내가 고른 분야");}
     if(f.cur==="sal" && p.key==="bop"){s+=8; if(!why.includes("경력 연결")) why.unshift("경력 연결");}
+    if(f.cur==="log" && p.key==="log" && !note) note="배달·운송 경험이 그대로 이어지는 길이에요. 길 찾기, 시간 맞추기, 안전 운전 습관은 택배·화물 일에서 바로 쓰여요"; // 항목 18 (배달 라이더 서진)
     if(k==="mil"){
       if(f.spec==="eod" && p.key==="avs"){s+=30; why.unshift("폭발물·공병 경력");}
       if(f.spec==="mp" && (p.key==="avs"||p.key==="sec")){s+=8; why.unshift("경계·경호 경력");}
@@ -1395,7 +1396,7 @@ function etcFlush(){ try{
 }catch(e){} }
 function etcBox(q){
   const prev=(st.etc||{})[q.id]||"";
-  return `<div class="etc"><label for="etcIn"><b>기타</b> · 목록에서 못 찾았으면 직접 적어 주세요</label><div class="etcrow"><input id="etcIn" maxlength="30" autocomplete="off" placeholder="${q.id==="goal"?"예) 드론 조종사":"예) 조주기능사"}" value="${prev.replace(/"/g,"&quot;")}"><button type="button" class="btn alt" id="etcGo">확인</button></div><p class="hint" id="etcMsg" role="status"></p></div>`;
+  return `<div class="etc"><label for="etcIn"><b>기타</b> · 목록에서 못 찾았으면 직접 적어 주세요</label><div class="etcrow"><input id="etcIn" maxlength="30" autocomplete="off" placeholder="${q.id==="goal"?"예) 드론 조종사":st.ans.ag===0?"예) 태권도 1품":"예) 조주기능사"}" value="${prev.replace(/"/g,"&quot;")}"><button type="button" class="btn alt" id="etcGo">확인</button></div><p class="hint" id="etcMsg" role="status"></p></div>`;
 }
 /* 10대(ag=0) 중고등학생에게는 문구만 바꿔 보여 줘요. 점수 연결(o[i][1..])은 그대로. 학교 밖·재수·대학생 등은 어른용 문구 */
 function youngQ(q){ if(!q||st.ans.ag!==0||!["hs","ms"].includes(sitKey())||!(q.qy||q.oy||"hy" in q)) return q;
@@ -1602,6 +1603,11 @@ function reality(f,t,P){
   return out;
 }
 
+// 연봉 숫자 옆 출처 (항목 27·54). 공식 출처로 확인한 것만 적는다. 확인: 2026-11-03
+// aut: 커리어넷 자동차정비원(자료: 워크넷 직업정보) https://www.career.go.kr/cnet/app/base/job/jobView.m?SEQ=109
+// env: 2026 최저임금 시급 10,320원·월 2,156,880원(209시간) 고용노동부 https://www.moel.go.kr/news/enews/report/enewsView.do?news_seq=18144
+const SAL_SRC={aut:"커리어넷(워크넷 직업정보) 자동차정비원 연봉은 하위 25% 2,913만 · 중간 3,705만 · 상위 25% 4,474만원이에요. 신입은 하위 쪽에 가까워요",env:"지자체 환경공무관(공무직) 기준이에요. 건물 미화·민간 용역은 2026년 최저임금(월 2,156,880원, 연 약 2,590만원) 수준에서 시작하는 곳이 많아요"};
+function salSrc(k){ const s=SAL_SRC[k]; return `<p class="src">${s?s+". ":""}앞 숫자는 신입, 뒤는 경력 5년 이상의 대략적인 분야 기준이에요. 회사·지역마다 달라서 지원할 공고의 급여를 꼭 확인하세요. <a href="https://www.career.go.kr" target="_blank" rel="noopener">커리어넷 직업정보 ↗</a></p>`; }
 function salBar(s){
   // 눈금 2,000만~1억 (모든 직업 범위가 들어가게), 넘치면 끝에서 자름
   const lo=2000, hi=10000, c=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100)), L=c(s[0]), W=Math.max(2,c(s[1])-L);
@@ -1668,16 +1674,18 @@ function planDraw(k,search){
   const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM && p.key!==k).sort((a,b)=>a.prep-b.prep)[0];
   // '먼저 일하면서'는 학생(고등학생·대학생·재수생)에게는 빼기 (페르소나 건우·수아)
   if(shorter && !["hs","col","retake","ms"].includes(sitKey())) items.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 일하면서 이 길을 준비하는 방법`);
+  if(shorter && !["hs","col","retake","ms"].includes(sitKey()) && AIX[shorter.key]==="high") items.push(`다만 '${shorter.n.replace(/ \(.*\)$/,"")}' 쪽은 AI 영향이 커서 신입 자리가 줄고 있어요. 오래 머물 곳보다 잠깐 거쳐 가는 다리로 생각하세요`); // 항목 60
   if(SPn.includes("국민내일배움카드")) items.push("교육비는 국민내일배움카드로 줄이기 (5년간 300만원까지)");
   const ged = k==="hsj" && sitKey()==="drop" && st.ans.d3!==0 ? "검정고시 뒤 " : "";
   if(ged) items.unshift("이 길은 검정고시에 붙은 다음부터 시작돼요. 위 기간에 검정고시 준비 기간을 더해서 보세요 (시험은 1년에 두 번, 보통 4월·8월)");
   // 재직자: 새 일의 첫 월급이 지금 월 수입보다 낮으면 알려 준다 (페르소나 태윤: 월 250 이상인데 218만원만 보이던 문제)
-  const incLo=[0,0,150,250][st.ans.inc]||0;
+  const incLo=[0,0,150,250,300][st.ans.inc]||0;
   if(employed(f) && sitKey()!=="mil" && incLo && c.pay<incLo) items.unshift(`이 길의 첫 월급(약 ${c.pay.toLocaleString()}만원)은 지금 월 수입(${incLo}만원 이상)보다 적어요. 자격·경력이 붙으면 오르는 길인지 추천 카드의 '현실 점검'을 보고, 옮길 곳에 합격한 뒤 그만두면 수입 공백이 없어요.`);
   if(sitKey()==="col") items.unshift("아직 재학 중이라면 준비 기간이 남은 학기와 겹쳐요. 첫 월급은 졸업한 다음부터라 위 개월 수보다 늦어질 수 있어요");
   // 준비 기간은 카드와 같은 말(prepTxt)로, 계산은 넉넉한 쪽 개월 수로 (화면마다 숫자가 다르던 문제)
   box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>${ged}${prepTxt(c.p.prep)}</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${ged}${c.F}개월째 <i>약 ${c.pay.toLocaleString()}만원</i></span></li></ol>
     <p class="hint">첫 월급 시기는 준비 기간을 약 ${c.prepM}개월로 잡아 계산했어요.</p>
+    <p class="src">첫 월급 계산: 이 길 신입 연봉 ${PATHS.find(x=>x.key===k).sal[0].toLocaleString()}만원 ÷ 12 × 약 87% (세금·4대보험을 뺀 대략). 준비·지원 기간은 대략적인 추정이에요.</p>
     ${items.length?`<p class="hint" style="color:var(--ink)"><b>그동안 기댈 수 있는 것</b></p><ul class="glist">${items.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}`;
 }
 function calcDraw(){
@@ -1697,6 +1705,7 @@ function calcDraw(){
     tips.push(`한 달에 ${c.perMonth.toLocaleString()}만원 정도면 채울 수 있어요.${c.perMonth<=66?" 주말 이틀 단기 일로 메울 수 있는 크기예요.":""}`);
     const shorter=PATHS.filter(p=>P_CUR.some(x=>x.key===p.key) && p.sal && p.prep<c.prepM).sort((a,b)=>a.prep-b.prep)[0];
     if(shorter && !["hs","col","retake","ms"].includes(sitKey())) tips.push(`준비가 짧은 '${shorter.n.replace(/ \(.*\)$/,"")}'${ro(shorter.n.replace(/ \(.*\)$/,""))} 먼저 돈을 벌면서 이 길을 준비하는 방법도 있어요.`);
+    if(shorter && !["hs","col","retake","ms"].includes(sitKey()) && AIX[shorter.key]==="high") tips.push(`다만 '${shorter.n.replace(/ \(.*\)$/,"")}' 쪽은 AI 영향이 커서 신입 자리가 줄고 있어요. 오래 머물 곳보다 잠깐 거쳐 가는 다리로 생각하세요.`); // 항목 60
     else if(!o.nat) tips.push("국민취업지원제도 조건이 맞으면 6개월간 360만원을 더 받을 수 있어요. '더 정확하게'에서 넣어 보세요.");
   }
   const rows=c.rows.map(r=>`<div class="mrow"><span>${r.m}개월째 <small>${r.stage}</small></span><b class="${r.bal<0?"negt":""}">${r.bal.toLocaleString()}만원</b></div>`).join("");
@@ -1710,7 +1719,7 @@ let P_CUR=[];
 const SITLINE={job:"아직 원서 낼 곳을 못 정한 취준생",move:"옮길까 말까 고민 중인 사람",gap:"잠깐 쉬어 가는 중인 사람",slump:"잠깐 멈춰 있는 사람",switch:"분야를 바꾸려는 사람",mil:"전역하고 다음을 찾는 사람",hs:"진로를 정해야 하는 고등학생",col:"전공과 진로 사이에 있는 대학생",ms:"뭐가 될지 궁금한 중학생",drop:"학교 밖에서 길을 찾는 중",retake:"재수하면서 다음도 생각하는 사람"};
 function oneLine(tops){ const a=TRAIT[tops[0]], b=TRAIT[tops[1]]; if(!a) return "";
   const line=`나는 '${a}'${b?`·'${b}'`:""} 쪽인데, 지금은 ${SITLINE[sitKey()||"job"]}`;
-  return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">친구한테 보내기</button></div>`; }
+  return `<div class="oneline"><p>${line}</p><button type="button" class="btn alt" id="shareLine" data-t="${line.replace(/"/g,"&quot;")}">내 길 3개 친구한테 보내기</button></div>`; }
 // 특성화고 학생: 내 학과로 많이 가는 길 (추천 점수와 별개, 2026-11-03)
 function hsMajCard(f,P){ const m=f.hmj&&HS_MAJ.find(x=>x[1]===f.hmj); if(!m||!m[2].length) return "";
   const ps=m[2].map(k=>PATHS.find(p=>p.key===k)).filter(Boolean); if(!ps.length) return "";
@@ -1764,7 +1773,7 @@ function result(){
       <span class="rank">${i+1}순위</span>
       <h2>${p.n}</h2>
       ${p.note?`<p class="why"><b>${p.note}</b></p>`:""}${whyFor(p,f).length?`<p class="why">맞는 이유: ${whyFor(p,f).join(", ")}</p>`:""}
-      ${isMS()?"":p.sal?salBar(p.sal):p.salNote?`<p class="hint"><b style="color:var(--ink)">연봉</b> · ${p.salNote}</p>`:`<p class="hint">진학 경로라 연봉 대신 학과별 졸업 후 진로를 비교해 보세요. <a href="https://www.career.go.kr" target="_blank" rel="noopener">커리어넷 학과정보</a></p>`}
+      ${isMS()?"":p.sal?salBar(p.sal)+salSrc(p.key):p.salNote?`<p class="hint"><b style="color:var(--ink)">연봉</b> · ${p.salNote}</p>`:`<p class="hint">진학 경로라 연봉 대신 학과별 졸업 후 진로를 비교해 보세요. <a href="https://www.career.go.kr" target="_blank" rel="noopener">커리어넷 학과정보</a></p>`}
       ${p.v&&p.v.length?`<p class="hint" style="color:var(--blaze-ink);background:var(--blaze);border-radius:6px;padding:6px 10px">맞지 않는 점: ${p.v.join(", ")}</p>`:""}
       ${firstBox(p.key,p.first,p.firstLink)}
       ${helpBox(p.key)}
@@ -1811,7 +1820,7 @@ function result(){
       ${help.map(supItem).join("")}
       <p class="src">지원 금액과 요건은 해마다 바뀔 수 있어 신청 전 각 기관에서 꼭 확인해 주세요.</p>
     </section>
-    ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요. 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
+    ${corp.length?`<section class="card" id="corp"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">기업 교육·채용 연계 프로그램</span><h3>기업이 직접 키워 주는 프로그램</h3></div>${corp.map(supItem).join("")}<p class="src">모집 일정과 조건은 각 기업 공고 기준이에요(표지기 공고 확인일 ${CORP_CHECKED}). 그 뒤 바뀌었을 수 있으니 지원 전 공식 페이지에서 확인하세요.</p></section>`:""}
     <section class="card keep" id="keep"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">저장하고 이어가기</span><h3>결과를 사진으로 갖고 가세요</h3><p class="hint">갤러리에 저장해 두면 다시 들어오지 않아도 바로 볼 수 있어요.</p></div>
       <button class="btn" id="rtGo" type="button">${st.rt?"내 준비계획 보기":"나에게 딱 맞는 준비계획"}</button>
       <button class="btn alt" id="imgRes" type="button">결과 이미지로 저장</button>
@@ -1866,7 +1875,8 @@ function result(){
   document.getElementById("again").onclick=reset;
   document.getElementById("rtGo").onclick=()=>{ st.phase="plan"; st.rtEdit=0; save(); render(); };
   document.getElementById("imgRes").onclick=()=>makeImage("result");
-  const shl=document.getElementById("shareLine"); if(shl) shl.onclick=()=>{ const text=shl.dataset.t+"\n너는 뭐 나와? 10분 무료 진로 검사", url="https://pyojigi.pages.dev/?src=share";
+  const shl=document.getElementById("shareLine"); if(shl) shl.onclick=()=>{ const three=(P_CUR||[]).slice(0,3).map((p,i)=>`${i+1}. ${p.n.replace(/ \(.*\)$/,"")}`).join("\n"); // 길 이름만 (답·적은 말은 안 넣음)
+    const text=shl.dataset.t+(three?"\n표지기가 골라 준 내 길 3개:\n"+three:"")+"\n너는 뭐 나와? 10분 무료 진로 검사", url="https://pyojigi.pages.dev/?src=share";
     try{ if(navigator.share){ navigator.share({text,url}).catch(()=>{}); return; } }catch(e){}
     try{ navigator.clipboard.writeText(text+" "+url).then(()=>toast("복사했어요. 친구한테 붙여 넣어 보내 주세요."),()=>toast(text+" "+url)); }catch(e){ toast(text+" "+url); } };
 }
@@ -2067,7 +2077,7 @@ const PRO={
  aut:{t:"2025년 조사에서 자동차 정비원 임금 중위값은 연 4,650만원, 상위 25%는 5,525만원이었어요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000001070"},
  bld:{t:"도배공은 학력·자격 요건이 없고 3~6개월 경력이면 기능공으로 인정받는 편이에요. 2025년 조사 임금 중위값은 연 4,000만원이었어요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000001188"},
  mtc:{t:"2025년 조사에서 물리치료사 임금 중위값은 연 4,000만원이었어요. 대부분 주간 근무예요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000007501"},
- eng:{t:"2025년 조사에서 반도체공학 기술자·연구원 임금 중위값은 연 8,000만원이었어요. 다만 연구직은 대학원 졸업자가 많아요.",src:"한국직업정보 기반 직업정보 (2025 조사)",url:"https://invione.com/jobs/info/K000001184"},
+ eng:{t:"제품 성능을 높이고, 공정의 최적 조건을 정하고, 불량 원인을 찾아 고치는 일이라 공학 전공을 그대로 살릴 수 있어요. 다만 연구직은 대학원 졸업자가 많아요.",src:"커리어넷 직업정보 · 반도체공학기술자 (2026-11-03 확인)",url:"https://www.career.go.kr/cnet/front/base/job/jobView.do?SEQ=157"},
  tch:{t:"교육공무원은 정년이 62세로, 일반 공무원(60세)보다 2년 길어요.",src:"교육공무원법",url:LAW("교육공무원법")},
  nur:{t:"2023년 기준 신규 간호사 평균 초봉이 4,136만원이라는 보도가 있지만, 병원에 따라 최대 2,217만원까지 차이가 나서 어느 병원에 가느냐가 중요해요.",src:"후생신보·메디칼타임즈 보도",url:"https://www.medicaltimes.com/Mobile/News/NewsView.html?ID=1072834"},
  env:{t:"지자체·공단 공무직이라 정년까지 일할 수 있어요. 2026년 속초시시설관리공단 환경공무관 공고는 연봉 4천만원 이상을 내걸었어요. 대신 새벽 근무와 체력검정이 있어요.",src:"퍼블릭타임스 (2026.4)",url:"https://www.public25.com/news/articleView.html?idxno=44517"}
@@ -2229,6 +2239,8 @@ const CAL=[
  {n:"SSAFY 17기 교육생 모집",s:"2026-10-26",e:"2026-11-09",cat:"corp",who:"29세 이하 미취업, 대학·마이스터고 졸업(예정)자, 전공 무관",act:"2027년 1월부터 1년, 전국 5개 캠퍼스 무료 교육 + 월 100만원 교육지원비",url:SSAFY},
  {n:"SK 아이젠(AIGEN) 1기 지원서·포트폴리오 접수",s:"2026-11-01",e:"2026-11-15",cat:"corp",who:"만 19~34세, 학력·전공·코딩 경험 무관, 2년 전일제 참여 가능자",act:"11월 AI 인터뷰 → 12월 초 사고역량 확인 → 12월 프로젝트 면접 → 2027년 1월 최종 선발. 활동 2027년 3월~2028년 12월(약 22개월), 50명 내외, 월 300만원 성장지원금",url:AIG}
 ];
+// 기업 프로그램(corpSupports·WAITING corp) 공고를 마지막으로 확인한 날. 다시 확인하면 이 날짜를 바꾼다 (항목 60)
+const CORP_CHECKED="2026-10-23";
 // 일정 발표를 기다리는 제도 (날짜가 나오면 CAL로 옮긴다)
 const WAITING=[
  {n:"국가장학금 2027학년도 1학기 1차 신청",hint:"지난해 같은 시기 1차 신청은 11월 말~12월 말에 열렸어요.",url:KOSAF,cat:"money"},
@@ -2320,8 +2332,10 @@ function supports(f,P,today){
   if(k==="hs"||k==="col"||k==="retake"){
     out.push({n:"커리어넷 진로·학과 정보",who:k==="hs"?"고등학생":k==="retake"?"재수·N수생":"대학생",t:"학과별 졸업 후 진출 직업, 직업별 하는 일과 전망을 무료로 찾아볼 수 있는 정부 진로 사이트예요.",links:[["커리어넷","https://www.career.go.kr"]]});
     if(k==="hs") out.push({n:"학교 취업지원관·진로 선생님",who:f.voc?"특성화고·마이스터고 학생":"취업도 고민하는 학생",t:"고졸 채용 공고와 추천 전형 정보는 학교로 먼저 들어와요. 진로 상담실에 이 결과를 들고 가서 같이 보세요.",links:[]});
+    // 항목 56: 출처 국가평생교육진흥원 학점은행제 학위수여 요건 https://www.cb.or.kr/creditbank/eduIntro/nEduIntro4_2.do , 독학학위제 개요 https://bdes.nile.or.kr/nile/about/nAbout1_1.do (2026-11-03 확인)
+    if(k==="retake") out.push({n:"수능 말고 대학 학위를 받는 길 (학점은행제·독학학위제·전문대)",who:"재수·N수생",t:"수능만 대학으로 가는 길은 아니에요. 학점은행제는 학교 밖에서 들은 수업과 딴 자격을 학점으로 쌓아 학사(140학점 이상)나 전문학사(2년제 80학점 이상) 학위를 받는 제도예요. 독학학위제는 고졸 이상이면 누구나 응시할 수 있고, 4단계 시험을 통과하면 학사학위를 받아요. 전문대는 2~3년 동안 기술을 배워 바로 일하는 길이에요. 재수와 나란히 놓고 비교해 보세요.",links:[["학점은행제 (국가평생교육진흥원)","https://www.cb.or.kr"],["독학학위제 (국가평생교육진흥원)","https://bdes.nile.or.kr"]]});
     if(k==="col") out.push({n:"대학일자리플러스센터",who:f.senior?"졸업 예정자":"재학생",t:"학교마다 있는 취업 지원 기관이에요. 진로 상담, 이력서 첨삭, 모의면접, 현장실습 연결을 무료로 받을 수 있어요.",links:[]});
-    if(k==="col" || f.go==="adv") out.push({n:"국가장학금",who:"학기마다 신청",t:"가구 소득구간에 따라 등록금을 지원받아요. 재학생은 직전 학기 12학점 이상·80점(B) 이상이 기본 기준이고, 부모님 정보 제공 동의를 안 하면 심사가 안 돼요. 1차 신청은 보통 학기 시작 전 겨울·여름에 열려요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]});
+    if(k==="col" || f.go==="adv") out.push({n:"국가장학금",who:"학기마다 신청",t:"가구 소득구간에 따라 등록금을 지원받아요. 재학생은 직전 학기 12학점 이상·80점(B) 이상이 기본 기준이고, 부모님 정보 제공 동의를 안 하면 심사가 안 돼요. 1차 신청은 보통 학기 시작 전 겨울·여름에 열려요. 휴학한 학기에는 받을 수 없어요. 복학할 학기의 신청 기간에 복학생으로 신청하면 돼요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]}); // 복학생 신청 대상: 한국장학재단 2026-1학기 1차 신청 공지 https://www.kosaf.go.kr/ko/notice.do?mode=view&seqNo=20327 (2026-11-03 확인)
     if(k==="col" || f.go==="adv") out.push({n:"취업 후 상환 학자금대출",who:"학부생 만 35세 이하",t:"등록금 전액과 생활비 학기당 200만원까지 빌릴 수 있고, 2026년 1학기 금리는 연 1.7%였어요. 졸업 후 연소득이 3,037만원을 넘을 때부터 갚기 시작해요. 빚이니 장학금으로 모자란 만큼만 쓰세요.",links:[["한국장학재단","https://www.kosaf.go.kr"]]});
     if(k==="col" && f.senior) out.push({n:"국민내일배움카드",who:"졸업까지 2년 미만 남았거나 졸업했으면 신청 가능",t:"졸업까지 남은 기간이 2년 미만이면 재학 중에도 신청할 수 있고, 졸업하면 구직자로 발급받아 5년간 300만원(저소득층 등 최대 500만원)까지 국비 훈련을 들을 수 있어요.",links:[["고용24",W24],["훈련과정 검색",TRAIN]]});
     out.push(...polySup(f,P,k,emp,age));
@@ -2333,9 +2347,13 @@ function supports(f,P,today){
   if((k==="gap"||f.flat) && !emp && age>=1 && age<=4) out.push({n:"청년도전지원사업",who:"오래 쉬었거나 구직 의욕이 떨어진 청년",t:"자신감 회복 프로그램부터 시작해 취업 준비까지 단계적으로 돕고, 참여하면 수당도 지급돼요. 지역 청년센터·고용센터에서 모집해요.",links:[["고용24에서 찾기",W24]]});
   if(f.carebreak) out.push({n:"새일센터 (여성새로일하기센터)",who:"육아·가족 돌봄으로 경력이 끊긴 경우",t:"직업 상담, 직업훈련, 인턴, 취업 연계까지 한곳에서 받을 수 있어요.",links:[["새일센터",'https://saeil.mogef.go.kr']]});
   if(k==="mil" && f.rank && f.rank!=="pvt") out.push({n:"제대군인지원센터",who:"중·장기 복무 후 전역(예정)자",t:"전역 전부터 취업·창업 상담, 교육훈련, 일자리 연계를 받을 수 있어요. 군 경력을 민간 이력서로 옮기는 것도 도와줍니다.",links:[["제대군인지원센터 (국가보훈부)","https://www.vnet.go.kr"]]});
+  // 항목 44 (상병 도현): 복무 중인 병에게 장병 지원. 출처: 국방부 게시 Sh장병내일준비적금 상품설명서(2025-11-25 시행) https://mdc.mnd.go.kr/sites/fmc/files/sh-02.pdf ,
+  // 자기개발비용·대학 원격강좌 학점인정제: 정책브리핑 '군 장병 복지증진' https://www.korea.kr/news/policyNewsView.do?newsId=148899382 (금액은 2022년 기사라 넣지 않음, 2026-11-03 확인)
+  const svcPvt = k==="mil" && f.inSvc && f.rank==="pvt";
+  if(svcPvt) out.push({n:"장병 지원 (복무 중에 챙길 것)",who:"현역병 등 의무복무 중",t:"장병내일준비적금은 은행을 합쳐 월 55만원까지 넣을 수 있고, 2024년 이후 넣은 원금만큼 정부가 매칭지원금을 더해 줘요. 자격시험 응시료·어학·교재 같은 자기개발 비용도 일부를 실비로 지원받을 수 있고, 대학 원격강좌를 들으면 학점으로 인정받을 수 있어요. 금액과 신청 방법은 해마다 바뀌니 부대 담당자나 나라사랑포털에서 확인하세요.",links:[]});
   const young = age>=1 && age<=4;
   const hasIncome = emp || (st.ans.inc!=null && st.ans.inc>=1);
-  if(young && (st.ans.inc==null || st.ans.inc<=2)) out.push({n:"청년월세 지원",who:"만 19~34세, 부모님과 따로 살며 월세 내는 청년",t:"소득·재산 기준을 충족하면 월 최대 20만원씩 최대 24개월 월세를 지원받아요. 2026년부터 연중 상시 신청으로 바뀌었어요. 보증금 5천만원·월세 70만원 이하 집이 기준이에요.",links:[["복지로에서 신청","https://www.bokjiro.go.kr"]]});
+  if(young && !svcPvt && (st.ans.inc==null || st.ans.inc<=2)) out.push({n:"청년월세 지원",who:"만 19~34세, 부모님과 따로 살며 월세 내는 청년",t:"소득·재산 기준을 충족하면 월 최대 20만원씩 최대 24개월 월세를 지원받아요. 2026년부터 연중 상시 신청으로 바뀌었어요. 보증금 5천만원·월세 70만원 이하 집이 기준이에요.",links:[["복지로에서 신청","https://www.bokjiro.go.kr"]]});
   const fut=windowState(WIN.fut,today);
   if(fut.show && (young || (k==="mil" && age<=5)) && hasIncome) out.push({n:"청년미래적금",who:fut.label,t:"만 19~34세(군 복무 기간만큼 연장) 소득이 있는 청년이 월 50만원까지 3년간 넣으면 정부가 6%(우대형 12%)를 더 얹어 줘요. 중소기업 재직 등 우대형은 실효 금리가 연 최대 19.4% 수준이에요.",links:[["금융위원회 안내","https://www.korea.kr/news/policyNewsView.do?newsId=148972819"]]});
   const tmr=windowState(WIN.tmr,today);
@@ -2720,7 +2738,7 @@ const JOBD={
 "온라인 판매":["온라인 쇼핑몰·마켓에서 상품을 판매해요.","사업자등록과 통신판매업 신고를 보통 해야 해요."]
 };
 let dictQ="", dictCat="all";
-const DICT_CATS=[["all","전체",null],["tech","기술·현장",["sec","avs","fac","tec","aut","bld","arc","rail","avi","log","env"]],["office","사무·IT·금융",["off","fin","tax","lgl","law","pro","trd","it","eng","sal","bop","pln","rea"]],["arts","문화·디자인·언론",["med","dsn","art","mkt"]],["public","공공·교사",["pub","pbc","uni","mlc","tch"]],["care","보건·돌봄·체육",["doc","nur","mtc","hcl","diet","car","cns","kid","spo","ath","edu"]],["svc","서비스·창업",["ckg","bty","svc","own"]],["stu","학생",["adv","hsj"]]];
+const DICT_CATS=[["all","전체",null],["tech","기술·현장",["sec","avs","fac","tec","aut","bld","arc","rail","avi","log","env","eng"]],["office","사무·IT·금융",["off","fin","tax","lgl","law","pro","trd","it","sal","bop","pln","rea"]],["arts","문화·디자인·언론",["med","dsn","art","mkt"]],["public","공공·교사",["pub","pbc","uni","mlc","tch"]],["care","보건·돌봄·체육",["doc","nur","mtc","hcl","diet","car","cns","kid","spo","ath","edu"]],["svc","서비스·창업",["ckg","bty","svc","own"]],["stu","학생",["adv","hsj"]]];
 function dict(){
   const n=Object.values(JOBS).reduce((a,b)=>a+b.length,0);
   el(`<section style="display:flex;flex-direction:column;gap:14px">
