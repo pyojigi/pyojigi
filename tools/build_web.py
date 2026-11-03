@@ -64,7 +64,7 @@ async function SAMPLE(input, opts){
 doc = R(doc, 'const AI_ERR={', 'const AI_ERR={limit:"오늘 사용할 수 있는 횟수를 다 썼어요. 내일 다시 이용해 주세요.",busy:"지금 이용하는 사람이 많아요. 잠시 뒤 다시 눌러 주세요.",network:"인터넷 연결을 확인하고 다시 눌러 주세요.",off:"AI 기능을 잠시 쉬고 있어요.",empty:"답이 비어 있어요. 다시 눌러 주세요.",')
 doc = R(doc, 'card.hidden=!SAMPLE;', 'card.hidden=false;')
 doc = R(doc, 'if(e&&["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e.code)) card.hidden=true;', 'if(e&&e.code==="off") card.hidden=true;')
-doc = R(doc, '처음 누르면 사용 허락을 한 번 묻습니다.', '누르면 답 내용이 AI로 보내져요. 하루 3번까지 읽고, 이어서 질문할 수 있어요. 답변에 20초 정도 걸려요.')
+doc = R(doc, '처음 누르면 사용 허락을 한 번 물어요.', '누르면 답 내용이 AI로 보내져요. 하루 3번까지 읽고, 이어서 질문할 수 있어요. 답변에 20초 정도 걸려요.')
 doc = R(doc, 'out.textContent="읽는 중이에요...";', 'out.textContent="읽는 중이에요... 20초 정도 걸려요.";')
 
 # 3) 익명 통계 전송
