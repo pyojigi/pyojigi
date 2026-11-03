@@ -183,11 +183,21 @@ const FAQ_Q = {
   drop: ['자퇴하면 대학이나 취업은 어떻게 하나요?', '학교 밖 청소년은 어디서 도움받을 수 있나요?', '학력이 없어도 기술을 배울 수 있나요?'],
   retake: ['재수는 언제 해 볼 만한가요?', '계속할지 그만둘지 어떻게 정하나요?', '수능 말고 다른 진학 길도 있나요?'],
 };
+// 상황 페이지에만 붙는 추가 내용 (공식·공신력 있는 출처로 확인한 것만)
+const SIT_EXTRA = {
+  // 항목 65 (중3): 정의는 한국민족문화대백과(한국학중앙연구원) '특성화고등학교'·'마이스터고등학교' 항목(초·중등교육법 시행령 제90·91조 문구), 원서 시기는 위 '먼저 확인할 것'과 같음. 2026-11-03 확인
+  ms: `<h2>일반고·특성화고·마이스터고 한눈에 비교</h2><div class="tw"><table><thead><tr><th style="white-space:nowrap">학교 · 원서</th><th>무엇을 배우나</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap"><b>일반고</b><br><span class="src">12월</span></td><td>여러 과목을 고루 배우며 주로 대학 진학을 준비해요.</td></tr>
+<tr><td style="white-space:nowrap"><b>특성화고</b><br><span class="src">대부분 11월</span></td><td>조리, 디자인, IT, 회계처럼 정해진 분야의 직업 교육과 실습을 해요. 졸업 뒤 취업도, 진학도 할 수 있어요.</td></tr>
+<tr><td style="white-space:nowrap"><b>마이스터고</b><br><span class="src">10월</span></td><td>산업계가 필요로 하는 기술을 맞춤형으로 배워 졸업 뒤 바로 취업하는 것을 목표로 해요.</td></tr>
+</tbody></table></div><p class="src">원서 날짜는 지역마다 달라요. 학교 목록과 학과는 하이파이브(특성화고·마이스터고)에서 찾아볼 수 있어요. 출처: <a href="https://encykorea.aks.ac.kr/Article/E0068532" rel="noopener">한국민족문화대백과 '특성화고등학교'</a> · <a href="https://encykorea.aks.ac.kr/Article/E0068623" rel="noopener">'마이스터고등학교'</a></p>`,
+};
 function sitPage([slug, h1, desc, sitIdx, extra, tips, links]) {
   const tops = topFor(sitIdx, extra).filter(k => P[k]).slice(0, 6);
   const Q = FAQ_Q[slug]; if (!Q || Q.length !== tips.length) throw new Error('FAQ_Q 누락: ' + slug);
   const body = `<h1>${esc(h1)}</h1><p class="lede">${esc(desc)}</p>
 <h2>먼저 확인할 것</h2><ol class="qa">${tips.map((t, i) => `<li><b>${esc(Q[i])}</b>${esc(t)}</li>`).join('')}</ol>
+${SIT_EXTRA[slug] || ''}
 <h2>이 상황에서 많이 추천되는 길</h2><p class="src">표지기 검사에서 같은 상황의 응답 3,000건을 돌려 3위 안에 많이 나온 길이에요.</p>
 <div class="chips">${tops.map(k => `<a href="/jobs/${k}.html">${esc(short(P[k].n))}</a>`).join('')}</div>
 <h2>도움받을 곳</h2><ul>${links.map(l => `<li><a href="${esc(l[1])}" rel="noopener">${esc(l[0])}</a></li>`).join('')}</ul>
