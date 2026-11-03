@@ -1114,11 +1114,13 @@ function majLink(f){ const ml=MAJLINK[f.mj]||[];
 const CUR_NEXT={fac:"같은 공장의 설비·보전 담당에게 사내 전환 조건을 물어보고, 전기기능사 같은 설비 자격을 하나 따 두면 설비직이나 더 큰 회사 경력 이직에 유리해요.",sec:"경비지도사 같은 상위 자격을 알아보고, 공항·특수경비처럼 수당이 높은 쪽 공고와 지금 조건을 비교해 보세요.",log:"지게차·대형면허처럼 다룰 수 있는 장비를 늘리면 같은 물류 일에서 고를 수 있는 자리가 넓어져요.",tec:"가진 기능사가 있다면 산업기사 응시 요건(경력)을 큐넷에서 확인해 한 단계 위 자격을 준비하세요.",off:"지금 맡은 업무를 숫자로 정리하고 전산회계·컴활 같은 자격을 더해 경력직 공고에 지원해 보세요."};
 function score(){
   const {t,f}=tally(); const k=sitKey(), emp=employed(f), g=goalKey(f);
+  // '맞는 이유' 글에 쓰는 성향 점수: 나이·상황 보기에 붙은 점수(10대→성장 지향 등)는 뺀다. 점수 계산(t)은 그대로 (2026-11-03 고2 건우, '성장 지향' 줄)
+  const tw={...t}; ["ag","sit"].forEach(id=>{ const q=Q.find(x=>x.id===id), a=st.ans[id], o=q&&a!=null&&q.o[a]; if(o) for(const x in o[1]) tw[x]=(tw[x]||0)-o[1][x]; });
   const leaving = k==="switch" || (k==="move"&&(!f.same||f.mv==="fit")) || (k==="slump"&&f.sl==="work") || (k==="gap"&&f.gw==="fit");
   const R=PATHS.map(p=>{
     let s=0, why=[], note="", block=false;
     const wn=Math.sqrt(Object.values(p.w).reduce((a,b)=>a+b*b,0))||1;
-    for(const x in p.w){const v=(t[x]||0)*p.w[x]*4.5/wn; s+=v; if((t[x]||0)>=2 && p.w[x]>=2) why.push(TRAIT[x]);}
+    for(const x in p.w){const v=(t[x]||0)*p.w[x]*4.5/wn; s+=v; if((tw[x]||0)>=2 && p.w[x]>=2) why.push(TRAIT[x]);}
     s=Math.round(s);
     const v=[];
     if(f.noShift&&p.shift) v.push("교대·야간 근무"); if(f.noPress&&p.press) v.push("실적 압박"); if(f.noEmo&&p.emo) v.push("감정노동");
