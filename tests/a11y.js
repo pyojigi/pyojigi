@@ -1,14 +1,15 @@
 // 접근성 검사: node tests/a11y.js → ALL PASS
 // 390px 폰 화면(밝은·어두운 모드)으로 첫 화면 → 질문 → 중간 화면 → 결과 화면까지 실제로 눌러 가며,
 // 화면마다 ① 14px 미만 글자 ② 44px 미만 터치 영역 ③ 가로 넘침 ④ 글자 대비 4.5:1(큰 글자 3:1) 미달 ⑤ 이름 없는 버튼·링크·이미지를 센다.
+// ⑥ 바깥 링크 표시 ↗ 를 글자 그대로 쓴 곳(SVG 아이콘 i.ext·aria-hidden 이 아닌 곳, 화면 낭독기가 '북동쪽 화살표'로 읽음).
 // 장식(aria-hidden)과 문장 속 링크(WCAG 2.5.8 예외)는 세지 않는다. 기준을 넘으면 어디인지 보여 주고 실패.
 const { chromium } = require('playwright');
 const path = require('path');
 const FILE = 'file://' + path.resolve(__dirname, '../public/index.html');
-const LIMIT = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0 };
+const LIMIT = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0, arrow: 0 };
 
 function audit() {
-  const out = { small: [], touch: [], overflow: 0, contrast: [], noname: [] };
+  const out = { small: [], touch: [], overflow: 0, contrast: [], noname: [], arrow: [] };
   const vis = e => { const r = e.getBoundingClientRect(); if (!r.width || !r.height) return false; for (let x = e; x && x.nodeType === 1; x = x.parentElement) { const s = getComputedStyle(x); if (s.display === 'none' || s.visibility === 'hidden' || x.hidden) return false; if (x.getAttribute('aria-hidden') === 'true') return false; if (x !== e && x.getAttribute('role') === 'img') return false; } return true; };
   const rgb = c => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const a = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return [a[0], a[1], a[2], a.length > 3 ? a[3] : 1]; };
   const mix = (f, b) => [0, 1, 2].map(i => f[i] * f[3] + b[i] * (1 - f[3])).concat(1);
@@ -41,12 +42,13 @@ function audit() {
     if (!nm && !e.getAttribute('aria-labelledby')) out.noname.push(name(e));
   }
   for (const e of document.querySelectorAll('img')) if (!e.hasAttribute('alt')) out.noname.push(name(e));
+  { const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let n; while ((n = tw.nextNode())) if (n.textContent.includes('↗') && n.parentElement && !n.parentElement.closest('[aria-hidden=true],script,style') && vis(n.parentElement)) out.arrow.push(name(n.parentElement)); }
   return out;
 }
 
 (async () => {
   const b = await chromium.launch();
-  let bad = 0; const tot = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0 };
+  let bad = 0; const tot = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0, arrow: 0 };
   for (const scheme of ['light', 'dark']) {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, colorScheme: scheme, reducedMotion: 'reduce' });
     const p = await ctx.newPage();
@@ -94,7 +96,7 @@ function audit() {
     const fs = require('fs'), PUB = path.resolve(__dirname, '../public');
     const pick = d => { try { return fs.readdirSync(path.join(PUB, d)).filter(f => f.endsWith('.html')).map(f => d + '/' + f); } catch (e) { return []; } };
     const pages = ['404.html', 'privacy.html', ...pick('jobs'), ...pick('for'), ...pick('guide')];
-    const ptot = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0 };
+    const ptot = { small: 0, touch: 0, overflow: 0, contrast: 0, noname: 0, arrow: 0 };
     for (const f of pages) {
       await p.goto('file://' + path.join(PUB, f));
       const r = await p.evaluate(audit), line = [];
@@ -103,11 +105,11 @@ function audit() {
       for (const k of Object.keys(LIMIT)) { const c = k === 'overflow' ? r[k] : r[k].length; ptot[k] += c; if (c > LIMIT[k]) { bad++; line.push(`${k} ${c}: ${(r[k].slice ? r[k].slice(0, 4).join(' | ') : '')}`); } }
       if (line.length) console.log(`[${scheme}] ${f}\n  ` + line.join('\n  '));
     }
-    console.log(`[${scheme}] 안내 페이지 ${pages.length}개: 작은 글자 ${ptot.small} · 좁은 터치 ${ptot.touch} · 가로 넘침 ${ptot.overflow} · 대비 미달 ${ptot.contrast} · 이름 없음 ${ptot.noname}`);
+    console.log(`[${scheme}] 안내 페이지 ${pages.length}개: 작은 글자 ${ptot.small} · 좁은 터치 ${ptot.touch} · 가로 넘침 ${ptot.overflow} · 대비 미달 ${ptot.contrast} · 이름 없음 ${ptot.noname} · 글자 ↗ ${ptot.arrow}`);
     await ctx.close();
   }
   await b.close();
-  console.log(`작은 글자 ${tot.small} · 좁은 터치 ${tot.touch} · 가로 넘침 ${tot.overflow} · 대비 미달 ${tot.contrast} · 이름 없음 ${tot.noname}`);
+  console.log(`작은 글자 ${tot.small} · 좁은 터치 ${tot.touch} · 가로 넘침 ${tot.overflow} · 대비 미달 ${tot.contrast} · 이름 없음 ${tot.noname} · 글자 ↗ ${tot.arrow}`);
   console.log(bad ? `실패 ${bad}건` : 'ALL PASS');
   process.exit(bad ? 1 : 0);
 })();
