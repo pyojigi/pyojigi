@@ -85,6 +85,21 @@ ${body}
 </div></body></html>`;
 }
 
+// ---------- 관련 가이드 링크 (직업·상황 페이지 → /guide/) ----------
+// 검색으로 들어온 사람이 다음에 읽을 것: 가이드 머리말의 h1 을 링크 글자로 씀. 없는 가이드는 건너뜀.
+function guideMeta(slug) {
+  const f = path.join(__dirname, '..', 'content', 'guides', slug + '.md'); if (!fs.existsSync(f)) return null;
+  const head = fs.readFileSync(f, 'utf8').split(/\n\s*\n/)[0]; const m = head.match(/^h1:\s*(.*)$/m);
+  return m ? { url: `/guide/${slug}.html`, h1: m[1].trim() } : null;
+}
+const GUIDE_SIT = { job: ['naeil-card', 'youth-support-2026', 'first-paycheck'], mil: ['youth-support-2026', 'naeil-card'], nouni: ['highschool-job', 'naeil-card', 'first-parttime-job'], twenty: ['youth-support-2026', 'naeil-card', 'first-parttime-job'], col: ['major-mismatch', 'youth-support-2026', 'first-paycheck'], hs: ['highschool-job', 'first-parttime-job'], csat: ['highschool-job', 'first-parttime-job'], ms: ['highschool-job', 'first-parttime-job'], drop: ['naeil-card', 'first-parttime-job', 'highschool-job'], retake: ['major-mismatch', 'first-parttime-job'] };
+const HS_JOB = new Set(['hsj', 'rail', 'pbc', 'tec', 'fac', 'aut', 'pub']); // 고졸 채용이 따로 있는 길
+const guideKeysForJob = k => (HS_JOB.has(k) ? ['highschool-job'] : []).concat(['naeil-card', 'first-paycheck']);
+function relGuides(slugs) {
+  const g = slugs.map(guideMeta).filter(Boolean);
+  return g.length ? `<h2>같이 읽으면 좋은 가이드</h2><ul>${g.map(x => `<li><a href="${x.url}">${esc(x.h1)}</a></li>`).join('')}</ul>` : '';
+}
+
 // ---------- 직업별 ----------
 const CAT = {}; for (const [, name, keys] of DICT_CATS) if (keys) for (const k of keys) CAT[k] = name;
 function jobPage(p) {
@@ -101,7 +116,8 @@ ${R.length ? `<h2>준비 단계 (대략적인 시간)</h2><ol>${R.map(r => `<li>
 ${PRO ? `<h2>이 일의 장점</h2><div class="card"><p>${esc(PRO.t)}</p><p class="src">출처: <a href="${esc(PRO.url)}" rel="noopener">${esc(PRO.src)}</a></p></div>` : ''}
 <h2>오늘 해 볼 것</h2><ul><li>${esc(p.first)}</li>${p.try ? `<li>${esc(p.try)}</li>` : ''}<li><a href="${yt(k)}" rel="noopener">현직자 영상 보기 (유튜브)</a></li></ul>
 <a class="cta" href="/?src=job-${k}">이 길이 나한테 맞는지 10분 검사로 확인하기</a>
-<h2>같은 분야 다른 직업</h2><div class="chips">${M.PATHS.filter(x => x.key !== k && CAT[x.key] === CAT[k]).map(x => `<a href="/jobs/${x.key}.html">${esc(short(x.n))}</a>`).join('')}</div>`;
+<h2>같은 분야 다른 직업</h2><div class="chips">${M.PATHS.filter(x => x.key !== k && CAT[x.key] === CAT[k]).map(x => `<a href="/jobs/${x.key}.html">${esc(short(x.n))}</a>`).join('')}</div>
+${relGuides(guideKeysForJob(k))}`;
   const url = `/jobs/${k}.html`;
   const occ = { '@context': 'https://schema.org', '@type': 'Occupation', name: nm, description: clip(`${p.n}. ${J.length ? '세부 직업: ' + J.join(', ') + '. ' : ''}${p.need}`, 300), inLanguage: 'ko', mainEntityOfPage: SITE + url, occupationLocation: { '@type': 'Country', name: '대한민국' } };
   if (CAT[k]) occ.occupationalCategory = CAT[k];
@@ -174,6 +190,7 @@ function sitPage([slug, h1, desc, sitIdx, extra, tips, links]) {
 <h2>이 상황에서 많이 추천되는 길</h2><p class="src">표지기 검사에서 같은 상황의 응답 3,000건을 돌려 3위 안에 많이 나온 길이에요.</p>
 <div class="chips">${tops.map(k => `<a href="/jobs/${k}.html">${esc(short(P[k].n))}</a>`).join('')}</div>
 <h2>도움받을 곳</h2><ul>${links.map(l => `<li><a href="${esc(l[1])}" rel="noopener">${esc(l[0])}</a></li>`).join('')}</ul>
+${relGuides(GUIDE_SIT[slug] || [])}
 <a class="cta" href="/?src=for-${slug}">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`;
   const url = `/for/${slug}.html`;
   const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: 'ko', mainEntity: tips.map((t, i) => ({ '@type': 'Question', name: Q[i], acceptedAnswer: { '@type': 'Answer', text: t } })) };
@@ -185,7 +202,7 @@ const BIG_POST = `<svg viewBox="0 0 220 280" role="img" aria-label="리본이 �
 function notFound() {
   const body = `<div class="lost">${BIG_POST}<h1>이 길에는 리본이 없어요</h1><p class="lede">주소가 바뀌었거나 잘못 적힌 것 같아요. 괜찮아요, 아래 리본을 따라가면 다시 길이 나와요.</p></div>
 <a class="cta" href="/?src=404">10분 진로 검사 시작하기</a>
-<div class="card"><b>이런 곳은 어때요?</b><ul><li><a href="/jobs/">직업별 안내</a> · 되는 법, 연봉, 자격증, 준비 기간</li><li><a href="/for/">상황별 안내</a> · 중학생, 고등학생, 자퇴, 재수, 대학생, 첫 취업</li><li><a href="/">처음 화면으로</a></li></ul></div>`;
+<div class="card"><b>이런 곳은 어때요?</b><ul><li><a href="/jobs/">직업별 안내</a> · 되는 법, 연봉, 자격증, 준비 기간</li><li><a href="/for/">상황별 안내</a> · 중학생, 고등학생, 자퇴, 재수, 대학생, 첫 취업</li>${HAS_GUIDE() ? '<li><a href="/guide/">진로 가이드</a> · 내일배움카드, 청년 지원, 첫 알바, 첫 월급</li>' : ''}<li><a href="/">처음 화면으로</a></li></ul></div>`;
   return page({ url: '/404.html', title: '페이지를 찾을 수 없어요 | 표지기', desc: '찾는 페이지가 없어요. 10분 진로 검사, 직업별 안내, 상황별 안내에서 다시 길을 찾아보세요.', body, noindex: true, type: 'website', article: false, foot: false });
 }
 
@@ -270,7 +287,7 @@ function privacy() {
 }
 
 // ---------- 가이드 (content/guides/*.md) ----------
-// 형식: 맨 위 'title: ', 'desc: ', 'h1: ' 줄, 빈 줄 뒤 본문(마크다운 일부: ## / ### 제목, - 목록, 1. 목록, **굵게**, [출처: URL]).
+// 형식: 맨 위 'title: ', 'desc: ', 'h1: ' 줄(+ 공유 이미지 핵심어 'og: 가 · 나 · 다', og_images.py 가 씀), 빈 줄 뒤 본문(마크다운 일부: ## / ### 제목, - 목록, 1. 목록, **굵게**, [출처: URL]).
 // '## 자주 묻는 질문' 아래 '**Q. ...**' / 'A. ...' 는 FAQPage 구조화 데이터로도 넣어요.
 const GDIR = path.join(__dirname, '..', 'content', 'guides');
 function HAS_GUIDE() { return fs.existsSync(GDIR) && fs.readdirSync(GDIR).some(f => f.endsWith('.md')); }
@@ -300,7 +317,7 @@ function guidePage(file) {
   const faq = []; const fm = body.split(/##\s*자주 묻는 질문/)[1] || '';
   for (const m of fm.matchAll(/\*\*Q\.\s*(.+?)\*\*\s*\n\s*A\.\s*(.+)/g)) faq.push({ '@type': 'Question', name: m[1].trim(), acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/\[출처:[^\]]*\]/g, '').trim() } });
   const html = `<h1>${esc(meta.h1)}</h1>${md(body)}<a class="cta" href="/?src=guide-${slug}">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`;
-  return { url, h1: meta.h1, html: page({ url, title: `${meta.title} | 표지기`, desc: meta.desc, body: html, ld: faq.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq }] : [], crumbs: [['표지기', '/'], ['진로 가이드', '/guide/'], [meta.h1, url]] }) };
+  return { url, h1: meta.h1, html: page({ url, title: `${meta.title} | 표지기`, desc: meta.desc, body: html, og: `/og/guide-${slug}.png`, ogAlt: `${meta.h1} · 표지기 진로 가이드`, ld: faq.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq }] : [], crumbs: [['표지기', '/'], ['진로 가이드', '/guide/'], [meta.h1, url]] }) };
 }
 
 // ---------- 쓰기 ----------
@@ -331,7 +348,7 @@ const guidePages = fs.existsSync(GDIR) ? fs.readdirSync(GDIR).filter(f => f.ends
 for (const g of guidePages) { put(g.url, g.url, g.html); pages.push(g.url); }
 if (guidePages.length) {
   const desc = '국민내일배움카드, 청년 지원, 고졸 취업, 전공 고민처럼 10대·20대 초가 많이 찾는 진로 정보를 공식 출처로 정리했어요.';
-  put('/guide/', 'guide/index.html', page({ url: '/guide/', title: '10대·20대 초 진로 가이드 (지원 제도·취업 준비) | 표지기', desc, type: 'website', article: false,
+  put('/guide/', 'guide/index.html', page({ url: '/guide/', title: '10대·20대 초 진로 가이드 (지원 제도·취업 준비) | 표지기', desc, type: 'website', article: false, og: '/og/guide.png', ogAlt: '진로 가이드 · 표지기',
     ld: [collection('/guide/', '진로 가이드', desc, guidePages)],
     body: `<h1>진로 가이드</h1><ul>${guidePages.map(g => `<li><a href="${g.url}">${esc(g.h1)}</a></li>`).join('')}</ul><a class="cta" href="/?src=guide">내 상황에 맞는 길 3개 찾기 (10분, 무료)</a>`,
     crumbs: [['표지기', '/'], ['진로 가이드', '/guide/']] }));
@@ -360,8 +377,11 @@ for (const [u, h] of Object.entries(written)) {
   if (d.length > 160) errs.push(`${u} description ${d.length}자`);
   (titles[t] = titles[t] || []).push(u); (descs[d] = descs[d] || []).push(u);
   if (!/<a href="\/privacy.html">/.test(h) || !/<a href="\/#ask">/.test(h)) errs.push(u + ' footer 링크 누락');
+  if (HAS_GUIDE() && /^\/(jobs|for)\/[a-z-]+\.html$/.test(u) && !/<a href="\/guide\/[a-z0-9-]+\.html">/.test(h)) errs.push(u + ' 관련 가이드 링크 없음');
+  if (/^\/guide\//.test(u) && !/og:image" content="[^"]*\/og\/guide[-.]/.test(h)) errs.push(u + ' 가이드 공유 이미지 없음');
 }
 for (const [t, us] of Object.entries(titles)) if (us.length > 1) errs.push('title 중복: ' + t + ' ' + us.join(', '));
 for (const [d, us] of Object.entries(descs)) if (us.length > 1) errs.push('description 중복: ' + us.join(', '));
+if (HAS_GUIDE() && !/href="\/guide\/"/.test(written['/404.html'] || '')) errs.push('404 가이드 링크 없음');
 if (errs.length) { console.error('검사 실패:\n' + errs.join('\n')); process.exit(1); }
 console.log('pages', pages.length + 1, '(+404)', 'json-ld', ldCount, 'ok · site', SITE);
