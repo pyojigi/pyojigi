@@ -1604,7 +1604,7 @@ function reality(f,t,P){
   { const INC=[0,0,0,3000,3600][st.ans.inc]||0; if(INC && P && P.slice(0,3).some(p=>p.sal&&p.sal[0]<INC)) out.push("추천 길 중에는 신입 연봉이 지금 수입보다 낮은 곳이 있어요. 처음엔 지금보다 줄 수 있으니, 경력이 붙어 연봉이 오를 때까지 버틸 수 있는지 먼저 따져 보세요."); }
   if(ENL) out.push("입대를 앞두고 있다면 지금 정할 건 평생 직업이 아니라 '입대 전 남은 기간에 무엇을 해 둘지'예요. 짧게 딸 수 있는 자격·면허 하나를 정하고, 아래 길은 전역 뒤로 이어지는 준비로 보세요.");
   if(f.fam) out.push("기대는 가족이 있으니 수입 공백이 생기지 않는 순서로 움직이는 게 중요해요.");
-  if(f.rhythm) out.push("밤낮이 바뀌었다면 첫 2주는 기상 시간 고정부터. 면접·교육 일정이 대부분 오전이에요.");
+  if(f.rhythm) out.push((st.ans.shift===0||st.ans.shift===1)?"밤낮이 바뀐 지금 리듬을 억지로 고치지 않아도 돼요. 밤 시간이 괜찮다고 답했으니 야간·교대 근무 자리도 함께 봐도 되고, 면접·교육처럼 오전 일정이 잡힌 주에만 그 전 며칠 동안 30분씩 당겨 보세요.":"밤낮이 바뀐 지금 리듬 그대로 시작해도 돼요. 면접·교육은 오전이 많으니, 일정이 잡힌 주에만 그 전 며칠 동안 하루 30분씩 당겨 보세요.");
   if(f.carebreak) out.push("공백 기간은 숨기기보다 육아·돌봄이었다고 짧게 말하는 편이 면접에서 나아요. 그 사이 익힌 일정 관리, 문제 해결 경험을 한 줄로 붙이세요.");
   if(k==="mil"){
     out.push(f.rank==="pvt"?(f.inSvc?"군 복무 중 딴 자격증·면허는 이력서 맨 위에 둘 만큼 강점이에요. 전역 전에 내일배움카드부터 발급해 두세요.":"군 복무 중 딴 자격증·면허는 이력서 맨 위에 둘 만큼 강점이에요. 전역했다면 내일배움카드부터 발급하세요. 국비로 자격증을 딸 수 있어요."):"군 경력을 민간 직무 언어(인원 관리, 장비 정비, 보안 운영)로 바꿔 쓰는 게 핵심이에요. 지원 준비는 전역 6개월 전부터 시작하세요.");
@@ -2951,6 +2951,7 @@ function rtDefaults(P,gk){
 function routinePlan(rt){
   const W=rt.wake; let S=rt.sleep; if(S<=W) S+=1440;
   if(S-W<360) return {err:"일어나는 시각과 자는 시각을 다시 확인해 주세요. 깨어 있는 시간이 6시간보다 짧아요."};
+  if(S-W>1260) return {err:"일어나는 시각과 자는 시각을 다시 확인해 주세요. 깨어 있는 시간이 21시간보다 길어요."};
   const fixed=[], add=(a,b,t,kind)=>{ if(b>a) fixed.push({a,b,t,kind}); };
   let dinner=false;
   if(rt.fix==="yes"){
@@ -3042,7 +3043,7 @@ function rtForm(P,gk,back,err){
     <div class="plv-h"><span class="eyebrow">나에게 딱 맞는 준비계획</span><h1>하루를 알려 주세요</h1><p class="lede">다섯 가지만 고르면 시간표와 주차별 할 일을 만들어 드려요.</p></div>
     <div class="card rq"><h3>1. 어떤 길을 준비할까요?</h3><div class="pks col">${ks.map(k=>pick("k",k,(PATHS.find(p=>p.key===k)||{}).n,d.k===k)).join("")}</div></div>
     <div class="card rq"><h3>2. 준비 기간은?</h3><div class="pks four">${RT_WEEKS.map(([w,l])=>pick("wk",w,l,d.wk===w)).join("")}</div></div>
-    <div class="card rq" id="rtWS" ${d.fix==="shift"?"hidden":""}><h3>3. 평일에 일어나는 시각과 자는 시각은?</h3><div class="tpair"><label>일어나는 시각<select id="rtWake">${opts(240,720,d.wake)}</select></label><label>자는 시각<select id="rtSleep">${opts(1200,1620,d.sleep)}</select></label></div></div>
+    <div class="card rq" id="rtWS" ${d.fix==="shift"?"hidden":""}><h3>3. 평일에 일어나는 시각과 자는 시각은?</h3><div class="tpair"><label>일어나는 시각<select id="rtWake">${opts(240,900,d.wake)}</select></label><label>자는 시각<select id="rtSleep">${opts(1200,1800,d.sleep)}</select></label></div></div>
     <div class="card rq"><h3>4. 학교·회사·알바처럼 평일에 매일 나가는 일정이 있나요?</h3><div class="pks col">${[["yes","있어요 (매일 같은 시간)"],["no","없어요"],["shift","교대 근무라 매번 달라요"]].map(([v,l])=>pick("fix",v,l,d.fix===v)).join("")}</div>
       <div class="tpair" id="rtFixT" ${d.fix==="yes"?"":"hidden"}><label>집을 나서는 시각<select id="rtOut">${opts(240,1380,d.out)}</select></label><label>집에 돌아오는 시각<select id="rtHome">${opts(360,1560,d.home)}</select></label></div></div>
     <div class="card rq"><h3>5. 하루에 공부할 시간은?</h3><div class="pks">${RT_STUDY.map(m=>pick("h",m,durTxt(m),d.h===m)).join("")}</div></div>

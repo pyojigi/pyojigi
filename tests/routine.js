@@ -7,7 +7,7 @@ const document = { getElementById: () => el, createElement: () => ({}), addEvent
 const api = new Function('document', 'window', 'localStorage', 'setTimeout', script.replace(/\nrender\(\);\s*$/, '') + '\nreturn {routinePlan, rtShift};')(document, { scrollTo: noop }, { getItem: () => null, setItem: noop }, noop);
 let n = 0, errs = 0, capped = 0, invalid = 0;
 const bad = (m, rt) => { if (errs++ < 5) console.log('  • ' + m + ' ' + JSON.stringify(rt)); };
-for (let wake = 240; wake <= 720; wake += 30) for (let sleep = 1200; sleep <= 1620; sleep += 30)
+for (let wake = 240; wake <= 900; wake += 30) for (let sleep = 1200; sleep <= 1800; sleep += 30)
   for (const fix of ['yes', 'no']) for (const h of [30, 60, 120, 180, 240, 360]) {
     const outs = fix === 'yes' ? [] : [[null, null]];
     if (fix === 'yes') for (let out = 240; out <= 1380; out += 90) for (let home = 360; home <= 1560; home += 90) outs.push([out, home]);
