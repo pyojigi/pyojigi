@@ -97,7 +97,7 @@ function guideMeta(slug) {
   const head = fs.readFileSync(f, 'utf8').split(/\n\s*\n/)[0]; const m = head.match(/^h1:\s*(.*)$/m);
   return m ? { url: `/guide/${slug}.html`, h1: m[1].trim() } : null;
 }
-const GUIDE_SIT = { job: ['naeil-card', 'youth-support-2026', 'first-paycheck'], mil: ['youth-support-2026', 'naeil-card'], nouni: ['highschool-job', 'naeil-card', 'first-parttime-job'], twenty: ['youth-support-2026', 'naeil-card', 'first-parttime-job'], col: ['major-mismatch', 'youth-support-2026', 'first-paycheck'], hs: ['highschool-job', 'first-parttime-job'], csat: ['highschool-job', 'first-parttime-job'], ms: ['highschool-job', 'first-parttime-job'], drop: ['naeil-card', 'first-parttime-job', 'highschool-job'], retake: ['major-mismatch', 'first-parttime-job'] };
+const GUIDE_SIT = { job: ['naeil-card', 'youth-support-2026', 'first-paycheck'], mil: ['youth-support-2026', 'naeil-card', 'exam-fee-support'], nouni: ['highschool-job', 'naeil-card', 'first-parttime-job'], twenty: ['youth-support-2026', 'naeil-card', 'first-parttime-job'], col: ['major-mismatch', 'youth-support-2026', 'first-paycheck'], hs: ['highschool-job', 'first-parttime-job', 'exam-fee-support'], csat: ['highschool-job', 'first-parttime-job'], ms: ['highschool-job', 'first-parttime-job'], drop: ['naeil-card', 'first-parttime-job', 'highschool-job'], retake: ['major-mismatch', 'first-parttime-job'] };
 const HS_JOB = new Set(['hsj', 'rail', 'pbc', 'tec', 'fac', 'aut', 'pub']); // 고졸 채용이 따로 있는 길
 const guideKeysForJob = k => (HS_JOB.has(k) ? ['highschool-job'] : []).concat(['naeil-card', 'first-paycheck']);
 function relGuides(slugs) {
