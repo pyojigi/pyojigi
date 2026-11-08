@@ -18,10 +18,13 @@ const E=[ // [질문, 적은 말, 맞아야 하는 보기 이름 앞부분(null 
  ["goal","병원 말고 다른 일",null],["goal","간호학과 자퇴",null],["goal","편의점 야간",null],["cert","검정고시",null],["cert","없음",null],
  // 2026-11-07 하린: 호텔 프런트 계약직
  ["cur","호텔 프런트","매장"],["cur","프론트","매장"],["cur","리셉션","매장"],["cur","호텔 리셉션 계약직","매장"],
+ // 2026-11-08 리나: 다문화 가정·베트남어
+ ["goal","통역","무역·통번역"],["goal","통역사","무역·통번역"],["goal","베트남어 통역","무역·통번역"],["goal","이중언어","무역·통번역"],["goal","수어 통역사",null],
+ ["cert","FLEX","외국어 점수"],["cert","오픽","외국어 점수"],["cert","TOPIK","외국어 점수"],["plan","FLEX 베트남어","외국어 점수"],["cert","IELTS","외국어 점수"],["cert","베트남어",null],["cert","이중언어",null],
  ["goal","ㅁㄴㅇㄹ",null]];
 // 못 찾았을 때 나오는 답 (etcSay): [질문, 적은 말, 상황, 답에 있어야 할 말]
 const S=[["cert","없음",null,"딱히 없음"],["goal","병원 말고 다른 일","col","한 줄 칸"],["goal","간호학과 자퇴","col","한 줄 칸"],
- ["cert","검정고시","drop","검정고시 질문이 따로"],["goal","편의점 야간","drop","아직 없다"],["cert","2종 소형 (오토바이)","job","물류·운송"],["goal","우주비행사","job",null]];
+ ["cert","검정고시","drop","검정고시 질문이 따로"],["goal","편의점 야간","drop","아직 없다"],["cert","2종 소형 (오토바이)","job","물류·운송"],["goal","우주비행사","job",null],["cert","베트남어","hs","FLEX"],["cert","중국어 회화","job","무역·통번역"]];
 (async()=>{ const b=await chromium.launch(); const p=await b.newPage();
  await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.fulfill({status:200,body:'{}'}));
  await p.goto('file://'+require('path').resolve(__dirname,'../public/index.html'));
