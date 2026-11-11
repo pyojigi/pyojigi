@@ -46,6 +46,10 @@ const C = [
  ['부모 반대 고등학생', { sit: 'hs', h1: 0 }, '엄마가 반대해요', ['부모님과 생각이'], []],
  ['가족 기대 구직자', { sit: 'job' }, '부모님 기대가 너무 커요', ['가족의 기대'], []],
  ['구직자 막막', { sit: 'job' }, '하고 싶은 게 없어요', ['하고 싶은 게 없는 건'], []],
+ ['민서 휠체어 장애인 전형', { sit: 'gap' }, '휠체어 타는데 할 수 있는 일이 있을까요? 장애인 전형 같은 것도 알려 주세요', ['한국장애인고용공단', '구분모집', '1588-1519'], ['정해진 답이 있는', '힘내']],
+ ['민서 출퇴근', { sit: 'job' }, '장애가 있어서 사람들이 불쌍하게 보는 게 싫어요. 출퇴근이 제일 걱정이에요', ['한국장애인고용공단', '출퇴근이 걱정이면'], ['정해진 답이 있는']],
+ ['장애인스포츠지도사 목표', { sit: 'hs', h1: 1 }, '장애인스포츠지도사 되고 싶어요', [], ['한국장애인고용공단']],
+ ['동생 돌보는 고민', { sit: 'job' }, '장애가 있는 동생을 돌보면서 일할 수 있을까요', [], ['한국장애인고용공단']],
 ];
 const env = makeEnv();
 const api = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', script + '\nreturn {get st(){return st}, Q, freeAnswer};')(env.document, env.window, env.localStorage, () => {}, class { constructor() { this.signal = {}; } abort() {} });
