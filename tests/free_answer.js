@@ -52,7 +52,7 @@ const C = [
  ['동생 돌보는 고민', { sit: 'job' }, '장애가 있는 동생을 돌보면서 일할 수 있을까요', [], ['한국장애인고용공단']],
 ];
 const env = makeEnv();
-const api = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', script + '\nreturn {get st(){return st}, Q, freeAnswer};')(env.document, env.window, env.localStorage, () => {}, class { constructor() { this.signal = {}; } abort() {} });
+const api = new Function('document', 'window', 'localStorage', 'setTimeout', 'AbortController', script + '\nreturn {get st(){return st}, Q, freeAnswer, freeGoal};')(env.document, env.window, env.localStorage, () => {}, class { constructor() { this.signal = {}; } abort() {} });
 const sitQ = api.Q.find(q => q.id === 'sit');
 let bad = 0;
 for (const [name, ans, t, must, mustNot] of C) {
@@ -63,5 +63,16 @@ for (const [name, ans, t, must, mustNot] of C) {
   const miss = must.filter(w => !out.includes(w)), extra = mustNot.filter(w => out.includes(w));
   if (miss.length || extra.length) { bad++; console.log(`FAIL ${name} “${t}”\n  없음: ${miss.join(', ')}  있으면 안 됨: ${extra.join(', ')}\n  답: ${out.slice(0, 400)}`); }
 }
-console.log(bad ? `실패 ${bad}건 / ${C.length}건` : `ALL PASS (${C.length}건)`);
+// 한 줄 고민에서 '하고 싶은 일'을 찾는 freeGoal: 부모님이 시킨 말·'하고 싶은 게 없어요'는 하고 싶은 일이 아님 (페르소나 유빈)
+const G = [
+ ['공부는 잘하는데 하고 싶은 게 없어요. 부모님은 의대 가래요', null],
+ ['의대 가라는데 하고 싶지 않아요', null],
+ ['엄마가 약대 가라고 해서 고민이에요 하고 싶은 건 딱히 없어요', null],
+ ['의대 가고 싶은데 성적이 걱정이에요', 'doc'],
+ ['의사 되고 싶은데 엄마는 공무원 하래요', 'doc'],
+ ['약사가 되고 싶어요', 'doc'],
+ ['세무사 하고 싶어요. 부모님은 반대하지만', 'tax'],
+];
+for (const [t, want] of G) { const got = api.freeGoal(t); if (got !== want) { bad++; console.log(`FAIL freeGoal “${t}” → ${got} (기대 ${want})`); } }
+console.log(bad ? `실패 ${bad}건 / ${C.length + G.length}건` : `ALL PASS (${C.length + G.length}건)`);
 process.exit(bad ? 1 : 0);
