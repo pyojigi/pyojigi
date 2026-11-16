@@ -503,7 +503,7 @@ const MAJOR_GROUPS=[["인문·사회·교육",[0,1,2,3,4,5,6,7,8,9,10]],["경영
 const MAJLINK={kor:["med","off","mkt","pln","edu","pub"],lang:["trd","svc","edu","off","mkt"],hum:["pub","art","edu","off"],psy:["cns","kid","car","off"],sw:["car","kid","cns","pbc"],adm:["pub","pbc","lgl","off"],law:["lgl","law","pub","off","pbc"],media:["med","mkt","dsn","pln"],ece:["tch","kid"],edu:["tch","edu","kid","cns"],tour:["svc","pln"],
  bus:["off","fin","sal","bop","pln","mkt"],econ:["fin","off","pub","pln"],acc:["tax","fin","off"],trade:["trd","bop","off","log"],
  cs:["it","eng"],ee:["eng","tec","it","fac","rail"],me:["eng","aut","tec","fac","avi","rail"],che:["eng","fac"],arch:["arc","bld","eng","pub"],ie:["eng","pln","off","fac"],
- nurse:["nur","hcl"],allied:["mtc","hcl"],sci:["eng","fac","it"],math:["it","fin","tch","edu"],food:["diet","ckg"],agri:["env","pub","fac"],
+ nurse:["nur","hcl"],allied:["mtc","hcl"],sci:["eng","fac","it"],math:["it","fin","tch","edu"],food:["diet","ckg"],agri:["pub","fac"],
  pe:["spo","tch","uni","ath"],design:["dsn","mkt"],arts:["art","edu","mkt","own"],prof:["tax","lgl","fin","pro","law"]};
 // 면허·국가전문자격이 있어야 하는 길: 그 자격을 가졌다면 3위 안에 하나는 꼭 보여 준다
 const LIC=["law","pro","nur","mtc","hcl","doc","diet","tax","lgl","rea","tch","avi","rail","sec","kid","car","spo","cns","arc"];
@@ -559,7 +559,7 @@ const CERTS=[
  ["사진기능사·인쇄 기능사",7,["med","dsn"],{creative:1,tech:1},{}],
  ["식품기사·식품산업기사",8,["fac","diet"],{mind:1,tech:1},{}],
  ["조경 (기능사·기사)·산림기능사",8,["env","bld"],{body:2},{}],
- ["유기농업·종자·축산 (기능사·기사)",8,["env"],{body:2},{}],
+ ["유기농업·종자·축산 (기능사·기사)",8,[],{body:2},{}],
  ["간호사 면허",9,["nur","hcl"],{care:2,mind:1},{c_care:1}],
  ["간호조무사·요양보호사",9,["car","hcl"],{care:2},{c_care:1}],
  ["물리치료사·작업치료사",9,["mtc","hcl"],{care:2,body:1},{}],
@@ -1844,7 +1844,7 @@ function result(){
   const tA={...t}; ["ag","sit"].forEach(id=>{ const q=Q.find(x=>x.id===id), a=st.ans[id], o=q&&a!=null&&q.o[a]; if(o) for(const x in o[1]) tA[x]=(tA[x]||0)-o[1][x]; });
   const tagT=topTraits(tA,5).filter(x=>!(teen()&&x==="shiftok")); // 10대에게 '교대 가능' 태그는 빼기
   const runBtn=isMS()?"한 달 알아보기 계획":stuPlanOn(f)?"졸업 전에 해 볼 것":"첫 월급까지";
-  const plans=(st.ans.plan||[]).map(i=>PLANS[i]).filter(x=>x&&x[1]);
+  const plans=(st.ans.plan||[]).map(i=>PLANS[i]).filter(x=>x&&x[1]!==null); // 이어지는 길이 없는 자격(유기농업 등)도 목록엔 보이게
   const lk=(l)=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]}<i class=ext aria-hidden=true>↗</i></a>`;
   const goalCard = gp ? `<section class="card" id="goal"><div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">하고 싶은 일 준비 안내</span><h3>${gp.n}</h3><div class="chips"><span class="chip ${P.some(p=>p.key===gk)?"k":""}">${P.some(p=>p.key===gk)?"추천 3개 안에 있어요":"추천 밖이지만 준비 방법은 여기 있어요"}</span></div>${f.artq&&ARTQ_COPY[gk]&&!P.some(p=>p.key===gk)?`<p class="why"><b>예체능 입시 경험</b> · ${ARTQ_COPY[gk]}</p>`:""}</div>
       <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(gp.prep)}</dd>${gp.sal?`<dt>연봉</dt><dd>연 ${gp.sal[0].toLocaleString()}만 → 경력 5년+ ${gp.sal[1].toLocaleString()}만원 (대략)</dd>`:""}${!gp.sal&&gp.salNote?`<dt>연봉</dt><dd>${gp.salNote}</dd>`:""}<dt>필요한 것</dt><dd>${needTxt(gp)}</dd>${GD&&GD.how?`<dt>준비 순서</dt><dd>${GD.how}</dd>`:""}</dl>
