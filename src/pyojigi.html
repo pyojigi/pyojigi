@@ -1196,6 +1196,8 @@ function score(){
     if(p.key==="bop" && !(["sal","off","log","fac"].includes(f.cur) && st.ans.exp>0) && f.want!=="sal") block=true;
     if(k==="col" && p.key==="adv" && !f.grad && !f.reup) block=true; // 반수·편입을 고른 대학생에게는 진학 길을 연다
     if(p.key==="hcl" && !(f.c_hcl||f.mj==="nurse"||f.mj==="allied")) block=true;
+    // 이공계 전공(공학·자연과학)에게 법무 사무를 밀지 않음: 법학·행정 우대 길이라 화학과 4학년에게 2·3순위로 뜨던 문제 (2026-11-19 페르소나 채원). 목표·자격·전문자격 준비로 고르면 그대로 연다
+    if(p.key==="lgl" && ENG_MJ.includes(f.mj) && !(f.c_lgl||f.prof||g==="lgl")) block=true;
     // 재학 중인 간호·보건 전공생은 아직 면허가 없어 '준비 3개월'이 사실과 다름 → 면허를 이미 가진 경우만 (2026-11-01 페르소나 간호학과 지수)
     if(p.key==="hcl" && k==="col" && !f.c_hcl) block=true;
     // 전공이 안 맞거나 다른 분야를 원한다고 한 간호학과 학생에게 간호사 길을 밀지 않음
@@ -2932,7 +2934,8 @@ document.getElementById("resetBtn").onclick=reset;
 
 // 문의 이메일 (스팸 수집기를 피하려고 화면에서 조립)
 const MAIL=["songminhyeok1005","naver.com"].join("@");
-function fillMail(){ const a=document.getElementById("mail"); if(a){ a.href="mailto:"+MAIL; a.textContent=MAIL; }
+// 모든 화면 아래에 메일 주소(운영자 이름이 든 아이디)가 그대로 보이지 않게 글자는 '이메일 보내기'로 (CLAUDE.md 4-1③, 2026-11-19 페르소나 채원 보고). 주소는 개인정보 처리방침에 그대로 둔다
+function fillMail(){ const a=document.getElementById("mail"); if(a){ a.href="mailto:"+MAIL; a.textContent="이메일 보내기"; }
   if(app.querySelectorAll) app.querySelectorAll("a.mailto").forEach(x=>{ x.href="mailto:"+MAIL; x.textContent=MAIL; }); }
 try{ if(window.addEventListener) window.addEventListener("pagehide",()=>{ etcFlush(); if(st.phase==="q" && !st.done){ const q=list()[st.i]; if(q) track({type:"leave",at:q.id}); } else track({type:"leave",at:st.phase}); }); }catch(e){}
 // ===== 결과 이미지 저장 + 나에게 딱 맞는 준비계획 (2026-10-23 운영자 요청) =====
