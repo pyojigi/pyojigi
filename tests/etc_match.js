@@ -30,6 +30,12 @@ const S=[["cert","없음",null,"딱히 없음"],["goal","병원 말고 다른 �
  await p.goto('file://'+require('path').resolve(__dirname,'../public/index.html'));
  const got=await p.evaluate(E=>E.map(([id,w])=>{ const q=Q.find(x=>x.id===id); const k=etcFind(q,w); return k<0?null:q.o[k][0]; }),E);
  const said=await p.evaluate(S=>S.map(([id,w,sit])=>{ const sq=Q.find(x=>x.id==="sit"); st.ans.sit=sit?sq.o.findIndex(o=>o[2]&&o[2].sit===sit):undefined; const q=Q.find(x=>x.id===id); const r=etcSay(q,w); return r?r.msg:null; }),S);
+ // 2026-11-21 예슬·채원: 가진 자격 칸의 '준비중'·'필기 합격'은 보유로 체크하지 않고 앞으로 딸 자격으로 [적은 말, 앞으로 딸 자격 보기 앞부분 또는 null(못 맞춤)]
+ const P=[["간호조무사 국가시험 준비중","간호조무사"],["위험물산업기사 필기 합격","위험물"],["지게차 따는 중","지게차"],["한식조리기능사 실기 준비","한식"],["준비중",null]];
+ const pg=await p.evaluate(P=>P.map(([w])=>{ const q=Q.find(x=>x.id==="cert"), pq=Q.find(x=>x.id==="plan"); const r=etcPrep(q,w); return r?(r.plan>=0?pq.o[r.plan][0]:"(없음)"):null; }),P);
+ const keep=await p.evaluate(()=>[etcPrep(Q.find(x=>x.id==="cert"),"한식조리기능사"),etcPrep(Q.find(x=>x.id==="cert"),"아직 없음"),etcPrep(Q.find(x=>x.id==="goal"),"간호조무사 준비중")]);
  let bad=0; S.forEach(([id,w,sit,want],i)=>{ const g=said[i]; const ok=want===null?g===null:(g||"").includes(want); if(!ok){ bad++; console.log("FAIL 답",id,w,"→",g,"(기대:",want,")"); } });
+ P.forEach(([w,want],i)=>{ const g=pg[i]; const ok=g!==null&&(want===null?g==="(없음)":g.startsWith(want)); if(!ok){ bad++; console.log("FAIL 준비중",w,"→",g,"(기대:",want,")"); } });
+ keep.forEach((r,i)=>{ if(r!==null){ bad++; console.log("FAIL 준비중 아님",i,r); } });
  E.forEach(([id,w,want],i)=>{ const g=got[i]; const ok=want===null?g===null:(g||"").startsWith(want); if(!ok){ bad++; console.log("FAIL",id,w,"→",g,"(기대:",want,")"); } });
- console.log(bad?`실패 ${bad}건`:`ALL PASS (${E.length+S.length}건)`); await b.close(); process.exit(bad?1:0); })();
+ console.log(bad?`실패 ${bad}건`:`ALL PASS (${E.length+S.length+P.length+keep.length}건)`); await b.close(); process.exit(bad?1:0); })();

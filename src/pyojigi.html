@@ -1435,6 +1435,15 @@ function etcFind(q,txt){
   return best;
 }
 // 목록에서 못 찾았을 때: '없음'은 없다 보기에 체크, 고민·상황 말은 알맞은 곳을 안내 (그냥 '다음 업데이트 때 넣을게요'만 하던 문제, 페르소나 지수·지호·예린·서진)
+// 가진 자격 칸에 '준비중'·'필기 합격'처럼 아직 없는 자격을 적으면 가진 자격으로 체크하지 않고 '앞으로 딸 자격'에 미리 체크한다
+// (페르소나 예슬: '간호조무사 국가시험 준비중'이 보유로 체크돼 면허가 필요한 길이 '가진 자격 연결'로 오르던 문제, 채원: '위험물산업기사 필기 합격')
+const ETC_PREP=/준비|공부중|공부하는중|따는중|딸예정|취득예정|응시|시험앞|필기합격|필기만|필기붙|실기준비|실기남|실기만남|합격전|아직못땄/;
+function etcPrep(q,t){
+  if(q.id!=="cert") return null; const n=ETCN(t); if(!ETC_PREP.test(n)) return null;
+  const rest=n.replace(/(국가)?시험|준비(중|하는중|하고있어요|해요)?|공부(하는)?중|따는중|딸예정|취득예정|응시(예정)?|시험앞|필기(합격|만|붙음|붙었어요)?|실기(준비중?|남음|남았어요|만남음)?|합격전|아직(못땄어요|못땄음|없음)?|중$/g,"");
+  const pq=Q.find(x=>x.id==="plan"); const k=pq&&ETCN(rest).length>=2?etcFind(pq,rest):-1;
+  return {plan:k, msg:"아직 따는 중인 자격은 '가진 자격'으로 체크하지 않았어요."+(k>=0?` 뒤에 나오는 '앞으로 따 보고 싶은 자격'에 '${pq.o[k][0]}'을(를) 미리 체크해 둘게요.`:" 뒤에 나오는 '앞으로 따 보고 싶은 자격'에서 골라 주세요.")};
+}
 function etcSay(q,t){
   const n=ETCN(t), cert=q.id==="cert"||q.id==="plan";
   if(/^(없음|없어요|없다|없어|없습니다|딱히없음|딱히없어요|아직없음|아직없어요|해당없음|무|모름|몰라요|모르겠어요)$/.test(n)){
@@ -1516,6 +1525,9 @@ function question(){
   });
   const eg=document.getElementById("etcGo"), ei=document.getElementById("etcIn");
   if(eg&&ei){ const go=()=>{ let t=ei.value.trim(); const msg=document.getElementById("etcMsg"); if(!t){ msg.textContent="이름을 적어 주세요."; return; }
+      const pr=etcPrep(q,t); if(pr){ if(pr.plan>=0){ const pa=(st.ans.plan||[]).filter(x=>x!==CERT_PLAN.length); if(!pa.includes(pr.plan)) pa.push(pr.plan); st.ans.plan=pa; }
+        let ca=st.ans[q.id]||[]; if(!ca.length) ca=[q.none]; st.ans[q.id]=ca; st.etc=Object.assign({},st.etc,{[q.id]:""}); save(); const y=window.scrollY; question(); window.scrollTo({top:y});
+        const m2=document.getElementById("etcMsg"); if(m2) m2.textContent=pr.msg+(ca.length===1&&ca[0]===q.none?" 다른 자격이 없으면 '딱히 없음'으로 두면 돼요.":""); return; }
       // 여러 개를 쉼표로 적은 경우(자격처럼 여러 개 고르는 질문): 하나씩 맞추고, 못 맞춘 것만 기록
       const parts=q.multi?t.split(/[,，、;]+/).map(x=>x.trim()).filter(x=>ETCN(x).length>=2):[];
       if(parts.length>1){ const hits=[], rest=[]; parts.forEach(x=>{ const kk=etcFind(q,x); if(kk>=0){ if(!hits.includes(kk)) hits.push(kk); } else rest.push(x); });
