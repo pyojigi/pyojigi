@@ -3,6 +3,8 @@
 const fs = require('fs'), path = require('path');
 const { M, randomPersona } = require(require('path').join(__dirname,'..','tests','logic.js'));
 const html = fs.readFileSync(require('path').join(__dirname,'..','src','pyojigi.html'), 'utf8');
+// 직업 캐리커처: 결과 화면과 같은 그림을 src 에서 그대로 가져옴
+const JOBART = new Function(html.slice(html.indexOf('// 직업 캐리커처 시작'), html.indexOf('// 직업 캐리커처 끝')) + ';return JOBART')();
 const js = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const JOBD = new Function(js.match(/const JOBD=\{[\s\S]*?\n\};/)[0] + '\nreturn JOBD;')();
 const DICT_CATS = new Function(js.match(/const DICT_CATS=\[[^\n]*\];/)[0] + '\nreturn DICT_CATS;')();
@@ -21,6 +23,7 @@ const CSS = `.srcl{font-size:12px;color:var(--muted)}.hs1{background:var(--soft)
 .w{max-width:720px;margin:0 auto;padding:20px 16px 48px}a{color:var(--pine)}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 header a.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;text-decoration:none;color:var(--ink);line-height:1.2}header a.logo svg{flex:none}header small{color:var(--muted);display:block;font-size:12px;font-weight:400}
 h1{font-size:26px;line-height:1.3;margin:6px 0 10px}h2{font-size:19px;margin:28px 0 8px}h3{font-size:16px;margin:18px 0 6px}p.lede{color:var(--muted);margin:0 0 14px}
+.jhead{display:flex;align-items:center;gap:16px}.jhead .jart{width:76px;height:76px;flex:none}.jhead h1{margin-top:0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
 .kv{display:grid;grid-template-columns:88px 1fr;gap:6px 12px;margin:0}.kv dt{color:var(--muted)}.kv dd{margin:0}
 ul,ol{padding-left:20px}li{margin:4px 0}.src{font-size:13px;color:var(--muted)}
@@ -115,7 +118,7 @@ function jobPage(p) {
   const title = `${nm} 되는 법, 연봉, 자격증 | 표지기`;
   const desc = `${nm}: ${J.slice(0, 4).join(', ')}. 준비 기간 ${prepTxt(p.prep)}, ${p.sal ? `연봉 연 ${p.sal[0].toLocaleString()}~${p.sal[1].toLocaleString()}만원 정도. ` : ''}${p.need.split('.')[0]}.`;
   // 고등학생에게 맨 위 한 줄: 이 페이지는 졸업 뒤 기준이라 학생용 안내로 이어 준다 (2026-11-03 고2 페르소나 '/jobs/ 맨 위 고등학생 한 줄')
-  const body = `<h1>${esc(nm)} 되는 법</h1><p class="lede">${esc(p.n)}${CAT[k] ? ' · ' + esc(CAT[k]) : ''}</p>
+  const body = `<div class="jhead">${JOBART(k, nm)}<div><h1>${esc(nm)} 되는 법</h1><p class="lede">${esc(p.n)}${CAT[k] ? ' · ' + esc(CAT[k]) : ''}</p></div></div>
 <p class="hs1"><b>고등학생이면</b> · <a href="/for/hs.html">고등학생 진로 안내</a>부터 보세요. <a href="/?src=jobs-hs">검사</a>에서 '고등학생이다'를 고르면 학교에서 할 수 있는 준비로 바꿔 보여 줘요.</p>
 <div class="card"><dl class="kv"><dt>준비 기간</dt><dd>${prepTxt(p.prep)}</dd><dt>연봉</dt><dd>${esc(sal)}${p.sal ? `<span class="src" style="display:block">${SAL_SRC[k] ? esc(SAL_SRC[k]) + '. ' : ''}앞 숫자는 신입, 뒤는 경력 5년 이상의 대략적인 분야 기준이에요. 지원할 공고의 급여를 꼭 확인하세요.</span>` : ''}</dd><dt>필요한 것</dt><dd>${esc(p.need)}</dd>${G.how ? `<dt>준비 순서</dt><dd>${esc(G.how)}</dd>` : ''}${A ? `<dt>AI 영향</dt><dd>${esc(M.AIXT[A][0])} · ${esc(M.AIXT[A][1])}</dd>` : ''}</dl></div>
 ${J.length ? `<h2>세부 직업</h2>${J.map(j => { const d = JOBD[j]; return `<div class="card"><b>${esc(j)}</b>${d ? `<p>${esc(d[0])}</p>${d[1] ? `<p class="src">되는 법 · ${esc(d[1])}</p>` : ''}` : ''}</div>`; }).join('')}` : ''}
