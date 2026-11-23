@@ -908,7 +908,7 @@ function planBox(k){
   // 카드의 '준비 기간'과 계획 주차가 달라 보이던 문제: 둘의 관계를 한 줄로 (휴학생·공대 민준 지적)
   const rel=pk&&pk.prep&&p.end<=pk.prep*4.3?` 카드의 준비 기간(${prepTxt(pk.prep)})은 이 할 일에 지원·면접까지 넉넉히 더한 기간이에요.`:"";
   return `<details class="road"><summary>${p.wlabel} 계획 보기 · 하루 ${p.plabel}, 주 5일 기준</summary>
-    <ol class="glist">${p.rows.filter(r=>!r.out).map(r=>`<li class="${r.out?"out":r.part?"part":""}"><b>${wkTxt(r)}</b> · ${r.t} <span class="hint">(약 ${r.h}시간${r.out?", 기간 밖":r.part?", 기간 안에 일부만":""})</span></li>`).join("")}</ol>
+    <ol class="glist">${p.rows.filter(r=>!r.out).map(r=>`<li class="${r.out?"out":r.part?"part":""}"><b>${wkTxt(r)}</b> · ${k==="mlc"&&mlcNew()?r.t.replace("주특기와 맞는 직렬 찾기","지원할 군·병과(직렬) 고르기"):r.t} <span class="hint">(약 ${r.h}시간${r.out?", 기간 밖":r.part?", 기간 안에 일부만":""})</span></li>`).join("")}</ol>
     <p class="hint" style="color:var(--ink)">${sum}${rel}</p><p class="src">필요 시간은 대략적인 추정이에요. 법으로 정해진 교육 시간이 있는 자격은 그 기준을 따랐고, 나머지는 사람마다 달라요.</p></details>`;
 }
 
@@ -1691,7 +1691,7 @@ function reality(f,t,P){
   const gk=goalKey(f);
   if(gk && P && !P.slice(0,3).some(p=>p.key===gk)){
     const gp=P.find(p=>p.key===gk);
-    const why=gp && gp.v && gp.v.length ? `'${gp.v.join("', '")}' 조건과 겹쳐서` : "지금 상황(학생 여부, 필요한 면허, 지금 하는 일과 같은 분야 등)에서는 바로 추천하기 어려워서";
+    const why=gp && gp.v && gp.v.length ? `'${gp.v.join("', '")}' 조건과 겹쳐서` : gk==="mlc" && mlcNew() ? "추천 길이 군 복무 중이거나 전역한 사람의 재입대·전환에 맞춰져 있어서" : "지금 상황(학생 여부, 필요한 면허, 지금 하는 일과 같은 분야 등)에서는 바로 추천하기 어려워서";
     out.push(`하고 싶다고 고른 '${gp?gp.n:""}' 쪽은 ${why} 추천 3개에서는 뺐어요. 그래도 준비 안내는 위에 그대로 넣었어요.`);
   }
   if(k==="drop") out.push(f.ged?"검정고시에 붙었다면 고졸 학력이 인정돼요. 대학 입시, 공무원 시험, 고졸 채용, 폴리텍 입학에 모두 지원할 수 있어요.":"학교를 그만둔 건 끝이 아니에요. 검정고시(1년에 두 번, 보통 4월·8월)에 붙으면 고졸 학력이 인정돼 대학, 공무원 시험, 고졸 채용에 지원할 수 있어요. 학교를 그만둔 뒤 일정 기간이 지나야 응시할 수 있으니 시·도교육청 공고에서 응시 자격을 확인하세요.");
@@ -1886,7 +1886,10 @@ function result(){
       ${GD&&GD.cert.length?`<div><p class="hint">자격·시험</p><ul class="glist">${GD.cert.map(c=>`<li><b>${c[0]}</b> · ${c[1]}${c[2]?` <a href="${c[2]}" target="_blank" rel="noopener">바로가기<i class=ext aria-hidden=true>↗</i></a>`:""}${bookA(c[0])}</li>`).join("")}</ul>${bookNote(GD.cert)}</div>`:""}
       ${firstBox(gk,gp.first)}${planBox(gk)}${affBox(gk)}
       <div class="links">${(GD?GD.links:[]).map(lk).join("")}<a href="${yt(gk)}" target="_blank" rel="noopener">현직자 영상<i class=ext aria-hidden=true>↗</i></a></div></section>` : "";
-  const planCard = plans.length ? `<div class="check"><p class="hint">준비 중이라고 고른 자격·시험</p><p>${plans.map(x=>x[0]).join(", ")} · 시험 일정은 <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷<i class=ext aria-hidden=true>↗</i></a>에서 확인하고, 내일배움카드로 교육비를 줄일 수 있어요.</p></div>` : "";
+  // 공무원·군무원·부사관·교원 같은 채용 시험(분야 17)은 큐넷 시험이 아니라 각 기관 채용 공고 → 큐넷·내일배움카드 문구는 자격시험에만 (2026-11-23 페르소나 도윤)
+  const isHire=x=>{ const c=CERTS.find(c=>c[0]===x[0]); return c&&c[1]===17; };
+  const plQ=plans.filter(x=>!isHire(x)), plH=plans.filter(isHire);
+  const planCard = plans.length ? `<div class="check"><p class="hint">준비 중이라고 고른 자격·시험</p>${plQ.length?`<p>${plQ.map(x=>x[0]).join(", ")} · 시험 일정은 <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷<i class=ext aria-hidden=true>↗</i></a>에서 확인하고, 내일배움카드로 교육비를 줄일 수 있어요.</p>`:""}${plH.length?`<p>${plH.map(x=>x[0]).join(", ")} · 큐넷 시험이 아니라서, 일정과 응시 자격은 뽑는 곳의 채용·모집 공고에서 확인해요.</p>`:""}</div>` : "";
   const supItem=x=>`<details class="sup"><summary class="sup-h"><b>${x.n}</b><span class="chip">${/대출/.test(x.n)?"빌리는 돈 · 갚아야 해요":x.who}</span></summary><p class="hint" style="color:var(--ink)">${x.t}</p><div class="links">${x.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]}<i class=ext aria-hidden=true>↗</i></a>`).join("")}</div></details>`;
   el(`<section style="display:flex;flex-direction:column;gap:20px">
     ${didAskCard(P)}
@@ -2410,6 +2413,7 @@ const ARTQ_COPY={art:"입시로 쌓은 실기 실력과 매일 연습한 습관�
  edu:"입시를 준비하며 익힌 연습 방법과 실기 요령은 예체능 학원에서 가르치는 일로 이어 갈 수 있어요. 내가 연습한 방법을 다른 사람에게 10분 동안 설명해 보는 것부터 해 보세요."};
 const HS_KEEP=["hsj","adv","uni","env"]; // 고등학생에게도 원래 문구가 맞는 길
 // 길 하나의 문구를 지금 상황에 맞게: {first, link, try, need}
+const mlcNew=()=>sitKey()!=="mil" && tally().f.cur!=="mil"; // 군 복무 중·전역자가 아닌 사람
 function pathCopy(k){
   const p=PATHS.find(x=>x.key===k)||{}, w=sitKey(), f=tally().f;
   const o={first:p.first, link:p.firstLink||null, try:p.try, need:p.need};
@@ -2422,6 +2426,8 @@ function pathCopy(k){
   // 조리 자격이 이미 있으면 '조리학원 → 조리기능사' 대신 가진 자격으로 지원 → 두 번째 자격
   if(k==="ckg" && f.c_ckg){ o.first=w==="hs"?"학교 취업지원부에 가진 조리 자격으로 지원할 수 있는 급식·식품·주방 고졸 공고를 묻고, 두 번째로 딸 자격(양식·제과·제빵 등) 하나를 정해 보세요.":"가진 조리 자격으로 지원할 수 있는 식당·급식·호텔 주방 공고 5곳을 찾아보고, 두 번째로 딸 자격(양식·제과·제빵 등) 하나를 정해 보세요."; o.link=w==="hs"?CNET:null; }
   if(k==="hsj" && hs3Late()){ o.first="졸업 전 남은 기간에 지원할 수 있는 공고가 지금 열려 있는지 학교 취업지원부와 하이파이브에서 확인하고, 마감이 가장 가까운 공고 하나의 서류(자기소개서·자격증 사본)를 이번 주에 챙겨 보세요."; o.link=["지금 열린 고졸 채용 보기 (하이파이브)","https://www.hifive.go.kr"]; }
+  // 군 복무 전(미필·입대 앞둠)인 사람이 군무원·부사관을 고르면 '내 주특기' 대신 처음 지원하는 길로 (2026-11-23 페르소나 반도체과 도윤)
+  if(k==="mlc" && mlcNew()){ o.first="부사관은 육군·해군·공군·해병대가 각각 따로 모집해요. 가고 싶은 군 하나를 정해 그 군 모집 공고에서 지원 자격과 선발 일정을 찾아 보세요. 군무원은 국방부 군무원 채용 공고에서 직렬별 시험 과목을 볼 수 있어요."; o.try="가고 싶은 군과 병과(직렬) 하나를 정해 모집 공고의 지원 자격 읽어 보기"; }
   if(k==="avs" && w!=="mil" && f.cur!=="mil") o.first=o.first.replace("내 군 경력·자격","내가 가진 자격·경험");
   if(isStu() && o.try) o.try=o.try.replace("퇴근 후","끝나고");
   return o;
