@@ -49,7 +49,7 @@ function check(a) {
   if (strongLeave && f.cur === top.key && M.goalKey(f) !== top.key) errs.push('떠나려는 현재 직무가 1위');
   const FAM = { sec: ['avs'], avs: ['sec'], pub: ['pbc'], pbc: ['pub'] };
   if (strongLeave && f.cur && top3.some(p => (FAM[f.cur] || []).includes(p.key) && M.goalKey(f) !== p.key)) errs.push('떠나려는 직무와 같은 계열이 상위 3위');
-  if (top3.some(p => p.key === 'mlc') && !(k === 'mil' || f.cur === 'mil')) errs.push('군 경험 없는데 직업군인 경로');
+  if (top3.some(p => p.key === 'mlc') && !(k === 'mil' || f.cur === 'mil' || M.goalKey(f) === 'mlc')) errs.push('군 경험·목표 없이 군무원·부사관 경로');
   if (k === 'hs' && top3.some(p => ['sal', 'bop', 'own', 'pln', 'pbc', 'rea'].includes(p.key))) errs.push('고등학생에게 부적합 경로');
   if (top3.some(p => p.key === 'eng') && !(f.c_eng || k === 'ms' || (M.ENG_MJ.includes(f.mj) && (k === 'col' || [1, 2, 3].includes(a.edu))) || M.goalKey(f) === 'eng')) errs.push('공학 전공 없이 엔지니어');
   if (top3.some(p => p.key === 'ath') && !(M.goalKey(f) === 'ath' || f.hsT === 'pe' || ((f.maj === 'spo' || f.c_sport) && a.age <= 3))) errs.push('선수 경력 없이 운동선수');
