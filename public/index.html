@@ -885,6 +885,8 @@ function planFor(k,o){
   let L0=ROAD[k]; if(!L0) return null;
   if(k==="hsj" && sitKey()==="drop") L0=[[st.ans.d3!==0?"꿈드림에 연락해 검정고시 접수일·준비 지원 확인":"고용24에서 '고졸 이상' 공고 고르기",2],...L0.slice(1)];
   // 조리 자격이 이미 있으면 '조리학원 → 조리기능사' 대신 가진 자격으로 지원하고 두 번째 자격 (페르소나 다경)
+  // 미용사 자격이 이미 있으면 '학원 → 필기 → 실기' 대신 경력 이어 가기 (2026-11-25 페르소나 미용실 스텝 다은)
+  if(k==="bty" && tally().f.c_bty) L0=[["디자이너 승급 조건(기간·테스트)을 미용실·샵 3곳에서 확인하기",2],["두 번째 미용사 종목 필기 (일반·피부·네일·메이크업 중 아직 없는 것)",30],["두 번째 종목 실기 연습",120],["승급 테스트 준비 또는 다른 미용실·샵 지원",8]];
   if(k==="ckg" && tally().f.c_ckg) L0=[["가진 자격으로 지원할 주방·급식 5곳 찾기",3],["두 번째 조리 자격 필기 (양식·중식·제과·제빵 중)",30],["두 번째 자격 실기 연습",80],["주방·급식 지원",8]];
   // 고등학생: 국비·내일배움카드 단계는 학교 자격반·방과후로 (국비 과정은 보통 졸업 뒤)
   if(sitKey()==="hs") L0=L0.map(([t,h,x])=>[/국비|내일배움카드/.test(t)?(k==="it"?"관련 학과·특성화고 과정 비교 (국비 교육은 졸업 뒤)":"학교 자격반·실습실·방과후 과정 담당 선생님께 묻기"):t,h,x]);
@@ -921,7 +923,7 @@ function runCalc(o){
   const num=x=>{ const v=parseFloat(String(x==null?"":x).replace(/,/g,"")); return isFinite(v)&&v>=0?Math.min(v,100000):0; };
   const save=num(o.save), live=num(o.live), cost=num(o.cost), inc=num(o.inc), ui=num(o.ui);
   const uiM=Math.min(Math.round(num(o.uiM)),12), fam=Math.min(Math.round(num(o.fam)),4);
-  const prepM=Math.max(1,Math.round(p.prep)), search=Math.min(Math.max(Math.round(num(o.search))||2,1),12);
+  const prepM=heldLic(p.key)?1:Math.max(1,Math.round(p.prep)), search=Math.min(Math.max(Math.round(num(o.search))||2,1),12);
   const F=prepM+search+1, pay=Math.round(p.sal[0]/12*TAKE);
   let bal=save, out=null, low=save; const rows=[];
   for(let m=1;m<=F;m++){
@@ -1819,7 +1821,7 @@ function planDraw(k,search){
     if(c.pay>lo) items.unshift(`지금 버는 돈(한 달 ${lab})과 비교하면, 이 길의 첫 월급(약 ${c.pay.toLocaleString()}만원)은 한 달 <b>최대 약 ${(c.pay-lo).toLocaleString()}만원</b> 더 많을 수 있어요. 실제 차이는 지금 버는 돈과 회사마다 달라요`); }
   if(sitKey()==="col") items.unshift("아직 재학 중이라면 준비 기간이 남은 학기와 겹쳐요. 첫 월급은 졸업한 다음부터라 위 개월 수보다 늦어질 수 있어요");
   // 준비 기간은 카드와 같은 말(prepTxt)로, 계산은 넉넉한 쪽 개월 수로 (화면마다 숫자가 다르던 문제)
-  box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>${ged||dis}${prepTxt(c.p.prep)}</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${ged||dis}${c.F}개월째 <i>약 ${c.pay.toLocaleString()}만원</i></span></li></ol>
+  box.innerHTML=`<ol class="steps3"><li><b>준비</b><span>${ged||dis}${prepTxt(heldLic(c.p.key)?1:c.p.prep)}</span></li><li><b>지원·면접</b><span>약 ${c.search}개월</span></li><li><b>첫 월급</b><span>${ged||dis}${c.F}개월째 <i>약 ${c.pay.toLocaleString()}만원</i></span></li></ol>
     <p class="hint">첫 월급 시기는 준비 기간을 약 ${c.prepM}개월로 잡아 계산했어요.</p>
     <p class="src">첫 월급 계산: 이 길 신입 연봉 ${PATHS.find(x=>x.key===k).sal[0].toLocaleString()}만원 ÷ 12 × 약 87% (세금·4대보험을 뺀 대략). 준비·지원 기간은 대략적인 추정이에요.</p>
     ${items.length?`<p class="hint" style="color:var(--ink)"><b>그동안 기댈 수 있는 것</b></p><ul class="glist">${items.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}`;
@@ -1921,7 +1923,7 @@ function result(){
       <details class="more pmore"><summary>자세히 보기 · 준비 기간, 필요한 것, 장점, 계획, 영상</summary>
       ${isMS()&&p.sal?`<p class="hint"><b style="color:var(--ink)">어른이 되어 받는 연봉</b> · 신입 약 ${p.sal[0].toLocaleString()}만 → 경력 5년+ ${p.sal[1].toLocaleString()}만원 (대략)</p>`:""}
       ${AIX[p.key]?`<p class="aix aix-${AIX[p.key]}"><b>AI 영향 ${AIXT[AIX[p.key]][0]}</b> · ${isStu()&&AIX[p.key]==="high"?"문서·데이터 처리 비중이 커서 AI가 많이 대신할 수 있어요. 배울 때부터 AI 도구를 같이 써 보면 좋아요.":AIXT[AIX[p.key]][1]}</p>`:""}
-      <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":prepTxt(p.prep)+(p.prepAdd||"")}</dd><dt>필요한 것</dt><dd>${needTxt(p)}</dd></dl>
+      <dl class="kv"><dt>준비 기간</dt><dd>${isMS()?"지금은 알아보는 단계예요. 본격적인 준비는 고등학교 이후에 해요":(heldLic(p.key)?"1개월 이내 (가진 자격으로 바로 지원할 수 있어요)":prepTxt(p.prep)+(p.prepAdd||""))}</dd><dt>필요한 것</dt><dd>${needTxt(p)}</dd></dl>
       ${PRO[p.key]&&!(isMS()&&/임금|연봉|4대보험/.test(PRO[p.key].t))?`<div class="pro"><b>이 일의 장점</b><p>${PRO[p.key].t}</p><a class="srcl" href="${PRO[p.key].url}" target="_blank" rel="noopener">출처: ${PRO[p.key].src}</a></div>`:""}
       ${p.try?`<p class="hint"><b style="color:var(--ink)">2주 안에 해 볼 것</b> · ${tryTxt(p)}</p>`:""}${planBox(p.key)}${affBox(p.key)}
       <a class="ytb" href="${yt(p.key)}" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 현직자 영상 보기 (유튜브)</a>
@@ -2039,7 +2041,7 @@ function missNext(k,w,ALL,P){
   if(w===1) return head+alt(missAlt(k,ALL,P),"대신 다음으로 잘 맞는 길:");
   if(w===3) return head+alt(missAlt(k,ALL,P,1),"더 빨리 시작할 수 있는 길:");
   if(w===0){ const j=jobLink(k); return head+`<p class="hint" style="color:var(--ink)">연봉은 지역·회사마다 달라요. 실제 공고 연봉을 확인해 보고, 알려 주신 내용은 공식 통계와 다시 맞춰 고칠게요.</p><a class="first" href="${j[1]}" target="_blank" rel="noopener"><b>실제 연봉 확인하기</b>공고와 직업정보에서 신입 연봉을 직접 비교해 보세요.<span class="go">${j[0]}<i class=ext aria-hidden=true>↗</i></span></a>`; }
-  const g=GUIDE[k]; // 이미 해 봤어요: 경험을 살리는 다음 단계
+  const g=guideFor(k); // 이미 해 봤어요: 경험을 살리는 다음 단계
   const c=g&&g.cert?g.cert.filter(x=>!/없음/.test(x[0])).slice(1,3):[];
   return head+`<p class="hint" style="color:var(--ink)"><b>해 본 경험을 살리는 다음 단계</b> · ${g&&g.how?g.how:"경력을 살려 한 단계 위 자격이나 관리직으로 가는 길을 찾아보세요."}</p>${c.length?`<p class="hint">다음 자격: ${c.map(x=>x[2]?`<a href="${x[2]}" target="_blank" rel="noopener">${x[0]}</a>`:x[0]).join(", ")}</p>`:""}`;
 }
@@ -2417,6 +2419,8 @@ const ARTQ_COPY={art:"입시로 쌓은 실기 실력과 매일 연습한 습관�
  edu:"입시를 준비하며 익힌 연습 방법과 실기 요령은 예체능 학원에서 가르치는 일로 이어 갈 수 있어요. 내가 연습한 방법을 다른 사람에게 10분 동안 설명해 보는 것부터 해 보세요."};
 const HS_KEEP=["hsj","adv","uni","env"]; // 고등학생에게도 원래 문구가 맞는 길
 // 길 하나의 문구를 지금 상황에 맞게: {first, link, try, need}
+// 그 길에 필요한 자격을 이미 가진 사람 (조리·미용): 준비 기간을 '바로 지원'으로 보고 경력자 문구를 씀
+const HELD={ckg:"c_ckg",bty:"c_bty"}; const heldLic=k=>!!(HELD[k]&&tally().f[HELD[k]]);
 const mlcNew=()=>sitKey()!=="mil" && tally().f.cur!=="mil"; // 군 복무 중·전역자가 아닌 사람
 function pathCopy(k){
   const p=PATHS.find(x=>x.key===k)||{}, w=sitKey(), f=tally().f;
@@ -2429,6 +2433,7 @@ function pathCopy(k){
   if(k==="tec" && w!=="hs" && (w==="col" || [1,2,3].includes(st.ans.edu)) && !f.c_tech) o.first="전기·전자 관련 학과를 나왔거나 졸업 예정이면 전기산업기사(전문대)·전기기사(4년제)를 바로 볼 수 있어요. 아니면 전기기능사부터예요. 큐넷 '응시자격 자가진단'으로 확인하고 다음 필기 일정을 보세요.", o.link=["큐넷 기사 응시자격 안내","https://www.q-net.or.kr/crf006.do?id=crf00603&tabIdx=2&gradeType=30&gSite=Q&gId="];
   // 조리 자격이 이미 있으면 '조리학원 → 조리기능사' 대신 가진 자격으로 지원 → 두 번째 자격
   if(k==="ckg" && f.c_ckg){ o.first=w==="hs"?"학교 취업지원부에 가진 조리 자격으로 지원할 수 있는 급식·식품·주방 고졸 공고를 묻고, 두 번째로 딸 자격(양식·제과·제빵 등) 하나를 정해 보세요.":"가진 조리 자격으로 지원할 수 있는 식당·급식·호텔 주방 공고 5곳을 찾아보고, 두 번째로 딸 자격(양식·제과·제빵 등) 하나를 정해 보세요."; o.link=w==="hs"?CNET:null; }
+  if(k==="bty" && f.c_bty){ o.first="가진 미용사 자격으로 일할 수 있는 미용실·샵 3곳의 디자이너 승급 조건(기간·테스트)을 비교해 보고, 두 번째로 딸 종목(일반·피부·네일·메이크업 중 아직 없는 것) 하나를 정해 보세요."; o.try="지금까지 한 시술 중 자신 있는 것 사진 10장을 모아 작은 포트폴리오 만들기"; o.link=null; }
   if(k==="hsj" && hs3Late()){ o.first="졸업 전 남은 기간에 지원할 수 있는 공고가 지금 열려 있는지 학교 취업지원부와 하이파이브에서 확인하고, 마감이 가장 가까운 공고 하나의 서류(자기소개서·자격증 사본)를 이번 주에 챙겨 보세요."; o.link=["지금 열린 고졸 채용 보기 (하이파이브)","https://www.hifive.go.kr"]; }
   // 군 복무 전(미필·입대 앞둠)인 사람이 군무원·부사관을 고르면 '내 주특기' 대신 처음 지원하는 길로 (2026-11-23 페르소나 반도체과 도윤)
   if(k==="mlc" && mlcNew()){ o.first="부사관은 육군·해군·공군·해병대가 각각 따로 모집해요. 가고 싶은 군 하나를 정해 그 군 모집 공고에서 지원 자격과 선발 일정을 찾아 보세요. 군무원은 국방부 군무원 채용 공고에서 직렬별 시험 과목을 볼 수 있어요."; o.try="가고 싶은 군과 병과(직렬) 하나를 정해 모집 공고의 지원 자격 읽어 보기"; }
@@ -2443,6 +2448,7 @@ function guideFor(k){ let g=GUIDE[k]; if(!g) return g; const w=sitKey(), f=tally
   if(w==="hs" && !HS_KEEP.includes(k)) g={...g,cert:g.cert.filter(c=>!/기업 교육/.test(c[0])),links:(g.links||[]).filter(l=>!/국비|훈련/.test(l[0]))};
   if(k==="it" && w==="hs") return {...g,cert:[["정보처리기능사","큐넷 국가기술자격, 응시 자격 제한이 없어 고등학생도 볼 수 있어요",QNET],...g.cert.slice(1)],how:"작은 결과물 끝까지 만들기 → 정보처리기능사(선택) → 관련 학과 진학 또는 졸업 뒤 국비·기업 교육 → 포트폴리오로 지원"};
   if(k==="tec" && w==="hs") return {...g,how:"학교 자격반·실습실에서 전기기능사 → 졸업 뒤 현장 경력 → 산업기사"};
+  if(k==="bty" && f.c_bty) return {...g,how:"가진 자격으로 미용실·샵에서 경력 쌓기 → 다른 종목 미용사 자격(피부·네일·메이크업 등) → 디자이너 승급·이직"};
   if(k==="ckg" && f.c_ckg) return {...g,how:"가진 자격으로 주방·급식에 지원 → 일하며 두 번째 자격(양식·제과 등) → 조리사"};
   if(k==="hsj" && w==="drop") return {...g,cert:[["검정고시 합격 + 자격증 1개","학교 밖에서 고졸 채용에 지원할 때 가장 큰 무기"]],how:(f.ged?"":"검정고시 합격 → ")+"자격증 1개 → 고용24·꿈드림에서 '고졸 이상' 공고 찾기 → 지원"};
   return g; }
