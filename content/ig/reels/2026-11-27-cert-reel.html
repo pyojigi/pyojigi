@@ -1,0 +1,123 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#111214}
+body{font-family:"Noto Sans CJK KR",sans-serif;color:#fff;word-break:keep-all;letter-spacing:-2px;position:relative}
+.sc{position:absolute;inset:0;opacity:0}
+.hd{position:absolute;left:60px;right:60px;top:210px;text-align:center;font-size:96px;font-weight:900;line-height:1.22;letter-spacing:-4px}
+.y{color:#FFD23F}
+.cap{position:absolute;left:60px;right:60px;top:1450px;text-align:center;font-size:76px;font-weight:900;letter-spacing:-3px}
+.src{position:absolute;left:0;right:0;top:1580px;text-align:center;font-size:30px;font-weight:500;color:#8A8F98;letter-spacing:0}
+/* 1 이력서 */
+.cv{position:absolute;left:110px;right:110px;top:560px;background:#fff;color:#191F28;border-radius:44px;padding:56px 60px}
+.cv h3{font-size:54px;font-weight:900;margin-bottom:34px}
+.row{display:flex;align-items:center;gap:30px;font-size:44px;font-weight:700;padding:26px 0;border-top:3px solid #EEF0F3}
+.row b{width:170px;color:#8B95A1;font-weight:700}
+.row i{flex:1;height:30px;background:#E5E8EB;border-radius:15px}
+.row.hot{position:relative}
+.row .box{flex:1;height:84px;border:5px dashed #FF6B5E;border-radius:22px;position:relative}
+.cur{position:absolute;left:24px;top:14px;width:6px;height:46px;background:#191F28}
+.stamp{position:absolute;right:-20px;top:-30px;background:#FF6B5E;color:#fff;font-size:46px;font-weight:900;padding:16px 30px;border-radius:20px;transform:rotate(-8deg)}
+/* 2 단계 */
+.lad{position:absolute;left:170px;right:170px;top:560px;display:flex;flex-direction:column-reverse;gap:22px}
+.st{height:122px;border-radius:30px;background:#24262B;color:#9AA0A8;display:flex;align-items:center;padding:0 46px;font-size:52px;font-weight:800;justify-content:space-between}
+.st small{font-size:34px;font-weight:700}
+.st.on{background:#FFD23F;color:#191F28}
+.st.on small{background:#191F28;color:#FFD23F;padding:10px 22px;border-radius:999px}
+/* 3 점수 */
+.big{position:absolute;left:0;right:0;top:600px;text-align:center;font-size:300px;font-weight:900;letter-spacing:-12px;line-height:1}
+.big span{font-size:110px;color:#8A8F98;letter-spacing:-4px}
+.bar{position:absolute;left:110px;right:110px;top:1000px;height:70px;background:#24262B;border-radius:35px;overflow:hidden}
+.bar i{display:block;height:100%;background:#FFD23F;border-radius:35px}
+.mk{position:absolute;top:1090px;font-size:40px;font-weight:800;color:#FFD23F;transform:translateX(-50%)}
+.info{position:absolute;left:0;right:0;top:1200px;text-align:center;font-size:48px;font-weight:700;color:#C9CDD3}
+/* 4 정기·상시 */
+.two{position:absolute;left:80px;right:80px;top:580px;display:flex;flex-direction:column;gap:40px}
+.cd{background:#fff;color:#191F28;border-radius:40px;padding:46px 54px}
+.cd .k{display:inline-block;font-size:44px;font-weight:900;padding:10px 30px;border-radius:999px;background:#191F28;color:#fff}
+.cd.b .k{background:#0B8F5A}
+.cd p{font-size:54px;font-weight:900;margin-top:24px;letter-spacing:-3px}
+.cd em{display:block;font-style:normal;font-size:38px;font-weight:700;color:#6B7684;margin-top:12px;letter-spacing:-1px}
+/* 5 CTA */
+.app{position:absolute;left:110px;right:110px;top:600px;background:#fff;color:#191F28;border-radius:48px;padding:60px}
+.logo{display:flex;align-items:center;gap:18px;font-size:50px;font-weight:900}
+.app h4{font-size:72px;font-weight:900;line-height:1.25;margin-top:40px;letter-spacing:-4px}
+.app h4 b{color:#0B8F5A}
+.chips{display:flex;gap:16px;margin-top:44px;flex-wrap:wrap}
+.chips span{font-size:38px;font-weight:800;background:#E8F6EF;color:#0B8F5A;padding:14px 28px;border-radius:999px}
+.btn{margin-top:48px;background:#0B8F5A;color:#fff;font-size:52px;font-weight:900;text-align:center;padding:36px;border-radius:30px}
+</style></head><body>
+<div class="sc" id="s1">
+  <div class="hd">자격증 0개인데<br><span class="y">뭐부터 따지?</span></div>
+  <div class="cv" id="cv"><h3>이력서</h3>
+    <div class="row"><b>학력</b><i style="flex:.7"></i></div>
+    <div class="row"><b>경험</b><i style="flex:.9"></i></div>
+    <div class="row hot"><b>자격증</b><div class="box"><div class="cur" id="cur"></div></div><div class="stamp" id="stamp">텅 빔</div></div>
+  </div>
+  <div class="cap" id="c1">나만 이래? 🙋</div>
+</div>
+<div class="sc" id="s2">
+  <div class="hd">첫 자격증은<br><span class="y">기능사부터</span></div>
+  <div class="lad" id="lad">
+    <div class="st on">기능사 <small>응시 제한 없음</small></div>
+    <div class="st">산업기사 <small>경력·학과 필요</small></div>
+    <div class="st">기사 <small>경력·학과 필요</small></div>
+    <div class="st">기능장</div>
+    <div class="st">기술사</div>
+  </div>
+  <div class="cap" id="c2">중학생도 볼 수 있어요</div>
+  <div class="src">출처: 큐넷 응시자격 안내 (2026년 11월 기준)</div>
+</div>
+<div class="sc" id="s3">
+  <div class="hd">기능사 필기는<br><span class="y">60점 이상이면 합격</span></div>
+  <div class="big"><b id="num">0</b><span> / 100</span></div>
+  <div class="bar"><i id="fill" style="width:0"></i></div>
+  <div class="mk" id="mk" style="left:626px">합격선 60</div>
+  <div class="info">4지선다 60문항 · 60분</div>
+  <div class="cap" id="c3">100점 안 받아도 돼요</div>
+  <div class="src">출처: 큐넷 검정기준 및 방법 (2026년 11월 기준)</div>
+</div>
+<div class="sc" id="s4">
+  <div class="hd">접수 전에<br><span class="y">이것만 확인</span></div>
+  <div class="two">
+    <div class="cd" id="k1"><span class="k">정기</span><p>정해진 회차에만 접수</p><em>예) 전기기능사 · 놓치면 다음 회차</em></div>
+    <div class="cd b" id="k2"><span class="k">상시</span><p>원하는 날짜 골라 접수</p><em>예) 지게차운전기능사</em></div>
+  </div>
+  <div class="cap" id="c4">큐넷 종목 페이지에서 확인</div>
+  <div class="src">출처: 큐넷 시험일정·종목 안내 (2026년 11월 기준)</div>
+</div>
+<div class="sc" id="s5">
+  <div class="hd">근데 나한테<br><span class="y">맞는 종목은 뭐지?</span></div>
+  <div class="app" id="app">
+    <div class="logo"><svg viewBox="0 0 60 80" width="44" height="58"><rect x="12" y="6" width="36" height="16" rx="4" fill="#E0473A"/><rect x="20" y="20" width="20" height="10" rx="4" fill="#A82E25"/><path d="M22 28 L38 28 L40 78 L30 68 L20 78 Z" fill="#E0473A"/></svg>표지기</div>
+    <h4>내 상황에 맞는<br><b>길 3개</b>와<br>필요한 자격까지</h4>
+    <div class="chips"><span>약 10분</span><span>무료</span><span>가입 없음</span></div>
+    <div class="btn">프로필 링크에서 시작</div>
+  </div>
+  <div class="cap" id="c5">저장해 두고 해 보기</div>
+</div>
+<script>
+const S=[["s1",0,3.4],["s2",3.4,7.4],["s3",7.4,11.4],["s4",11.4,15],["s5",15,18.5]];
+window.SCENES=S.map(s=>[s[1],s[2]]);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>{x=cl(x);return 1-Math.pow(1-x,3)};
+const $=id=>document.getElementById(id);
+const pop=(el,p,dy=60)=>{const e=ease(p);el.style.opacity=e;el.style.transform=`translateY(${(1-e)*dy}px)`;};
+window.render=t=>{
+  for(const [id,a,b] of S){ const el=$(id); const fi=id==="s1"?1:cl((t-a)/0.25), fo=id==="s5"?1:cl((b-t)/0.25); el.style.opacity=(t>=a-0.001&&t<b+0.25)?Math.min(fi,fo):0; }
+  // 1
+  pop($("cv"),(t-0.1)/0.5); $("cur").style.opacity=(Math.floor(t*2.5)%2)?0:1;
+  const sp=ease((t-1.5)/0.3); $("stamp").style.opacity=sp; $("stamp").style.transform=`rotate(-8deg) scale(${1.6-0.6*sp})`;
+  pop($("c1"),(t-2.0)/0.4,30);
+  // 2
+  [...$("lad").children].forEach((el,i)=>pop(el,(t-3.6-i*0.22)/0.4,40));
+  pop($("c2"),(t-5.3)/0.4,30);
+  // 3
+  const k=ease((t-7.8)/1.3); $("num").textContent=Math.round(60*k); $("fill").style.width=(60*k)+"%";
+  $("mk").style.opacity=ease((t-9.0)/0.3); pop($("c3"),(t-9.4)/0.4,30);
+  // 4
+  pop($("k1"),(t-11.6)/0.45); pop($("k2"),(t-12.2)/0.45); pop($("c4"),(t-13.0)/0.4,30);
+  // 5
+  pop($("app"),(t-15.2)/0.5); pop($("c5"),(t-16.2)/0.4,30);
+};
+render(0);
+</script></body></html>
