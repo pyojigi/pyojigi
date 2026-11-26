@@ -67,12 +67,13 @@ button:disabled{opacity:.5;cursor:default}
 .funnel em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .card h3{font-size:14px;margin:14px 0 6px;color:var(--muted,#666)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.trendw{overflow-x:auto;max-width:100%}
 .trend{display:flex;align-items:flex-end;gap:3px;height:110px;padding-bottom:18px;position:relative}
 .trend div{flex:1 1 0;height:100%;position:relative;min-width:6px}
 .trend i,.trend b{position:absolute;left:0;right:0;bottom:0;border-radius:3px 3px 0 0}
 .trend i{background:var(--soft);border:1px solid var(--line)}
 .trend b{background:var(--pine)}
-.trend small{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.trend small{white-space:nowrap;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
 details.fold>summary{cursor:pointer;list-style:none}
 details.fold>summary::-webkit-details-marker{display:none}
 details.fold>summary h2{display:inline}
@@ -88,7 +89,7 @@ details.fold[open]>summary:after{content:"접기 ▴"}
   <form class="card row" id="f">
     <label for="k" class="muted" style="align-self:center">키</label>
     <input id="k" type="password" autocomplete="current-password" required>
-    <select id="d" aria-label="기간"><option value="7">최근 7일</option><option value="30" selected>최근 30일</option><option value="90">최근 90일</option><option value="366">최근 1년</option><option value="all">처음부터 전부</option></select>
+    <select id="d" aria-label="기간"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="90">최근 90일</option><option value="366">최근 1년</option><option value="all" selected>처음부터 전부</option></select>
     <button type="submit">불러오기</button>
   </form>
   <p id="msg" class="muted" aria-live="polite"></p>
@@ -109,6 +110,8 @@ const ASKST={open:"답변 대기",answered:"답변함",closed:"완료"};
 const RVST={pending:"승인 대기",approved:"공개 중",rejected:"거절"};
 const chip=(map,st)=>`<span class="chip ${esc(st)}">${esc(map[st]||st)}</span>`;
 let toastT; function toast(t,bad){ const el=$("toast"); el.textContent=t; el.className="on"+(bad?" bad":""); clearTimeout(toastT); toastT=setTimeout(()=>{el.className=bad?"bad":"";},2600); }
+// 기록 없는 날도 0으로 채워 날짜가 빠지지 않게 한다 (첫 기록 날부터 마지막 날까지)
+function fillDays(L){ if(!L||!L.length) return []; const by={}; for(const d of L) by[d.day]=d; const ks=Object.keys(by).sort(); const out=[]; for(let t=Date.parse(ks[0]+"T00:00:00Z"), end=Date.parse(ks[ks.length-1]+"T00:00:00Z"); t<=end; t+=864e5){ const k=new Date(t).toISOString().slice(0,10); out.push(by[k]||{day:k}); } return out.reverse(); }
 function sumObj(days,key){ const o={}; for(const d of days){ for(const [k,v] of Object.entries(d[key]||{})) o[k]=(o[k]||0)+v; } return o; }
 function bars(obj,label){ const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]); const max=e.length?e[0][1]:1; const tot=e.reduce((a,b)=>a+b[1],0)||1;
   return e.length? e.map(([k,v])=>`<div class="bar"><span>${esc(label(k))}</span><i style="width:${Math.max(2,v/max*100)}%"></i><em>${v} · ${Math.round(v/tot*100)}%</em></div>`).join("") : `<p class="muted">아직 기록이 없어요.</p>`; }
@@ -121,7 +124,8 @@ async function load(quiet){
   if(r.status===401){ $("msg").textContent="관리자 키가 맞지 않아요."; $("msg").className="err"; return; }
   if(r.status===429){ $("msg").textContent="키를 너무 많이 틀렸어요. 내일 다시 해 주세요."; $("msg").className="err"; return; }
   if(!r.ok){ $("msg").textContent="통계를 불러오지 못했어요. Cloudflare의 KV 연결(PYOJIGI_KV)을 확인해 주세요."; $("msg").className="err"; return; }
-  const {days,feedback=[],runs=[],total={},since=null,store="kv",refs={},kws={},etc={},etcOld={},asks=[],reviews=[],reviewCounts=null,readonly=false}=await r.json(); $("msg").textContent=""; window.__runs=runs; RO=!!readonly;
+  const {days:days0,feedback=[],runs=[],total={},since=null,store="kv",refs={},kws={},etc={},etcOld={},asks=[],reviews=[],reviewCounts=null,readonly=false}=await r.json(); $("msg").textContent=""; window.__runs=runs; RO=!!readonly;
+  const days=fillDays(days0);
   const rc=reviewCounts||reviews.reduce((o,x)=>(o[x.status]=(o[x.status]||0)+1,o),{});
   const openN=asks.filter(a=>a.status==="open").length;
   const tot=k=>days.reduce((a,d)=>a+(d[k]||0),0);
@@ -137,7 +141,8 @@ async function load(quiet){
   const byAg={}; for(const x of runs){ const a=agOf(x); if(a==null) continue; (byAg[a]=byAg[a]||[]).push(x); }
   const cnt=(L,f,n=99)=>{ const o={}; for(const x of L) for(const k of [].concat(f(x)).filter(Boolean)) o[k]=(o[k]||0)+1; return Object.fromEntries(Object.entries(o).sort((p,q)=>q[1]-p[1]).slice(0,n)); };
   const agCard=a=>{ const L=byAg[a]||[]; return `<section class="card"><h2>${AG[a]} · 완주 ${L.length}명</h2>${L.length?`<h3>상황</h3>${bars(cnt(L,x=>x.sit),k=>SIT[k]||k)}<h3>1순위로 추천된 길</h3>${bars(cnt(L,x=>(x.tops||[])[0]),k=>PATH[k]||k)}<h3>3위 안에 나온 길</h3>${bars(cnt(L,x=>(x.tops||[]).slice(0,3)),k=>PATH[k]||k)}`:`<p class="muted">이 기간 완주 기록이 없어요.</p>`}</section>`; };
-  const dd=days.slice().sort((a,b)=>a.day<b.day?-1:1).slice(-30);
+  const dd=days.slice().sort((a,b)=>a.day<b.day?-1:1);
+  const lab=d=>dd.length<=31?d.day.slice(8):(/-(01|15)$/.test(d.day)?d.day.slice(5).replace("-","/"):"");
   $("out").innerHTML=`
   <nav class="tabs"><a href="#g-sum">요약</a><a href="#g-todo">할 일${openN?` <b>${openN}</b>`:""}</a><a href="#g-in">유입</a><a href="#g-res">검사 결과</a><a href="#g-age">나이대별</a><a href="#g-out">이탈</a><a href="#g-fb">반응</a><a href="#g-day">날짜별</a><a href="#g-rec">기록</a></nav>
   <section class="card" id="g-sum">
@@ -154,7 +159,7 @@ async function load(quiet){
       <div class="kpi"><b>${openN}</b><span>답변 기다리는 문의</span></div>
       ${store==="d1"?`<div class="kpi"><b>${total.finish||0}</b><span>누적 완주 (${since||"-"}부터)</span></div><div class="kpi"><b>${total.visit||0}</b><span>누적 방문</span></div>`:""}
     </div>
-    ${dd.length>1?`<div><p class="muted" style="margin:0 0 6px">날짜별 흐름 (연한 막대 방문 · 진한 막대 완주)</p><div class="trend">${dd.map(d=>`<div title="${d.day} 방문 ${d.visit||0} · 시작 ${d.start||0} · 완주 ${d.finish||0}"><i style="height:${Math.round((d.visit||0)/dmax*100)}%"></i><b style="height:${Math.round((d.finish||0)/dmax*100)}%"></b><small>${d.day.slice(8)}</small></div>`).join("")}</div></div>`:""}
+    ${dd.length>1?`<div><p class="muted" style="margin:0 0 6px">날짜별 흐름 (연한 막대 방문 · 진한 막대 완주)</p><div class="trendw"><div class="trend" style="min-width:${dd.length*9}px">${dd.map(d=>`<div title="${d.day} 방문 ${d.visit||0} · 시작 ${d.start||0} · 완주 ${d.finish||0}"><i style="height:${Math.round((d.visit||0)/dmax*100)}%"></i><b style="height:${Math.round((d.finish||0)/dmax*100)}%"></b><small>${lab(d)}</small></div>`).join("")}</div></div></div>`:""}
   </section>
   <h2 class="grp" id="g-todo">할 일</h2>
   ${RO?`<p class="note">지금은 <b>읽기 전용 키</b>로 열었어요. 후기 승인·문의 답변 버튼은 <b>관리자 키(ADMIN_KEY)</b>로 다시 들어와야 보여요. 위쪽 키 칸에 관리자 키를 넣어 주세요.</p>`:""}

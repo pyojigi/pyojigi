@@ -1,4 +1,4 @@
-// 운영자 통계: /api/stats?key=관리자키&days=30   (days=all 이면 처음부터 전부)
+// 운영자 통계: /api/stats?key=관리자키&days=30   (days 없거나 all 이면 처음부터 전부)
 // 필요한 설정: 비밀 변수 ADMIN_KEY (본인만 아는 긴 문자열)
 // 선택: FEEDBACK_KEY (8자 이상) - 통계·문의·후기를 보기만 하는 키. 응답에 readonly:true, 답변·승인은 못 한다
 import { json, ensure, kstDay as kst, keyRole, kstDay, whoHash, allow } from "../_lib/common.js";
@@ -79,7 +79,7 @@ export async function onRequestGet({ request, env }) {
     return json({ error: "unauthorized" }, 401);
   }
   const readonly = role === "readonly";
-  const dp = url.searchParams.get("days") || "30";
+  const dp = url.searchParams.get("days") || "all";
   const n = dp === "all" ? 0 : Math.min(Math.max(parseInt(dp, 10) || 30, 1), 366);
 
   let out = null;
