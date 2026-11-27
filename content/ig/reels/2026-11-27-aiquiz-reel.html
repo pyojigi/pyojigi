@@ -1,0 +1,63 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#111214}
+body{font-family:"Noto Sans CJK KR",sans-serif;color:#fff;word-break:keep-all;letter-spacing:-3px;position:relative}
+.sc{position:absolute;inset:0;opacity:0}
+.top{position:absolute;left:60px;right:60px;top:220px;text-align:center;font-size:58px;font-weight:800;color:#C9CDD3}
+.top b{color:#FFD23F}
+.hk{position:absolute;left:40px;right:40px;top:560px;text-align:center;font-size:150px;font-weight:900;line-height:1.12;letter-spacing:-7px}
+.y{color:#FFD23F}
+.job{position:absolute;left:40px;right:40px;top:620px;text-align:center;font-size:170px;font-weight:900;line-height:1.1;letter-spacing:-8px}
+.job small{display:block;font-size:56px;font-weight:700;color:#8A8F98;letter-spacing:-2px;margin-top:24px}
+.tm{position:absolute;left:140px;right:140px;top:1120px;height:36px;background:#24262B;border-radius:18px;overflow:hidden}
+.tm i{display:block;height:100%;background:#FFD23F;border-radius:18px}
+.cnt{position:absolute;left:0;right:0;top:1190px;text-align:center;font-size:120px;font-weight:900;color:#FFD23F}
+.ans{position:absolute;left:50%;top:1160px;transform:translateX(-50%);font-size:110px;font-weight:900;padding:20px 70px;border-radius:40px;color:#191F28;white-space:nowrap}
+.lo{background:#5BD39A}.mi{background:#FFD23F}.hi{background:#FF8A7A}
+.why{position:absolute;left:80px;right:80px;top:1360px;text-align:center;font-size:54px;font-weight:700;color:#E5E8EB;line-height:1.3;letter-spacing:-2px}
+.no{position:absolute;left:0;right:0;top:250px;text-align:center;font-size:44px;font-weight:800;color:#8A8F98}
+.end1{position:absolute;left:40px;right:40px;top:520px;text-align:center;font-size:120px;font-weight:900;line-height:1.18;letter-spacing:-6px}
+.end2{position:absolute;left:60px;right:60px;top:1060px;text-align:center;font-size:62px;font-weight:800;line-height:1.35;color:#C9CDD3}
+.end2 b{color:#FFD23F}
+.src{position:absolute;left:40px;right:40px;top:1530px;text-align:center;font-size:30px;font-weight:500;color:#8A8F98;letter-spacing:0}
+</style></head><body>
+<div class="sc" id="s0">
+  <div class="top">진로 퀴즈 · <b>4문제</b></div>
+  <div class="hk" id="hk">이 일,<br><span class="y">AI가 대신할까?</span></div>
+  <div class="why" id="hk2" style="top:1120px;font-size:64px;font-weight:900">3초 안에 맞혀 봐 👀</div>
+</div>
+<div id="qs"></div>
+<div class="sc" id="s5">
+  <div class="end1" id="e1">몇 개<br><span class="y">맞혔어?</span> 👇</div>
+  <div class="end2" id="e2">내가 갈 길의 AI 영향은<br><b>표지기</b>에서 확인<br>약 10분 · 무료 · 프로필 링크</div>
+  <div class="src">AI 영향 낮음·중간·높음은 표지기 결과 화면 기준이에요 (2026년 11월)</div>
+</div>
+<script>
+const Q=[["미용","헤어·네일·메이크업","lo","낮음","손으로 직접 하고 손님을 응대하는 일이라<br>AI가 대신하기 어려운 편"],
+["개발자","IT·프로그래밍","hi","높음","코드·문서 작업이 많아<br>AI가 많이 대신할 수 있어요"],
+["디자이너","시각·UX·제품","mi","중간","AI가 돕지만<br>사람이 판단하는 부분이 남아요"],
+["간호사","병원·보건","lo","낮음","사람을 직접 돌보는 일이라<br>AI가 대신하기 어려운 편"]];
+const qs=document.getElementById("qs");
+Q.forEach((q,i)=>{qs.insertAdjacentHTML("beforeend",`<div class="sc" id="s${i+1}"><div class="no">Q${i+1}</div><div class="job" id="j${i}">${q[0]}<small>${q[1]}</small></div><div class="tm"><i id="t${i}"></i></div><div class="cnt" id="n${i}">3</div><div class="ans ${q[2]}" id="a${i}">AI 영향 ${q[3]}</div><div class="why" id="w${i}">${q[4]}</div></div>`)});
+const H=1.6, D=2.7;
+const R2=x=>Math.round(x*100)/100;
+const S=[["s0",0,H],...Q.map((q,i)=>["s"+(i+1),R2(H+i*D),R2(H+(i+1)*D)]),["s5",R2(H+4*D),R2(H+4*D+2.2)]];
+window.SCENES=S.map(s=>[s[1],s[2]]);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>{x=cl(x);return 1-Math.pow(1-x,3)};
+const $=id=>document.getElementById(id);
+const pop=(el,p,s0=1.4)=>{const e=ease(p);el.style.opacity=e;el.style.transform=(el.classList.contains("ans")?"translateX(-50%) ":"")+`scale(${s0-(s0-1)*e})`;};
+window.render=t=>{
+  for(const [id,a,b] of S){ $(id).style.opacity=(t>=a-0.001&&t<b)?1:0; }
+  const hp=ease(t/0.25); $("hk").style.opacity=1; $("hk").style.transform=`scale(${1.15-0.15*hp})`;
+  pop($("hk2"),(t-0.5)/0.25,1.2);
+  Q.forEach((q,i)=>{const a=H+i*D, r=t-a;
+    pop($("j"+i),r/0.2,1.25);
+    const tp=cl((r-0.15)/1.5); $("t"+i).style.width=((1-tp)*100)+"%";
+    $("n"+i).textContent=String(Math.max(1,3-Math.floor(tp*3))); $("n"+i).style.opacity=(r<1.65)?1:0;
+    pop($("a"+i),(r-1.65)/0.18,1.6); $("w"+i).style.opacity=ease((r-1.85)/0.2);
+  });
+  const e=H+4*D; pop($("e1"),(t-e)/0.25,1.3); $("e2").style.opacity=ease((t-e-0.5)/0.3);
+};
+render(0);
+</script></body></html>
