@@ -1,0 +1,118 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#111214}
+body{font-family:"Noto Sans CJK KR",sans-serif;color:#fff;word-break:keep-all;letter-spacing:-2px;position:relative}
+.sc{position:absolute;inset:0;opacity:0}
+.hd{position:absolute;left:60px;right:60px;top:210px;text-align:center;font-size:96px;font-weight:900;line-height:1.22;letter-spacing:-4px}
+.y{color:#FFD23F}
+.cap{position:absolute;left:60px;right:60px;top:1450px;text-align:center;font-size:72px;font-weight:900;letter-spacing:-3px}
+.src{position:absolute;left:40px;right:40px;top:1572px;text-align:center;font-size:30px;font-weight:500;color:#8A8F98;letter-spacing:0;line-height:1.4}
+/* 1 직업 카드 */
+.cards{position:absolute;left:120px;right:120px;top:600px;display:flex;flex-direction:column;gap:28px}
+.jc{background:#fff;color:#191F28;border-radius:36px;padding:34px 46px;display:flex;align-items:center;justify-content:space-between;font-size:54px;font-weight:900}
+.jc .q{width:96px;height:96px;border-radius:50%;background:#24262B;color:#FFD23F;font-size:60px;display:flex;align-items:center;justify-content:center}
+/* 2 숫자 */
+.big{position:absolute;left:0;right:0;top:620px;text-align:center;font-size:230px;font-weight:900;letter-spacing:-10px;line-height:1}
+.big span{font-size:90px;letter-spacing:-4px}
+.sub{position:absolute;left:0;right:0;top:905px;text-align:center;font-size:50px;font-weight:700;color:#C9CDD3}
+.pie{position:absolute;left:50%;top:990px;width:300px;height:300px;margin-left:-150px;border-radius:50%}
+.pl{position:absolute;left:0;right:0;top:1320px;text-align:center;font-size:46px;font-weight:800;color:#FFD23F}
+/* 3 단계 */
+.lv{position:absolute;left:80px;right:80px;top:530px;display:flex;flex-direction:column;gap:24px}
+.lc{background:#24262B;border-radius:36px;padding:30px 46px}
+.lc .k{display:inline-block;font-size:44px;font-weight:900;padding:8px 28px;border-radius:999px;color:#191F28}
+.lc p{font-size:46px;font-weight:800;margin-top:18px;line-height:1.3;letter-spacing:-2px}
+.lo .k{background:#5BD39A}.mi .k{background:#FFD23F}.hi .k{background:#FF8A7A}
+/* 4 신입 */
+.vs{position:absolute;left:90px;right:90px;top:580px;display:flex;flex-direction:column;gap:36px}
+.v1,.v2{border-radius:36px;padding:44px 50px;font-size:64px;font-weight:900;text-align:center;position:relative}
+.v1{background:#24262B;color:#8A8F98}
+.v1 .ln{position:absolute;left:40px;right:40px;top:50%;height:8px;background:#FF6B5E;border-radius:4px;transform-origin:left}
+.v2{background:#FFD23F;color:#191F28}
+.ck{background:#fff;color:#191F28;border-radius:36px;padding:40px 46px;font-size:46px;font-weight:800;line-height:1.35;display:flex;gap:26px;align-items:flex-start}
+.ck b{flex:none;width:66px;height:66px;border-radius:18px;background:#0B8F5A;color:#fff;font-size:46px;display:flex;align-items:center;justify-content:center}
+/* 5 CTA */
+.app{position:absolute;left:110px;right:110px;top:520px;background:#fff;color:#191F28;border-radius:48px;padding:60px}
+.logo{display:flex;align-items:center;gap:18px;font-size:50px;font-weight:900}
+.app h4{font-size:70px;font-weight:900;line-height:1.25;margin-top:40px;letter-spacing:-4px}
+.app h4 b{color:#0B8F5A}
+.tag{display:inline-block;margin-top:30px;font-size:38px;font-weight:800;padding:12px 26px;border-radius:999px;background:#E8F6EF;color:#0B8F5A}
+.chips{display:flex;gap:16px;margin-top:30px;flex-wrap:wrap}
+.chips span{font-size:38px;font-weight:800;background:#F2F4F6;color:#4E5968;padding:14px 28px;border-radius:999px}
+.btn{margin-top:44px;background:#0B8F5A;color:#fff;font-size:52px;font-weight:900;text-align:center;padding:36px;border-radius:30px}
+</style></head><body>
+<div class="sc" id="s1">
+  <div class="hd">AI가 내 일<br><span class="y">대신하면 어떡해?</span></div>
+  <div class="cards" id="cards">
+    <div class="jc">사무직<span class="q">?</span></div>
+    <div class="jc">디자이너<span class="q">?</span></div>
+    <div class="jc">개발자<span class="q">?</span></div>
+    <div class="jc">간호사<span class="q">?</span></div>
+  </div>
+  <div class="cap" id="c1">요즘 이 걱정 많죠 🤔</div>
+</div>
+<div class="sc" id="s2">
+  <div class="hd">최근 4년 사이<br><span class="y">줄어든 청년 일자리</span></div>
+  <div class="big"><b id="num">0</b><span>개</span></div>
+  <div class="sub">그중 대부분이 AI 영향이 큰 업종</div>
+  <div class="pie" id="pie"></div>
+  <div class="pl" id="pl">94%</div>
+  <div class="cap" id="c2" style="top:1420px">그래서 알고 고르는 게 중요해요</div>
+  <div class="src">출처: 한국은행 BOK 이슈노트 제2026-19호 (2026년 8월)</div>
+</div>
+<div class="sc" id="s3">
+  <div class="hd" style="font-size:88px">일마다<br><span class="y">AI 영향이 달라요</span></div>
+  <div class="lv">
+    <div class="lc lo" id="l1"><span class="k">낮음</span><p>몸으로 하는 현장 일,<br>사람을 직접 돌보는 일</p></div>
+    <div class="lc mi" id="l2"><span class="k">중간</span><p>AI가 돕지만 사람이 판단하고<br>응대하는 부분이 남는 일</p></div>
+    <div class="lc hi" id="l3"><span class="k">높음</span><p>문서·데이터 처리가 많아<br>AI가 많이 대신할 수 있는 일</p></div>
+  </div>
+  <div class="cap" id="c3" style="top:1475px">'높음'이어도 길은 있어요</div>
+</div>
+<div class="sc" id="s4">
+  <div class="hd">그럼 오늘<br><span class="y">뭐부터 하지?</span></div>
+  <div class="vs">
+    <div class="v1" id="v1">AI가 대신하는 신입<div class="ln" id="ln"></div></div>
+    <div class="v2" id="v2">AI를 쓰는 신입 ✨</div>
+    <div class="ck" id="ck"><b>✓</b><span>관심 있는 일의 과제 1개를<br>AI 도구로 해 보고 결과 남기기</span></div>
+  </div>
+  <div class="cap" id="c4">작은 거 하나면 충분해요</div>
+</div>
+<div class="sc" id="s5">
+  <div class="hd">근데 나한테<br><span class="y">맞는 일은 뭐지?</span></div>
+  <div class="app" id="app">
+    <div class="logo"><svg viewBox="0 0 60 80" width="44" height="58"><rect x="12" y="6" width="36" height="16" rx="4" fill="#E0473A"/><rect x="20" y="20" width="20" height="10" rx="4" fill="#A82E25"/><path d="M22 28 L38 28 L40 78 L30 68 L20 78 Z" fill="#E0473A"/></svg>표지기</div>
+    <h4>내 상황에 맞는<br><b>길 3개</b>와<br>길마다 AI 영향까지</h4>
+    <span class="tag">AI 영향 낮음 · 중간 · 높음</span>
+    <div class="chips"><span>약 10분</span><span>무료</span><span>가입 없음</span></div>
+    <div class="btn">프로필 링크에서 시작</div>
+  </div>
+  <div class="cap" id="c5" style="top:1475px">저장해 두고 해 보기</div>
+</div>
+<script>
+const S=[["s1",0,3.4],["s2",3.4,8.2],["s3",8.2,12.8],["s4",12.8,16.8],["s5",16.8,20.5]];
+window.SCENES=S.map(s=>[s[1],s[2]]);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>{x=cl(x);return 1-Math.pow(1-x,3)};
+const $=id=>document.getElementById(id);
+const pop=(el,p,dy=60)=>{const e=ease(p);el.style.opacity=e;el.style.transform=`translateY(${(1-e)*dy}px)`;};
+window.render=t=>{
+  for(const [id,a,b] of S){ const el=$(id); const fi=id==="s1"?1:cl((t-a)/0.25), fo=id==="s5"?1:cl((b-t)/0.25); el.style.opacity=(t>=a-0.001&&t<b+0.25)?Math.min(fi,fo):0; }
+  // 1
+  [...$("cards").children].forEach((el,i)=>{pop(el,(t-0.1-i*0.18)/0.4,50); const q=el.querySelector(".q"); q.style.transform=`rotate(${Math.sin(t*6+i)*12}deg)`;});
+  pop($("c1"),(t-1.6)/0.4,30);
+  // 2
+  const k=ease((t-3.7)/1.4); $("num").textContent=Math.round(285000*k).toLocaleString();
+  const pk=ease((t-5.4)/1.0)*94; $("pie").style.background=`conic-gradient(#FFD23F 0 ${pk}%, #24262B ${pk}% 100%)`;
+  $("pie").style.opacity=ease((t-5.2)/0.3); $("pl").style.opacity=ease((t-6.2)/0.3);
+  pop($("c2"),(t-6.7)/0.4,30);
+  // 3
+  pop($("l1"),(t-8.5)/0.4); pop($("l2"),(t-9.0)/0.4); pop($("l3"),(t-9.5)/0.4); pop($("c3"),(t-10.6)/0.4,30);
+  // 4
+  pop($("v1"),(t-13.0)/0.4); $("ln").style.transform=`translateY(-50%) scaleX(${ease((t-13.6)/0.4)})`;
+  pop($("v2"),(t-14.0)/0.4); pop($("ck"),(t-14.6)/0.4); pop($("c4"),(t-15.4)/0.4,30);
+  // 5
+  pop($("app"),(t-17.0)/0.5); pop($("c5"),(t-18.2)/0.4,30);
+};
+render(0);
+</script></body></html>
