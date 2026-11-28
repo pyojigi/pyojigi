@@ -1,0 +1,111 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#111214}
+body{font-family:"Noto Sans CJK KR",sans-serif;color:#fff;word-break:keep-all;letter-spacing:-2px;position:relative}
+.sc{position:absolute;inset:0;opacity:0}
+.hd{position:absolute;left:60px;right:60px;top:210px;text-align:center;font-size:96px;font-weight:900;line-height:1.22;letter-spacing:-4px}
+.y{color:#FFD23F}
+.cap{position:absolute;left:60px;right:60px;top:1450px;text-align:center;font-size:76px;font-weight:900;letter-spacing:-3px}
+.src{position:absolute;left:0;right:0;top:1580px;text-align:center;font-size:30px;font-weight:500;color:#8A8F98;letter-spacing:0}
+/* 1 메모 */
+.memo{position:absolute;left:110px;right:110px;top:560px;background:#FFF8D6;color:#191F28;border-radius:44px;padding:56px 60px}
+.memo h3{font-size:54px;font-weight:900;margin-bottom:26px}
+.li{display:flex;align-items:center;gap:28px;font-size:52px;font-weight:800;padding:24px 0;border-top:3px solid #EFE6B8}
+.ck{width:62px;height:62px;border:6px solid #191F28;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:#0B8F5A;flex:none}
+.li.q .ck{border-color:#FF6B5E;color:#FF6B5E}
+/* 2 시급 */
+.yr{position:absolute;left:0;right:0;font-size:48px;font-weight:800;color:#C9CDD3;text-align:center}
+.won{position:absolute;left:0;right:0;text-align:center;font-weight:900;letter-spacing:-8px;line-height:1}
+.won span{font-size:90px;letter-spacing:-3px}
+.arrow{position:absolute;left:0;right:0;top:960px;text-align:center;font-size:80px;color:#FFD23F;font-weight:900}
+/* 3 계약서 */
+.doc{position:absolute;left:110px;right:110px;top:540px;background:#fff;color:#191F28;border-radius:40px;padding:50px 60px}
+.doc h3{font-size:58px;font-weight:900;text-align:center;margin-bottom:18px}
+.doc .li{border-top:3px solid #EEF0F3;font-size:50px}
+.doc .ck{border-color:#0B8F5A}
+/* 4 두 카드 */
+.two{position:absolute;left:80px;right:80px;top:560px;display:flex;flex-direction:column;gap:40px}
+.cd{background:#fff;color:#191F28;border-radius:40px;padding:46px 54px}
+.cd .k{display:inline-block;font-size:42px;font-weight:900;padding:10px 30px;border-radius:999px;background:#0B8F5A;color:#fff}
+.cd.b .k{background:#FF6B5E}
+.cd p{font-size:56px;font-weight:900;margin-top:24px;letter-spacing:-3px;line-height:1.25}
+.cd em{display:block;font-style:normal;font-size:38px;font-weight:700;color:#6B7684;margin-top:14px;letter-spacing:-1px}
+/* 5 CTA */
+.app{position:absolute;left:110px;right:110px;top:600px;background:#fff;color:#191F28;border-radius:48px;padding:60px}
+.logo{display:flex;align-items:center;gap:18px;font-size:50px;font-weight:900}
+.app h4{font-size:72px;font-weight:900;line-height:1.25;margin-top:40px;letter-spacing:-4px}
+.app h4 b{color:#0B8F5A}
+.chips{display:flex;gap:16px;margin-top:44px;flex-wrap:wrap}
+.chips span{font-size:38px;font-weight:800;background:#E8F6EF;color:#0B8F5A;padding:14px 28px;border-radius:999px}
+.btn{margin-top:48px;background:#0B8F5A;color:#fff;font-size:52px;font-weight:900;text-align:center;padding:36px;border-radius:30px}
+</style></head><body>
+<div class="sc" id="s1">
+  <div class="hd">수능 끝,<br><span class="y">첫 알바 해 볼까?</span></div>
+  <div class="memo" id="memo"><h3>📝 겨울방학에 할 일</h3>
+    <div class="li"><div class="ck" id="m1">✓</div>늦잠 자기</div>
+    <div class="li"><div class="ck" id="m2">✓</div>친구랑 놀기</div>
+    <div class="li q"><div class="ck" id="m3">?</div>첫 알바 해 보기</div>
+  </div>
+  <div class="cap" id="c1">시작 전에 이것만 👀</div>
+</div>
+<div class="sc" id="s2">
+  <div class="hd">시급은<br><span class="y">최저임금 이상</span></div>
+  <div class="yr" style="top:600px">2026년 시급</div>
+  <div class="won" id="w1" style="top:680px;font-size:200px"><b id="n1">0</b><span>원</span></div>
+  <div class="arrow" id="ar">↓</div>
+  <div class="yr" id="y2" style="top:1080px;color:#FFD23F">2027년 1월 1일부터</div>
+  <div class="won" id="w2" style="top:1160px;font-size:200px;color:#FFD23F"><b id="n2">10,700</b><span>원</span></div>
+  <div class="src" style="top:1500px">출처: 고용노동부 최저임금 고시 (2026년 11월 기준)</div>
+</div>
+<div class="sc" id="s3">
+  <div class="hd">근로계약서<br><span class="y">받고 사진 찍기</span></div>
+  <div class="doc"><h3>근로계약서</h3>
+    <div class="li" id="d1"><div class="ck">✓</div>시급</div>
+    <div class="li" id="d2"><div class="ck">✓</div>일하는 날 · 시간</div>
+    <div class="li" id="d3"><div class="ck">✓</div>쉬는 시간</div>
+    <div class="li" id="d4"><div class="ck">✓</div>월급날</div>
+  </div>
+  <div class="cap" id="c3" style="top:1390px">들은 말과 같은지 확인</div>
+  <div class="src" style="top:1500px">출처: 찾기쉬운 생활법령 근로청소년 (2026년 11월 기준)</div>
+</div>
+<div class="sc" id="s4">
+  <div class="hd">지원할 때<br><span class="y">이것도 물어보기</span></div>
+  <div class="two">
+    <div class="cd" id="k1"><span class="k">주휴수당</span><p>1주 15시간 이상 일하면<br>쉬는 날도 돈을 받아요</p><em>그래서 1주 몇 시간인지 꼭 묻기</em></div>
+    <div class="cd b" id="k2"><span class="k">18세 미만</span><p>밤 10시~아침 6시는<br>원칙적으로 일 못 해요</p><em>하루 7시간 · 1주 35시간까지</em></div>
+  </div>
+  <div class="src" style="top:1500px">출처: 찾기쉬운 생활법령 근로청소년 (2026년 11월 기준)</div>
+</div>
+<div class="sc" id="s5">
+  <div class="hd">알바 말고 나한테<br><span class="y">맞는 길은 뭐지?</span></div>
+  <div class="app" id="app">
+    <div class="logo"><svg viewBox="0 0 60 80" width="44" height="58"><rect x="12" y="6" width="36" height="16" rx="4" fill="#E0473A"/><rect x="20" y="20" width="20" height="10" rx="4" fill="#A82E25"/><path d="M22 28 L38 28 L40 78 L30 68 L20 78 Z" fill="#E0473A"/></svg>표지기</div>
+    <h4>내 상황에 맞는<br><b>길 3개</b>와<br>받을 수 있는 지원까지</h4>
+    <div class="chips"><span>약 10분</span><span>무료</span><span>가입 없음</span></div>
+    <div class="btn">프로필 링크에서 시작</div>
+  </div>
+  <div class="cap" id="c5">방학 첫 주에 해 보기</div>
+</div>
+<script>
+const S=[["s1",0,3.4],["s2",3.4,7.6],["s3",7.6,11.6],["s4",11.6,15.6],["s5",15.6,19]];
+window.SCENES=S.map(s=>[s[1],s[2]]);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>{x=cl(x);return 1-Math.pow(1-x,3)};
+const $=id=>document.getElementById(id);
+const pop=(el,p,dy=60)=>{const e=ease(p);el.style.opacity=e;el.style.transform=`translateY(${(1-e)*dy}px)`;};
+const fmt=n=>n.toLocaleString("en-US");
+window.render=t=>{
+  for(const [id,a,b] of S){ const el=$(id); const fi=id==="s1"?1:cl((t-a)/0.25), fo=id==="s5"?1:cl((b-t)/0.25); el.style.opacity=(t>=a-0.001&&t<b+0.25)?Math.min(fi,fo):0; }
+  pop($("memo"),(t-0.05)/0.45);
+  $("m1").style.opacity=ease((t-0.5)/0.2); $("m2").style.opacity=ease((t-0.8)/0.2);
+  const q=ease((t-1.1)/0.3); $("m3").style.transform=`scale(${1+0.4*Math.sin(q*Math.PI)})`;
+  pop($("c1"),(t-1.6)/0.4,30);
+  const k=ease((t-3.7)/1.2); $("n1").textContent=fmt(Math.round(10320*k/10)*10);
+  pop($("ar"),(t-5.1)/0.3,-30); pop($("y2"),(t-5.4)/0.35,30); pop($("w2"),(t-5.6)/0.4,40);
+  ["d1","d2","d3","d4"].forEach((d,i)=>pop($(d),(t-7.9-i*0.4)/0.35,30));
+  pop($("c3"),(t-9.8)/0.4,30);
+  pop($("k1"),(t-11.8)/0.45); pop($("k2"),(t-12.8)/0.45);
+  pop($("app"),(t-15.8)/0.5); pop($("c5"),(t-16.8)/0.4,30);
+};
+render(0);
+</script></body></html>
